@@ -76,35 +76,12 @@ import Footer from '@/components/footer/footer.vue'; // 풋터 불러오기
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* 페이지 전체를 채우도록 설정 */
+    min-height: 80vh; /* 페이지 전체를 채우도록 설정 */
   }
   .container{
-    height: 100vh;
+    height: 80vh;
   }
-  
-  /* header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: #fff;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .logo {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .menu {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .menu div {
-    cursor: pointer;
-  } */
-  
+    
   .search-container {
     display: flex;
     justify-content: flex-end; /* 오른쪽 정렬 */
@@ -116,7 +93,7 @@ import Footer from '@/components/footer/footer.vue'; // 풋터 불러오기
     width: 300px;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 25px 0 0 25px;
+    /* border-radius: 25px 0 0 25px; */
     outline: none;
   }
   
@@ -125,7 +102,7 @@ import Footer from '@/components/footer/footer.vue'; // 풋터 불러오기
     border: 1px solid #007bff;
     background-color: #007bff;
     color: white;
-    border-radius: 0 25px 25px 0;
+    /* border-radius: 0 25px 25px 0; */
     cursor: pointer;
   }
   
@@ -137,11 +114,13 @@ import Footer from '@/components/footer/footer.vue'; // 풋터 불러오기
   }
   
   .card {
-    width: 300px;
+    width: 500px;
+    height: 60vh;
     border: 1px solid #ccc;
     border-radius: 5px;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
   }
   
   .card-img-top {
@@ -169,24 +148,5 @@ import Footer from '@/components/footer/footer.vue'; // 풋터 불러오기
     color: #999;
   }
   
-  /* footer {
-    background-color: #f8f9fa;
-    padding: 20px;
-    text-align: center;
-    border-top: 1px solid #ccc;
-    position: relative;
-    bottom: 0;
-    width: 100%;
-    height: 15vh;
-  }
-  
-  .footer {
-    display: flex;
-    justify-content: space-around;
-  }
-  
-  .footer div {
-    cursor: pointer;
-  } */
   </style>
   
