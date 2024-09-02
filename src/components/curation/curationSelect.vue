@@ -1,5 +1,4 @@
 <template>
-    <Header />
     <div class="container">
         <div class="select">
             <p>보유하고 있는 자격증 또는 취득할 자격증을 선택하세요.</p>
@@ -12,13 +11,11 @@
             <button class="btn btn-outline-secondary" type="button" id="button-addon2">선택 완료</button>
         </div>
     </div>
-    <Footer />
 </template>
 
 <script setup>
-import Header from '@/components/header/header.vue'; // 헤더 컴포넌트 임포트
-import Footer from '@/components/footer/footer.vue'; // 풋터 불러오기
-import '@/assets/css/curation/curationSelect.css'
+
+
 </script>
 
 <style>
