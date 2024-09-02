@@ -1,9 +1,10 @@
 <script setup>
-import IndexView from './components/index.vue'
+
+
 </script>
 
 <template>
-  <IndexView /> 
+  <router-view></router-view>
 </template>
 
 <style scoped>

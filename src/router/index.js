@@ -1,19 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import IndexView from '../components/index.vue' 
+// import {
+//   useCurationStore,
+// } from "@/stores/rootstore.js";
+
+const Main = () => import("../views/indexView.vue");
+const Curation = () => import("../views/curationView.vue")
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'index',
-      component: IndexView
+      name: 'home',
+      component: Main
     },
     {
-      // path: '/about',
-      // name: 'about',
-      // component: () => import('../views/AboutView.vue')
-    }
+      path: '/curationselect',
+      name: 'curationselect',
+      component: Curation
+    },
   ]
 })
 

@@ -12,5 +12,5 @@
 
   </template>
   <script setup>
-   import '@/assets/css/footer/footer.css';
+   import '@/assets/css/footer.css';
  </script>
