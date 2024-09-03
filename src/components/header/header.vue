@@ -4,22 +4,20 @@
       전직시
     </div>
     <nav class="menu">
-      <div>자격증</div>
-      <div @click="navigateToCuration">채용</div>
-      <div>자유게시판</div>
-      <div>마이페이지</div>
-      <div>로그인</div>
+      <RouterLink to="/certificate">자격증</RouterLink>
+      <RouterLink to="/curationselect">채용</RouterLink>
+      <RouterLink to="/">자유게시판</RouterLink>
+      <RouterLink to="/">마이페이지</RouterLink>
+      <RouterLink to="/">로그인</RouterLink>
     </nav>
   </header>
 </template>
   
 <script setup>
-import { useRouter } from 'vue-router'; 
+import { RouterLink } from 'vue-router';
 import '@/assets/css/header.css';
-
-const router = useRouter();
-
-const navigateToCuration = () => {
-  router.push({ name: 'curationselect'});
-};
 </script>
+
+<style scoped>
+
+</style>

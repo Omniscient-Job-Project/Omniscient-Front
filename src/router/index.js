@@ -4,7 +4,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 // } from "@/stores/rootstore.js";
 
 const Main = () => import("../views/indexView.vue");
-const Curation = () => import("../views/curationView.vue")
+const Curation = () => import("../views/curationView.vue");
+const Certificate = () => import("../components/certificate/certificate.vue");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,6 +20,11 @@ const router = createRouter({
       name: 'curationselect',
       component: Curation
     },
+    {
+      path: '/certificate',
+      name: 'certificate',
+      component: Certificate
+    }
   ]
 })
 
