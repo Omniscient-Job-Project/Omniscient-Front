@@ -104,19 +104,7 @@ const filteredList = computed(() => {
 </script>
 
 
-<style scoped>
-  /* 전체 레이아웃 */
-  body {
-    
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    min-height: 80vh; /* 페이지 전체를 채우도록 설정 */
-  }
-  
+<style scoped>  
   /* 박스 컨테이너 스타일 */
   .box-container {
     background-color: #E6F3FF;
@@ -134,7 +122,7 @@ const filteredList = computed(() => {
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     margin: 10px;
-    width: 55%; /* 너비를 반으로 줄임 */
+    width: 53%; /* 너비를 반으로 줄임 */
   }
 
   .box1 div {
@@ -153,7 +141,7 @@ const filteredList = computed(() => {
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     margin: 10px;
-    width: 50%; /* 너비를 반으로 줄임 */
+    width: 55%; /* 너비를 반으로 줄임 */
     position: relative; /* 위치 조정을 위한 relative 설정 */
     max-width: 1000px; /* 최대 너비 설정 */
     height: 400px; /* 높이를 600px로 설정 */
