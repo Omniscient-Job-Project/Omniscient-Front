@@ -62,7 +62,7 @@
 import { ref } from 'vue';
 import Header from '../header/header.vue';
 import Footer from '../footer/footer.vue';
-import ProfilePage from './ProfilePage.vue';
+import ProfilePage from './profilePage.vue';
 
 // 현재 페이지 상태
 const currentPage = ref(null);

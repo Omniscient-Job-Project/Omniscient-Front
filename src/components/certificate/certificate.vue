@@ -2,15 +2,19 @@
   <Header />
 
   <div class="box-container">
-
     <div class="box1">
-      <div>분야</div>
-      <div>자격증 종류</div>
-      <div>일정</div>
+      <div class="box1-item">분야</div>
+      <div class="box1-item">자격증 종류</div>
+      <div class="box1-item">일정</div>
     </div>
     
     <div class="box2">
-      <!-- 박스 안 검색창 -->
+      <div class="info-box">
+        <div class="info-item">경영 회계 사무</div>
+        <div class="info-item">국가 기술 자격</div>
+        <div class="info-item">시험일</div>
+      </div>
+
       <div class="search-box">
         <input 
           type="text" 
@@ -23,7 +27,6 @@
         />
         <div class="search-icon-box"></div>
         
-        <!-- 자동완성 리스트 -->
         <ul v-if="isFocus && filteredList.length > 0" class="autocomplete-list">
           <li v-for="item in filteredList" :key="item.id" @mousedown="selectItem(item)">
             {{ item.name }}
@@ -31,14 +34,6 @@
         </ul>
       </div>
 
-      <!-- 정보 박스 -->
-      <div class="info-box">
-        <div class="info-item">경영 회계 사무</div>
-        <div class="info-item">국가 기술 자격</div>
-        <div class="info-item">시험일</div>
-      </div>
-
-      <!-- 검색 버튼 -->
       <button class="search-button-box" @click="handleSearch">
         검색
       </button>
@@ -48,22 +43,18 @@
   <Footer />
 </template>
 
-
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, computed } from 'vue';
-import Header from '@/components/header/header.vue'; // 헤더 컴포넌트 임포트
-import Footer from '@/components/footer/footer.vue'; // 풋터 불러오기
+import Header from '@/components/header/header.vue';
+import Footer from '@/components/footer/footer.vue';
 
-// 나중에 자격증 api 가져오면 여기에 api list를 넣으면 됨.
-// 상태 정의
 const dataList = ref([
   { id: 1, name: '정보처리기사' },
   { id: 2, name: '정보처리산업기사' },
   { id: 3, name: '네트워크관리사' },
   { id: 4, name: '리눅스마스터' },
   { id: 5, name: '컴퓨터활용능력' },
-  // 추가 항목들
 ]);
 
 const searchTerm = ref('');
@@ -71,14 +62,12 @@ const isFocus = ref(false);
 const selectedObj = ref(null);
 const router = useRouter();
 
-
-// 메서드 정의
 const handleInput = (e) => {
   searchTerm.value = e.target.value;
 };
 
 const handleSearch = () => {
-  console.log('검색어:', searchTerm.value); // 콘솔 로그 출력
+  console.log('검색어:', searchTerm.value);
   router.push({ name: 'certificateSearch', query: { searchTerm: searchTerm.value } });
 };
 
@@ -89,10 +78,9 @@ const setListOpen = (isOpen) => {
 const selectItem = (item) => {
   selectedObj.value = item;
   searchTerm.value = item.name;
-  setListOpen(false); // 자동완성 리스트 닫기
+  setListOpen(false);
 };
 
-// 필터링된 리스트 계산
 const filteredList = computed(() => {
   if (searchTerm.value === '') {
     return [];
@@ -103,139 +91,177 @@ const filteredList = computed(() => {
 });
 </script>
 
+<style scoped>
+.box-container {
+  background-color: #E6F3FF;
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
 
-<style scoped>  
-  /* 박스 컨테이너 스타일 */
-  .box-container {
-    background-color: #E6F3FF;
-    height: 70vh;
-    display: flex;
-    flex-direction: column; /* 박스를 세로로 나열 */
-    align-items: center; /* 박스를 중앙 정렬 */
-  }
-  
-  .box1 {
-    display: flex;
-    justify-content: space-between; /* 내부 박스들 사이에 균등하게 간격을 둠 */
-    border: 2px solid #000;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    margin: 10px;
-    width: 53%; /* 너비를 반으로 줄임 */
-  }
+.box1 {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 1000px;
+  margin-bottom: 20px;
+}
 
-  .box1 div {
-    flex: 1; /* 각 항목이 컨테이너 내에서 동일한 비율로 확장 */
-    text-align: center; /* 텍스트 중앙 정렬 */
-    padding: 10px;
-  }
+.box1-item {
+  flex: 1;
+  padding: 15px;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  text-align: center;
+  margin: 0 10px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  .box2 {
-    display: flex;
-    flex-direction: column; /* 세로로 나열 */
-    align-items: flex-start; /* 왼쪽 정렬 */
-    padding: 20px;
-    border: 2px solid #000;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    margin: 10px;
-    width: 55%; /* 너비를 반으로 줄임 */
-    position: relative; /* 위치 조정을 위한 relative 설정 */
-    max-width: 1000px; /* 최대 너비 설정 */
-    height: 400px; /* 높이를 600px로 설정 */
-    box-sizing: border-box;
-  }
+.box2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 1000px;
+  position: relative; /* 자식 요소의 절대 위치를 위한 relative 설정 */
+  height: 600px; /* 높이 값을 늘림 */
+  margin-bottom: 0; /* box2와 footer 사이의 공백 제거 */
+  /* 필요에 따라 overflow: hidden;을 추가할 수 있습니다. */
+}
 
-  /* 검색창 스타일 */
-  .search-box {
-    position: relative; /* 아이콘을 input 박스에 상대적으로 위치시키기 위해 설정 */
-    display: flex;
-    align-items: center;
-    width: 40%; /* 필요에 따라 조정 */
-  }
+
+.search-box {
+  position: absolute;
+  top: 20px; /* box2의 상단에서 20px 아래에 위치 */
+  left: 20px; /* box2의 왼쪽에서 20px 오른쪽에 위치 */
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 40px; /* search-box와 info-box 사이의 간격을 넓힘 */
+}
 
 .search-input-box {
-  width: 100%; /* 전체 너비 사용 */
-  padding: 10px;
-  padding-right: 40px; /* 아이콘 크기만큼 여백 추가 */
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  width: 100%;
+  padding: 15px;
+  padding-right: 40px;
+  border: 2px solid #007bff;
+  border-radius: 25px;
+  font-size: 16px;
   outline: none;
-  }
+}
 
 .search-icon-box {
-  position: absolute; /* 절대 위치로 아이콘을 위치시킴 */
-  right: 10px; /* 입력 박스 오른쪽에서 10px 떨어지도록 위치 조정 */
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 20px;
   height: 20px;
   cursor: pointer;
-  }
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="20px" height="20px"><path d="M0 0h24v24H0z" fill="none"/><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>');
+  background-repeat: no-repeat;
+  background-size: contain;
+}
 
-
-  /* 자동완성 리스트 스타일 */
-  .autocomplete-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    z-index: 1000;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
-  .autocomplete-list li {
-    padding: 10px;
-    cursor: pointer;
-  }
-
-  .autocomplete-list li:hover {
-    background-color: #f0f0f0;
-  }
-
-  /* 정보 박스 스타일 */
-  .info-box {
-    display: flex;
-    justify-content: space-between; /* 항목들 사이에 간격을 둡니다 */
-    width: 100%; /* 박스의 너비를 설정 */
-    margin:10px 0 60px; /* 검색 버튼과의 겹침 방지를 위한 여백 추가 */
-  }
-
-  .info-item {
-  padding: 10px;
+.autocomplete-list {
+  position: absolute;
+  top: 100%; /* search-box의 하단에 위치 */
+  left: 0; /* search-box의 왼쪽에 맞추어 위치 */
+  width: 100%; /* search-box의 너비에 맞추어 너비 설정 */
+  max-width: 500px; /* search-box의 최대 너비와 동일하게 설정 */
+  background: white;
   border: 1px solid #ccc;
-  border-radius: 5px;
-  text-align: center;
+  border-radius: 20px;
+  z-index: 1000;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.autocomplete-list li {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.autocomplete-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.info-box {
+  display: flex;
+  justify-content: center; /* 수평 가운데 정렬 */
+  width: 100%;
+  max-width: 800px; /* 중앙에 배치되도록 최대 너비 설정 */
+  margin: 80px 0 0; /* 상단 여백 조정: search-box와의 간격을 넓힘 */
+}
+
+.info-item {
   flex: 1;
-  margin: 0 5px; /* 각 박스 사이 간격 설정 */
-  }
+  padding: 15px;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  text-align: center;
+  margin: 0 10px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
 
-  .info-box div {
-    padding: 10px;
-    border: 2px solid #000;
-    border-radius: 5px;
-    text-align: center;
-    flex: 1; /* 각 항목이 동일한 비율로 확장 */
-  }
+.info-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-  /* 검색 버튼 스타일 */
-  .search-button-box {
-  padding: 5px 40px;
+.search-button-box {
+  position: absolute;
+  bottom: 20px; /* box2의 하단에서 20px 위에 위치 */
+  right: 20px; /* box2의 오른쪽에서 20px 왼쪽에 위치 */
+  padding: 12px 40px;
   border: none;
   background-color: #007bff;
   color: white;
-  border-radius: 5px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
-  position: absolute; /* 절대 위치 설정 */
-  bottom: 20px; /* 박스 바닥에서 20px 위로 위치 조정 */
-  right: 20px; /* 박스 오른쪽에서 20px 위치 조정 */
-  text-decoration: none; /* 기본 밑줄 제거 */
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.search-button-box:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .box1, .info-box {
+    flex-direction: column;
   }
+
+  .box1-item, .info-item {
+    margin: 5px 0;
+  }
+
+  .search-input-box {
+    font-size: 14px;
+  }
+
+  .search-button-box {
+    padding: 10px 30px;
+    font-size: 14px;
+  }
+}
+
+
 </style>
