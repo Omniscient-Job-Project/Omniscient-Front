@@ -1,17 +1,15 @@
 <script setup>
-import Header from '@/components/header/header.vue'; // 헤더 컴포넌트 임포트
-// import CurationMain from '@/components/curation/curationMain.vue';
-import Footer from '@/components/footer/footer.vue'; // 풋터 불러오기
-// import CurationSelect from '@/components/curation/curationSelect.vue';
-import curationDetail from '@/components/curation/curationDetail.vue';
+import Header from '@/components/header/header.vue';
+import Footer from '@/components/footer/footer.vue';
+import Section from '@/components/curation/curationSection.vue'
+
 </script>
 
 <template>
-    <Header />
-    <!-- \   <CurationMain /> -->
-    <!-- <CurationSelect /> -->
-    <curationDetail />
-    <Footer />
+  <Header />
+    <Section />
+  <Footer />
 </template>
 
-<style></style>
+<style>
+</style>
