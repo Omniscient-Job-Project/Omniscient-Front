@@ -40,9 +40,7 @@
           </div>
         </div>
         <ProfilePage v-else-if="currentPage === 'profilePage'" />
-        <div v-else-if="currentPage === 'resumePage'" class="resume-page">
-          <h1>이력서 관리</h1>
-        </div>
+        <ResumeManagement v-else-if="currentPage === 'resumePage'" />
         <div v-else-if="currentPage === 'applicationsPage'" class="applications-page">
           <h1>지원 현황</h1>
         </div>
@@ -60,9 +58,14 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import Header from '../header/header.vue';
 import Footer from '../footer/footer.vue';
 import ProfilePage from './profilePage.vue';
+import ResumeManagement from './resumeManagementPage.vue';
+import ResumeEditPage from './resumeEditPage.vue';
+
+const router = useRouter();
 
 // 현재 페이지 상태
 const currentPage = ref(null);
@@ -90,11 +93,18 @@ const summaryItems = [
 // 버튼 클릭 시 현재 페이지 설정
 const setCurrentPage = (page) => {
   currentPage.value = page;
+  if (page === 'resumePage') {
+    router.push({ name: 'resumeManagement' });
+  } else if (page === 'profilePage') {
+    router.push({ name: 'profilePage' });
+  } else {
+    router.push({ name: 'mypage' });
+  }
 }
 
 // 버튼 클릭 핸들러
 const writeResume = () => {
-  console.log('이력서 작성 페이지로 이동');
+  setCurrentPage('resumePage');
 }
 
 const showRecommendations = () => {

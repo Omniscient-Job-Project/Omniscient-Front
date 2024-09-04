@@ -54,13 +54,13 @@
             </div>
           </div>
         </div>
+        <div class="button-container">
+          <button @click="toggleEditMode" class="edit-button" :class="{ 'save-mode': isEditing }">
+            <i :class="isEditing ? 'fas fa-save' : 'fas fa-edit'"></i>
+            {{ isEditing ? '저장' : '수정' }}
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="button-container">
-      <button @click="toggleEditMode" class="edit-button" :class="{ 'save-mode': isEditing }">
-        <i :class="isEditing ? 'fas fa-save' : 'fas fa-edit'"></i>
-        {{ isEditing ? '저장' : '수정' }}
-      </button>
     </div>
   </div>
 </template>
@@ -114,10 +114,9 @@ const handleImageUpload = (event) => {
 </script>
 
 <style scoped>
-/* 스타일은 이전과 동일하게 유지 */
 .profile-page {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -138,7 +137,7 @@ const handleImageUpload = (event) => {
 }
 
 .profile-right {
-  flex: 1;
+  flex: 2;
   display: flex;
   flex-direction: column;
 }
@@ -156,9 +155,12 @@ const handleImageUpload = (event) => {
   height: 100%;
 }
 
-.additional-info, .certificates {
+.additional-info {
+  flex: 2;  /* 추가 정보 섹션의 크기를 2배로 늘림 */
+}
+
+.certificates {
   flex: 1;
-  width: 100%;
 }
 
 .section-title {
@@ -272,8 +274,8 @@ const handleImageUpload = (event) => {
 }
 
 .button-container {
-  text-align: center;
-  margin-top: 30px;
+  text-align: right;
+  margin-top: 20px;
 }
 
 .edit-button {
@@ -316,7 +318,11 @@ const handleImageUpload = (event) => {
   }
 
   .additional-info, .certificates {
-    width: 100%;
+    flex: 1;
+  }
+
+  .button-container {
+    text-align: center;
   }
 }
 
