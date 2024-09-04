@@ -1,182 +1,251 @@
 <template>
-    <body>
+  <body>
     <div class="curationMaincontainer">
-        <!-- 메인페이지 검색창 -->
-        <div class="search-bar">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="검색할 내용" aria-label="검색"
-                    aria-describedby="button-addon2">
-                <button class="btn btn-outline-secondary" type="button" id="button-addon2">검색</button>
-            </div>
+      <!-- 자격증 검색 -->
+      <div class="selectcontainer">
+        <div class="select">
+          <p>보유하고 있는 자격증 또는 취득할 자격증을 선택하세요.</p>
         </div>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="자격증의 이름을 입력하세요." aria-label="자격증" aria-describedby="button-addon2">
+        </div>
+        <div class="button-container">
+          <button class="btn btn-outline-secondary" type="button" @click="onSelectComplete">선택 완료</button>
+        </div>
+      </div>
+      <!-- 자격증 검색 끝 -->
 
-        <!-- 큐레이션 -->
-        <div class="curationIndex">
-            <div>
-                <p>홈</p>
-            </div>
-            <div>
-                <p>자격증</p>
-            </div>
-            <div>
-                <p>지하철</p>
-            </div>
-            <div>
-                <p>등등</p>
-            </div>
+      <!-- 그 외 큐레이션 부분 -->
+      <div class="curationIndex">
+          <div>
+            <p>홈</p>
+          </div>
+          <div>
+            <p>자격증</p>
+          </div>
+          <div>
+            <p>지하철</p>
+          </div>
+          <div>
+            <p>등등</p>
+          </div>
         </div>
+       
+      <!-- 메인페이지 검색창 -->
+      <div class="search-bar">
+        <div class="cardinput">
+          <input type="text" class="form-control" placeholder="채용 정보를 검색해보세요." aria-label="검색" aria-describedby="button-addon2">
+          <button class="btn btn-outline-secondary" type="button" id="button-addon2">검색</button>
+        </div>
+      </div>
 
-        <!-- 채용정보 카드 -->
-        <div class="recruitmentCards">
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-                <div class="col">
-                    <div class="card">
-                        <img src="..." class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">채용 제목</h5>
-                            <p class="card-text">fdsafdsafdsafsd</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <img src="..." class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">This is a longer card with supporting text below as a natural lead-in
-                                to additional content. This content is a little bit longer.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <img src="..." class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">This is a longer card with supporting text below as a natural lead-in
-                                to additional content.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <img src="..." class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text"></p>
-                        </div>
-                    </div>
-                </div>
+      <!-- 채용정보 카드 -->
+
+      <div class="recruitmentCards">
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+          <div class="col" @click="goToDetail">
+            <div class="card">
+              <img src="..." class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">채용 제목</h5>
+                <p class="card-text">fdsafdsafdsafsd</p>
+              </div>
             </div>
+          </div>
+          <div class="col" @click="goToDetail">
+            <div class="card">
+              <img src="..." class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col" @click="goToDetail">
+            <div class="card">
+              <img src="..." class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col" @click="goToDetail">
+            <div class="card">
+              <img src="..." class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
         </div>
-        <!-- 채용정보카드 끝 -->
+      </div>
+      <!-- 채용정보카드 끝 -->
     </div>
-            
-</body>
+  </body>
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
+
+// 카드를 클릭하면 CurationDetail 페이지로 이동
+function goToDetail() {
+  router.push({ name: 'curation-detail' });
+}
 </script>
 
 <style>
-body{
-    background-color: #E6F3FF;
+
+body {
+  background-color: #E6F3FF;
 }
+
 /* 전체 컨테이너 레이아웃 */
 .curationMaincontainer {
-    font-family: Arial, sans-serif;
-    margin: 0 auto; /* 좌우 마진을 자동으로 설정하여 중앙 정렬 */
-    background-color: #ffffff;
-    padding: 20px; /* 전체 패딩 설정 */
-    box-sizing: border-box;
-    width: 70%;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* 내부 요소들을 수평으로 중앙 정렬 */
-    border: 1px solid #ffffff; /* 수정: '#' 추가 */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* 그림자 효과 추가 */
+  font-family: Arial, sans-serif;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 20px;
+  box-sizing: border-box;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* 자격증 검색 큐레이션 css */
+.selectcontainer {
+  width: 100%;
+  border: 1px solid #ddd;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.select p {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.input-group {
+  width: 100%;
+}
+
+.form-control {
+  width: 100%;
+  height: 6vh;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.btn {
+  width: 150px; /* 너비를 더 넓히기 */
+  height: 6vh;
+  background-color: #0166FF;
+  color: white;
+}
+
+.btn:hover {
+  background-color: #002e83;
+  color: white;
 }
 
 /* 검색창 스타일 */
 .search-bar {
-    display: flex;
-    justify-content: flex-end; /* 검색창을 오른쪽 정렬 */
-    width: 100%;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: 30px; /* 검색창 아래에 여유 공간 추가 */
+}
+
+.search-bar .cardinput {
+  display: flex;
+  align-items: center; /* input과 버튼을 수직으로 가운데 정렬 */
 }
 
 .search-bar input {
-    height: 5vh;
-    width: 300px;
+  height: 40px; 
+  width: 300px;
+  margin-right: 10px; /* 인풋창과 버튼 사이의 간격 추가 */
 }
 
-.btn {
-    width: 50px;
-    height: 6vh;
+.search-bar .btn {
+  height: 45px; 
+  width: 80px;
 }
-
 
 /* 버튼 색상 및 호버 효과 */
 .btn-outline-secondary {
-    background-color: #007bff; /* 버튼 배경색 변경 */
-    color: white; /* 글자색 변경 */
-    border: none; /* 경계선 제거 */
+  background-color: #007bff;
+  color: white;
+  border: none;
 }
 
 .btn-outline-secondary:hover {
-    background-color: #0056b3; /* 호버 시 배경색 변경 */
-    color: white; /* 호버 시 글자색 유지 */
-    transition: background-color 0.3s; /* 부드러운 전환 효과 */
+  background-color: #0056b3;
+  color: white;
+  transition: background-color 0.3s;
 }
 
 /* 큐레이션 박스 스타일 */
 .curationIndex {
-    border: 1px solid #ddd; /* 보더 박스 */
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-    padding: 15px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-around; /* 각 p 태그 간 간격을 적절히 조정 */
-    width: 100%; /* 큐레이션 박스를 컨테이너 너비에 맞춤 */
+  border: 1px solid #ddd;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
 }
 
 .curationIndex div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 채용정보 카드 스타일 */
 .recruitmentCards {
-    width: 100%;
-    margin: 10px 10px 10px 10px;
+  width: 100%;
+  margin: 0 auto; /* 가운데 정렬 */
 }
 
 .recruitmentCards .row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center; /* 카드들을 가운데 정렬 */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .recruitmentCards .col {
-    width: calc(50% - 10px); /* 가로로 2개씩 배치되도록 설정 (간격 조정 포함) */
-    margin-bottom: 20px; /* 카드 간 간격 */
-    display: flex; /* Flexbox 활성화 */
+  width: calc(50% - 10px);
+  margin-bottom: 20px;
+  display: flex;
 }
 
 .card {
-    border: 1px solid #ddd; /* 카드 보더 */
-    margin: 0px 10px 0px 10px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-    flex: 1; /* 카드가 가능한 공간을 모두 차지하도록 설정 */
-    display: flex;
-    flex-direction: column; /* 카드 내용을 세로로 정렬 */
+  border: 1px solid #ddd;
+  margin: 0px 10px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-body {
-    padding: 15px;
-    flex-grow: 1; /* 카드 내용이 가능한 공간을 모두 차지하도록 설정 */
+  padding: 15px;
+  flex-grow: 1;
 }
+
+
 
 </style>
