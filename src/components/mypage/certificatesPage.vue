@@ -56,7 +56,7 @@
 
 <script setup>
 import { ref } from 'vue';
-
+ 
 const certificates = ref([
   { name: '정보처리기사', date: '2023-05-15', issuer: '한국산업인력공단', number: '23-12-1234', isOpen: false },
   { name: 'SQLD', date: '2023-08-20', issuer: '한국데이터산업진흥원', number: 'SQL-2023-12345', isOpen: false },

@@ -43,9 +43,7 @@
         <div v-else-if="currentPage === 'applicationsPage'" class="applications-page">
           <h1>지원 현황</h1>
         </div>
-        <div v-else-if="currentPage === 'scrapPage'" class="scrap-page">
-          <h1>스크랩</h1>
-        </div>
+        <ScrapPage v-else-if="currentPage === 'scrapPage'" />
         <CertificatesPage 
           v-else-if="currentPage === 'certificatesPage'" 
           v-model:certificates="certificates"
@@ -63,6 +61,7 @@ import Footer from '@/components/footer/footer.vue';
 import ProfilePage from '@/components/mypage/profilePage.vue';
 import ResumeManagementPage from '@/components/mypage/resumeManagementPage.vue';
 import CertificatesPage from '@/components/mypage/certificatesPage.vue';
+import ScrapPage from '@/components/mypage/scrapPage.vue';
 
 export default {
   name: 'MyPage',
@@ -71,7 +70,8 @@ export default {
     Footer,
     ProfilePage,
     ResumeManagementPage,
-    CertificatesPage
+    CertificatesPage,
+    ScrapPage
   },
   data() {
     return {
