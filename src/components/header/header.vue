@@ -1,7 +1,9 @@
 <template>
   <header>
     <div class="logo">
+      <RouterLink to="/" style="text-decoration: none;">
       전직시
+      </RouterLink>
     </div>
     <nav class="menu">
       <RouterLink to="/certificate">자격증</RouterLink>
@@ -19,5 +21,4 @@ import '@/assets/css/header.css';
 </script>
 
 <style scoped>
-
 </style>

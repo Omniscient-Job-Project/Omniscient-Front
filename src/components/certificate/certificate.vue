@@ -1,42 +1,57 @@
 <template>
   <Header />
 
-  <div class="box-container">
-    <div class="box1">
-      <div class="box1-item">분야</div>
-      <div class="box1-item">자격증 종류</div>
-      <div class="box1-item">일정</div>
-    </div>
+  <div class="main-container">
+    <Sidebar />
     
-    <div class="box2">
-      <div class="info-box">
-        <div class="info-item">경영 회계 사무</div>
-        <div class="info-item">국가 기술 자격</div>
-        <div class="info-item">시험일</div>
-      </div>
+    <div class="content-container">
+      <div class="box2">
+        <!-- 인포그래픽 또는 설명 섹션 -->
+        <div class="info-section">
+          <h2>자격증 검색</h2>
+          <p>자격증을 검색하여 필요한 정보를 빠르게 찾아보세요. 인기 있는 자격증과 유용한 검색 팁도 제공됩니다.</p>
+        </div>
 
-      <div class="search-box">
-        <input 
-          type="text" 
-          class="search-input-box" 
-          placeholder="분야를 입력해주세요" 
-          :value="searchTerm" 
-          @input="handleInput" 
-          @blur="() => setListOpen(false)" 
-          @focus="() => setListOpen(true)" 
-        />
-        <div class="search-icon-box"></div>
-        
-        <ul v-if="isFocus && filteredList.length > 0" class="autocomplete-list">
-          <li v-for="item in filteredList" :key="item.id" @mousedown="selectItem(item)">
-            {{ item.name }}
-          </li>
-        </ul>
-      </div>
+        <!-- 인기 자격증 섹션 -->
+        <div class="popular-certifications">
+          <h3>인기 자격증</h3>
+          <ul>
+            <li>정보처리기사</li>
+            <li>정보처리산업기사</li>
+            <li>네트워크관리사</li>
+          </ul>
+        </div>
 
-      <button class="search-button-box" @click="handleSearch">
-        검색
-      </button>
+        <div class="search-box">
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              class="search-input-box" 
+              placeholder="분야를 입력해주세요." 
+              :value="searchTerm" 
+              @input="handleInput" 
+              @blur="() => setListOpen(false)" 
+              @focus="() => setListOpen(true)" 
+            />
+            <img 
+              src="@/assets/img/search-icon.svg"
+              class="search-icon" 
+              @click="handleSearch"
+              alt="검색 아이콘"
+            />
+          </div>
+
+          <ul v-if="isFocus && filteredList.length > 0" class="autocomplete-list">
+            <li v-for="item in filteredList" :key="item.id" @mousedown="selectItem(item)">
+              {{ item.name }}
+            </li>
+          </ul>
+        </div>
+
+        <button class="search-button-box" @click="handleSearch">
+          검색
+        </button>
+      </div>
     </div>
   </div>
 
@@ -46,8 +61,9 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, computed } from 'vue';
-import Header from '@/components/header/header.vue';
-import Footer from '@/components/footer/footer.vue';
+import Header from '../header/header.vue';
+import Footer from '../footer/footer.vue';
+import Sidebar from './certificateSidebar.vue';
 
 const dataList = ref([
   { id: 1, name: '정보처리기사' },
@@ -92,33 +108,68 @@ const filteredList = computed(() => {
 </script>
 
 <style scoped>
-.box-container {
-  background-color: #E6F3FF;
+/* 전체 레이아웃 */
+.main-container {
+  display: flex;
   min-height: 70vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 20px;
 }
 
-.box1 {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  max-width: 1000px;
-  margin-bottom: 20px;
-}
-
-.box1-item {
+.content-container {
   flex: 1;
-  padding: 15px;
-  background-color: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 10px;
+  padding: 20px;
+  background-color: #E6F3FF;
+}
+
+/* 사이드바 스타일 */
+.sidebar {
+  width: 300px;
+  background: #fff;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.info-section {
   text-align: center;
-  margin: 0 10px;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 30px 30px;
+}
+
+.info-section h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.info-section p {
+  font-size: 16px;
+  color: #555;
+}
+
+.popular-certifications {
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 30px;
+}
+
+.popular-certifications h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.popular-certifications ul {
+  list-style: none;
+  padding: 0;
+}
+
+.popular-certifications li {
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .box2 {
@@ -131,51 +182,45 @@ const filteredList = computed(() => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 1000px;
-  position: relative; /* 자식 요소의 절대 위치를 위한 relative 설정 */
-  height: 600px; /* 높이 값을 늘림 */
-  margin-bottom: 0; /* box2와 footer 사이의 공백 제거 */
-  /* 필요에 따라 overflow: hidden;을 추가할 수 있습니다. */
+  position: relative;
+  min-height: 400px;
+  margin-bottom: 0;
 }
-
 
 .search-box {
   position: absolute;
-  top: 20px; /* box2의 상단에서 20px 아래에 위치 */
-  left: 20px; /* box2의 왼쪽에서 20px 오른쪽에 위치 */
-  width: 100%;
+  top: 20px;
+  left: 20px;
+  width: calc(100% - 40px); /* 아이콘을 위한 공간 확보 */
   max-width: 500px;
-  margin-bottom: 40px; /* search-box와 info-box 사이의 간격을 넓힘 */
 }
 
 .search-input-box {
-  width: 100%;
+  width: 95%;
   padding: 15px;
-  padding-right: 40px;
   border: 2px solid #007bff;
   border-radius: 25px;
   font-size: 16px;
   outline: none;
 }
 
-.search-icon-box {
+.search-icon {
   position: absolute;
-  right: 15px;
+  right: 0px; /* 오른쪽에서 약간 떨어진 위치 */
   top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="20px" height="20px"><path d="M0 0h24v24H0z" fill="none"/><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>');
-  background-repeat: no-repeat;
-  background-size: contain;
+  transform: translateY(-50%); /* 수직 가운데 정렬 */
+  width: 40px;
+  height: 22px;
+  fill: #1D1B20; /* 아이콘 색상 */
+  cursor: pointer; /* 클릭 가능한 아이콘으로 설정 */
 }
 
 .autocomplete-list {
   position: absolute;
-  top: 100%; /* search-box의 하단에 위치 */
-  left: 0; /* search-box의 왼쪽에 맞추어 위치 */
-  width: 100%; /* search-box의 너비에 맞추어 너비 설정 */
-  max-width: 500px; /* search-box의 최대 너비와 동일하게 설정 */
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-width: 500px;
   background: white;
   border: 1px solid #ccc;
   border-radius: 20px;
@@ -198,36 +243,10 @@ const filteredList = computed(() => {
   background-color: #f0f0f0;
 }
 
-.info-box {
-  display: flex;
-  justify-content: center; /* 수평 가운데 정렬 */
-  width: 100%;
-  max-width: 800px; /* 중앙에 배치되도록 최대 너비 설정 */
-  margin: 80px 0 0; /* 상단 여백 조정: search-box와의 간격을 넓힘 */
-}
-
-.info-item {
-  flex: 1;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  text-align: center;
-  margin: 0 10px;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
-}
-
-.info-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
 .search-button-box {
   position: absolute;
-  bottom: 20px; /* box2의 하단에서 20px 위에 위치 */
-  right: 20px; /* box2의 오른쪽에서 20px 왼쪽에 위치 */
+  bottom: 20px;
+  right: 20px;
   padding: 12px 40px;
   border: none;
   background-color: #007bff;
@@ -245,12 +264,20 @@ const filteredList = computed(() => {
 }
 
 @media (max-width: 768px) {
-  .box1, .info-box {
+  .main-container {
     flex-direction: column;
   }
 
-  .box1-item, .info-item {
-    margin: 5px 0;
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    position: static;
+    box-shadow: none;
+  }
+
+  .content-container {
+    padding: 10px;
   }
 
   .search-input-box {
@@ -261,7 +288,12 @@ const filteredList = computed(() => {
     padding: 10px 30px;
     font-size: 14px;
   }
+
+  .search-box {
+    width: calc(100% - 40px);
+    max-width: 100%;
+    left: 10px;
+    right: 10px;
+  }
 }
-
-
 </style>
