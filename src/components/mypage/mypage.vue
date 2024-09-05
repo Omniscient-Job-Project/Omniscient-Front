@@ -47,9 +47,11 @@
         <div v-else-if="currentPage === 'scrapPage'" class="scrap-page">
           <h1>스크랩</h1>
         </div>
-        <div v-else-if="currentPage === 'certificatesPage'" class="certificates-page">
-          <h1>자격증 관리</h1>
-        </div>
+        <CertificatesPage 
+          v-else-if="currentPage === 'certificatesPage'" 
+          v-model:certificates="certificates"
+          @update:certificates="updateCertificates"
+        />
       </div>
     </div>
     <Footer />
@@ -57,13 +59,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import Header from '../header/header.vue';
 import Footer from '../footer/footer.vue';
 import ProfilePage from './profilePage.vue';
 import ResumeManagement from './resumeManagementPage.vue';
 import ResumeEditPage from './resumeEditPage.vue';
+import CertificatesPage from './certificatesPage.vue';
 
 const router = useRouter();
 
@@ -72,6 +75,12 @@ const currentPage = ref(null);
 
 // 사용자 정보
 const userName = ref('신주연');
+
+// 자격증 데이터
+const certificates = ref([
+  { name: '정보처리기사', date: '2023-05-15', issuer: '한국산업인력공단', number: '23-12-1234', isOpen: false },
+  { name: 'SQLD', date: '2023-08-20', issuer: '한국데이터산업진흥원', number: 'SQL-2023-12345', isOpen: false },
+]);
 
 // 메뉴 항목
 const menuItems = [
@@ -84,11 +93,11 @@ const menuItems = [
 ];
 
 // 요약 항목
-const summaryItems = [
+const summaryItems = computed(() => [
   { label: '지원한 회사', value: 5, icon: 'fas fa-building' },
   { label: '열람된 이력서', value: 3, icon: 'fas fa-eye' },
-  { label: '보유 자격증', value: 1, icon: 'fas fa-award' },
-];
+  { label: '보유 자격증', value: certificates.value.length, icon: 'fas fa-award' },
+]);
 
 // 버튼 클릭 시 현재 페이지 설정
 const setCurrentPage = (page) => {
@@ -109,6 +118,11 @@ const writeResume = () => {
 
 const showRecommendations = () => {
   console.log('추천 채용공고 표시');
+}
+
+// 자격증 업데이트 핸들러
+const updateCertificates = (newCertificates) => {
+  certificates.value = newCertificates;
 }
 </script>
 
