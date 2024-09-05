@@ -19,6 +19,7 @@
           </button>
         </div>
       </div>
+    
     </div>
     <button @click="showAddForm" class="add-btn">
       <i class="fas fa-plus"></i> 자격증 추가

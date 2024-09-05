@@ -1,59 +1,87 @@
 <template>
   <aside class="sidebar">
+    <!-- 자격증 카테고리 -->
     <div class="sidebar-section">
-      <h3>카테고리</h3>
+      <h3>자격증 카테고리</h3>
       <ul>
-        <li>IT</li>
-        <li>비즈니스</li>
-        <li>언어</li>
-        <li>기술</li>
+        <li :class="{ active: selectedCategory === '자격증 상세 정보' }" @click="toggleCategoryContent('자격증 상세 정보')">자격증 상세 정보</li>
+        <li :class="{ active: selectedCategory === '추천 자격증' }" @click="toggleCategoryContent('추천 자격증')">추천 자격증</li>
+        <li :class="{ active: selectedCategory === '인기 자격증' }" @click="toggleCategoryContent('인기 자격증')">인기 자격증</li>
+        <li :class="{ active: selectedCategory === '채용 공고' }" @click="toggleCategoryContent('채용 공고')">채용 공고</li>
+        <li :class="{ active: selectedCategory === '자격증 취득 팁' }" @click="toggleCategoryContent('자격증 취득 팁')">자격증 취득 팁</li>
+        <li :class="{ active: selectedCategory === '커뮤니티 & 포럼' }" @click="toggleCategoryContent('커뮤니티 & 포럼')">커뮤니티 & 포럼</li>
       </ul>
     </div>
 
-    <div class="sidebar-section">
-      <h3>인기 자격증</h3>
-      <ul>
-        <li>정보처리기사</li>
-        <li>정보처리산업기사</li>
-        <li>네트워크관리사</li>
-      </ul>
-    </div>
-
-    <div class="sidebar-section">
-      <h3>자주 묻는 질문</h3>
-      <ul>
-        <li>자격증 취득 절차</li>
-        <li>시험 준비 방법</li>
-        <li>자격증 발급 관련</li>
-      </ul>
-    </div>
-
-    <div class="sidebar-section">
-      <h3>공지사항</h3>
-      <p>최신 시험 일정 변경 공지</p>
-    </div>
-
-    <div class="sidebar-section">
-      <h3>추천 자격증</h3>
-      <ul>
-        <li>리눅스마스터</li>
-        <li>컴퓨터활용능력</li>
-      </ul>
-    </div>
-
-    <div class="sidebar-section">
-      <h3>뉴스 & 블로그</h3>
-      <ul>
-        <li>자격증 취득 트렌드</li>
-        <li>성공 사례</li>
-        <li>전문가 인터뷰</li>
-      </ul>
-    </div>
+    <!-- 자격증 카테고리별 콘텐츠 -->
+    <transition name="fade">
+      <div v-if="selectedCategory" class="category-content">
+        <h3>{{ selectedCategory }}</h3>
+        <p v-if="categoryDescription">{{ categoryDescription }}</p>
+        <ul v-if="categoryItems">
+          <li v-for="(item, index) in categoryItems" :key="index">{{ item }}</li>
+        </ul>
+      </div>
+    </transition>
   </aside>
 </template>
 
+<script setup>
+import { ref } from 'vue';
+
+const selectedCategory = ref('');
+const categoryDescription = ref('');
+const categoryItems = ref([]);
+
+const categoryData = {
+  '자격증 상세 정보': {
+    description: '자격증의 개요, 이점, 산업 내 중요성 등을 제공하세요.',
+    items: ['인증 요구 사항', '시험 정보']
+  },
+  '추천 자격증': {
+    description: '유사 자격증 및 관련 자격증을 추천합니다.',
+    items: ['유사 자격증', '관련 자격증']
+  },
+  '인기 자격증': {
+    description: '현재 가장 인기 있는 자격증과 최근 트렌드를 제공합니다.',
+    items: ['인기 자격증 목록', '트렌드']
+  },
+  '채용 공고': {
+    description: '자격증과 관련된 채용 공고 및 직무 정보를 제공합니다.',
+    items: ['관련 채용 공고', '회사 및 직무']
+  },
+  '자격증 취득 팁': {
+    description: '자격증 취득을 위한 공부 방법과 자주 묻는 질문을 안내합니다.',
+    items: ['시험 준비 방법', '자주 묻는 질문(FAQ)']
+  },
+  '커뮤니티 & 포럼': {
+    description: '자격증 관련 사용자 리뷰와 포럼 링크를 제공합니다.',
+    items: ['사용자 리뷰', '포럼']
+  }
+};
+
+const toggleCategoryContent = (category) => {
+  if (selectedCategory.value === category) {
+    selectedCategory.value = '';
+    categoryDescription.value = '';
+    categoryItems.value = [];
+  } else {
+    selectedCategory.value = category;
+    categoryDescription.value = categoryData[category].description;
+    categoryItems.value = categoryData[category].items;
+  }
+};
+</script>
+
 <style scoped>
-/* 카테고리 항목 */
+/* 사이드바 스타일 */
+.sidebar {
+  border-radius: 25px;
+  overflow: hidden;
+  padding: 20px;
+  background-color: #fff; /* 사이드바 배경 색상 */
+}
+
 .sidebar-section {
   margin-bottom: 20px;
 }
@@ -87,65 +115,27 @@
   font-weight: bold;
 }
 
-/* 자주 묻는 질문(FAQ) */
-.faq-item {
-  cursor: pointer;
-  margin-bottom: 10px;
-  padding: 10px;
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+.category-content {
+  padding: 20px;
   border: 1px solid #ddd;
-  border-radius: 5px;
-  transition: background-color 0.3s;
+  border-radius: 10px;
+  background-color: #fff;
+  margin-top: 20px;
 }
-
-.faq-item:hover {
-  background-color: #f8f8f8;
-}
-
-.faq-answer {
-  display: none;
-  padding-top: 10px;
-  font-size: 14px;
-  color: #666;
-}
-
-.faq-item.active .faq-answer {
-  display: block;
-}
-
-/* 공지사항 및 뉴스 */
-.sidebar-section .news-item {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.sidebar-section .news-item:hover {
-  background-color: #f8f8f8;
-  color: #007bff;
-}
-
-.sidebar-section .news-item a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* 추천 자격증 */
-.recommended-certifications {
+.category-content ul {
   list-style: none;
   padding: 0;
 }
 
-.recommended-certifications li {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-bottom: 10px;
-  transition: background-color 0.3s, color 0.3s;
-  cursor: pointer;
-}
-
-.recommended-certifications li:hover {
-  background-color: #e0e0e0;
-  color: #007bff;
+.category-content ul li {
+  padding: 5px 0;
 }
 </style>
