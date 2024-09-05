@@ -6,32 +6,16 @@
     
     <div class="content-container">
       <div class="box2">
-        <!-- 인포그래픽 또는 설명 섹션 -->
-        <div class="info-section">
-          <h2>자격증 검색</h2>
-          <p>자격증을 검색하여 필요한 정보를 빠르게 찾아보세요. 인기 있는 자격증과 유용한 검색 팁도 제공됩니다.</p>
-        </div>
-
-        <!-- 인기 자격증 섹션 -->
-        <div class="popular-certifications">
-          <h3>인기 자격증</h3>
-          <ul>
-            <li>정보처리기사</li>
-            <li>정보처리산업기사</li>
-            <li>네트워크관리사</li>
-          </ul>
-        </div>
-
-        <div class="search-box">
+        <div class="search-box" @click="toggleFilter">
           <div class="input-wrapper">
             <input 
               type="text" 
               class="search-input-box" 
               placeholder="분야를 입력해주세요." 
-              :value="searchTerm" 
-              @input="handleInput" 
-              @blur="() => setListOpen(false)" 
-              @focus="() => setListOpen(true)" 
+              v-model="searchTerm" 
+              @focus="handleInputFocus" 
+              @blur="handleInputBlur" 
+              @keydown="handleKeyDown" 
             />
             <img 
               src="@/assets/img/search-icon.svg"
@@ -42,15 +26,19 @@
           </div>
 
           <ul v-if="isFocus && filteredList.length > 0" class="autocomplete-list">
-            <li v-for="item in filteredList" :key="item.id" @mousedown="selectItem(item)">
+            <li 
+              v-for="(item, index) in filteredList" 
+              :key="item.id" 
+              @mousedown="selectItem(item)"
+              :class="{ 'highlighted': index === selectedIndex.value }"
+              ref="autocompleteItem"
+            >
               {{ item.name }}
             </li>
           </ul>
+          
         </div>
 
-        <button class="search-button-box" @click="handleSearch">
-          검색
-        </button>
       </div>
     </div>
   </div>
@@ -60,7 +48,9 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
+import { getChoseong } from 'es-hangul';
+import { disassemble } from 'es-hangul';
 import Header from '../header/header.vue';
 import Footer from '../footer/footer.vue';
 import Sidebar from './certificateSidebar.vue';
@@ -75,12 +65,8 @@ const dataList = ref([
 
 const searchTerm = ref('');
 const isFocus = ref(false);
-const selectedObj = ref(null);
+const selectedIndex = ref(-1);
 const router = useRouter();
-
-const handleInput = (e) => {
-  searchTerm.value = e.target.value;
-};
 
 const handleSearch = () => {
   console.log('검색어:', searchTerm.value);
@@ -92,20 +78,84 @@ const setListOpen = (isOpen) => {
 };
 
 const selectItem = (item) => {
-  selectedObj.value = item;
-  searchTerm.value = item.name;
+  // 항목이 undefined인지 체크
+  if (item && item.name) {
+    searchTerm.value = item.name;
+  }
   setListOpen(false);
 };
 
 const filteredList = computed(() => {
-  if (searchTerm.value === '') {
-    return [];
-  }
-  return dataList.value.filter(item => 
-    item.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-  );
+  const searchChoseong = getChoseong(searchTerm.value);
+  
+  return dataList.value.filter(item => {
+    const itemChoseong = getChoseong(item.name);
+    return itemChoseong.includes(searchChoseong);
+  });
 });
+
+const handleKeyDown = (e) => {
+  if (!isFocus.value || filteredList.value.length === 0) return;
+
+  switch (e.key) {
+    case 'ArrowDown':
+      e.preventDefault();
+      selectedIndex.value = (selectedIndex.value + 1) % filteredList.value.length;
+      nextTick(() => {
+        updateHighlight();
+      });
+      console.log(`ArrowDown pressed. New selectedIndex: ${selectedIndex.value}`);
+      break;
+    case 'ArrowUp':
+      e.preventDefault();
+      selectedIndex.value = (selectedIndex.value - 1 + filteredList.value.length) % filteredList.value.length;
+      nextTick(() => {
+        updateHighlight();
+      });
+      console.log(`ArrowUp pressed. New selectedIndex: ${selectedIndex.value}`);
+      break;
+    case 'Enter':
+      e.preventDefault();
+      if (selectedIndex.value >= 0 && selectedIndex.value < filteredList.value.length) {
+        const selectedItem = filteredList.value[selectedIndex.value];
+        // 선택된 항목이 undefined인지 체크
+        if (selectedItem && selectedItem.name) {
+          selectItem(selectedItem);
+        } else {
+          console.error('선택된 항목이 없습니다.');
+        }
+        console.log(`Enter pressed. Selected item: ${selectedItem?.name}`);
+      }
+      break;
+    default:
+      break;
+  }
+};
+
+const updateHighlight = () => {
+  const items = document.querySelectorAll('.autocomplete-list li');
+  items.forEach(item => item.classList.remove('highlighted'));
+  if (items[selectedIndex.value]) {
+    items[selectedIndex.value].classList.add('highlighted');
+    items[selectedIndex.value].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+};
+
+const handleInputFocus = () => {
+  setListOpen(true);
+  if(!document.hasFocus){
+    document.addEventListener('keydown', handleKeyDown);
+  }
+  
+};
+
+const handleInputBlur = () => {
+  setListOpen(false);
+  document.removeEventListener('keydown', handleKeyDown);
+};
 </script>
+
+
 
 <style scoped>
 /* 전체 레이아웃 */
@@ -132,71 +182,21 @@ const filteredList = computed(() => {
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.info-section {
-  text-align: center;
-  margin: 30px 30px;
-}
-
-.info-section h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.info-section p {
-  font-size: 16px;
-  color: #555;
-}
-
-.popular-certifications {
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 30px;
-}
-
-.popular-certifications h3 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.popular-certifications ul {
-  list-style: none;
-  padding: 0;
-}
-
-.popular-certifications li {
-  padding: 10px;
-  background-color: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.box2 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px;
-  border-radius: 15px;
-  background: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 1000px;
-  position: relative;
-  min-height: 400px;
-  margin-bottom: 0;
-}
-
 .search-box {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  width: calc(100% - 40px); /* 아이콘을 위한 공간 확보 */
-  max-width: 500px;
+  position: relative;
+  margin-bottom: 20px;
+  width: 50%; /* 검색 창 너비를 반으로 줄이기 */
+  margin-left: 0; /* 왼쪽 정렬 */
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex; /* flexbox를 사용하여 아이콘과 버튼을 정렬 */
+  align-items: center; /* 아이콘과 버튼을 수직으로 정렬 */
 }
 
 .search-input-box {
-  width: 95%;
+  flex: 1; /* 검색 창이 가능한 많은 공간을 차지하도록 설정 */
   padding: 15px;
   border: 2px solid #007bff;
   border-radius: 25px;
@@ -206,13 +206,13 @@ const filteredList = computed(() => {
 
 .search-icon {
   position: absolute;
-  right: 0px; /* 오른쪽에서 약간 떨어진 위치 */
+  right: 10px; /* 입력창 안에서 오른쪽에 위치하게 조정 */
   top: 50%;
-  transform: translateY(-50%); /* 수직 가운데 정렬 */
+  transform: translateY(-50%);
   width: 40px;
   height: 22px;
-  fill: #1D1B20; /* 아이콘 색상 */
-  cursor: pointer; /* 클릭 가능한 아이콘으로 설정 */
+  fill: #1D1B20;
+  cursor: pointer;
 }
 
 .autocomplete-list {
@@ -220,7 +220,6 @@ const filteredList = computed(() => {
   top: 100%;
   left: 0;
   width: 100%;
-  max-width: 500px;
   background: white;
   border: 1px solid #ccc;
   border-radius: 20px;
@@ -236,31 +235,17 @@ const filteredList = computed(() => {
 .autocomplete-list li {
   padding: 10px 15px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s; /* 배경색과 글자색 전환 추가 */
+}
+
+/* 선택된 항목 강조 스타일 */
+.autocomplete-list li.highlighted {
+  background-color: #007bff; /* 강조 배경색 */
+  color: white; /* 강조 글자색 */
 }
 
 .autocomplete-list li:hover {
   background-color: #f0f0f0;
-}
-
-.search-button-box {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  padding: 12px 40px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-}
-
-.search-button-box:hover {
-  background-color: #0056b3;
-  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
@@ -292,8 +277,6 @@ const filteredList = computed(() => {
   .search-box {
     width: calc(100% - 40px);
     max-width: 100%;
-    left: 10px;
-    right: 10px;
   }
 }
 </style>
