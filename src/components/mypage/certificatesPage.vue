@@ -53,74 +53,54 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue';
 
-export default {
-  name: 'CertificatesPage',
-  setup(props, { emit }) {
-    const certificates = ref([
-      { name: '정보처리기사', date: '2023-05-15', issuer: '한국산업인력공단', number: '23-12-1234', isOpen: false },
-      { name: 'SQLD', date: '2023-08-20', issuer: '한국데이터산업진흥원', number: 'SQL-2023-12345', isOpen: false },
-    ]);
+const certificates = ref([
+  { name: '정보처리기사', date: '2023-05-15', issuer: '한국산업인력공단', number: '23-12-1234', isOpen: false },
+  { name: 'SQLD', date: '2023-08-20', issuer: '한국데이터산업진흥원', number: 'SQL-2023-12345', isOpen: false },
+]);
 
-    const showForm = ref(false);
-    const isEditing = ref(false);
-    const editIndex = ref(-1);
-    const formData = ref({ name: '', date: '', issuer: '', number: '' });
+const showForm = ref(false);
+const isEditing = ref(false);
+const editIndex = ref(-1);
+const formData = ref({ name: '', date: '', issuer: '', number: '' });
 
-    const toggleCertificate = (index) => {
-      certificates.value[index].isOpen = !certificates.value[index].isOpen;
-    };
+const toggleCertificate = (index) => {
+  certificates.value[index].isOpen = !certificates.value[index].isOpen;
+};
 
-    const showAddForm = () => {
-      showForm.value = true;
-      isEditing.value = false;
-      formData.value = { name: '', date: '', issuer: '', number: '' };
-    };
+const showAddForm = () => {
+  showForm.value = true;
+  isEditing.value = false;
+  formData.value = { name: '', date: '', issuer: '', number: '' };
+};
 
-    const editCertificate = (index) => {
-      showForm.value = true;
-      isEditing.value = true;
-      editIndex.value = index;
-      formData.value = { ...certificates.value[index] };
-    };
+const editCertificate = (index) => {
+  showForm.value = true;
+  isEditing.value = true;
+  editIndex.value = index;
+  formData.value = { ...certificates.value[index] };
+};
 
-    const deleteCertificate = (index) => {
-      if (confirm('정말로 이 자격증을 삭제하시겠습니까?')) {
-        certificates.value.splice(index, 1);
-        emit('update:certificates', certificates.value);
-      }
-    };
-
-    const submitForm = () => {
-      if (isEditing.value) {
-        certificates.value[editIndex.value] = { ...formData.value, isOpen: false };
-      } else {
-        certificates.value.push({ ...formData.value, isOpen: false });
-      }
-      showForm.value = false;
-      emit('update:certificates', certificates.value);
-    };
-
-    const cancelForm = () => {
-      showForm.value = false;
-    };
-
-    return {
-      certificates,
-      showForm,
-      isEditing,
-      formData,
-      toggleCertificate,
-      showAddForm,
-      editCertificate,
-      deleteCertificate,
-      submitForm,
-      cancelForm
-    };
+const deleteCertificate = (index) => {
+  if (confirm('정말로 이 자격증을 삭제하시겠습니까?')) {
+    certificates.value.splice(index, 1);
   }
-}
+};
+
+const submitForm = () => {
+  if (isEditing.value) {
+    certificates.value[editIndex.value] = { ...formData.value, isOpen: false };
+  } else {
+    certificates.value.push({ ...formData.value, isOpen: false });
+  }
+  showForm.value = false;
+};
+
+const cancelForm = () => {
+  showForm.value = false;
+};
 </script>
 
 <style scoped>

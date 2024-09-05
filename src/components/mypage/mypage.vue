@@ -13,7 +13,6 @@
       </div>
 
       <div class="main-content">
-        <!-- 조건부 렌더링 -->
         <div v-if="currentPage === 'myHome' || !currentPage" class="default-content">
           <div class="welcome-message">
             <i class="fas fa-hand-wave"></i> {{ userName }}님 환영합니다!
@@ -40,7 +39,7 @@
           </div>
         </div>
         <ProfilePage v-else-if="currentPage === 'profilePage'" />
-        <ResumeManagement v-else-if="currentPage === 'resumePage'" />
+        <ResumeManagementPage v-else-if="currentPage === 'resumePage'" />
         <div v-else-if="currentPage === 'applicationsPage'" class="applications-page">
           <h1>지원 현황</h1>
         </div>
@@ -58,71 +57,63 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import Header from '../header/header.vue';
-import Footer from '../footer/footer.vue';
-import ProfilePage from './profilePage.vue';
-import ResumeManagement from './resumeManagementPage.vue';
-import ResumeEditPage from './resumeEditPage.vue';
-import CertificatesPage from './certificatesPage.vue';
+<script>
+import Header from '@/components/header/header.vue';
+import Footer from '@/components/footer/footer.vue';
+import ProfilePage from '@/components/mypage/profilePage.vue';
+import ResumeManagementPage from '@/components/mypage/resumeManagementPage.vue';
+import CertificatesPage from '@/components/mypage/certificatesPage.vue';
 
-const router = useRouter();
-
-// 현재 페이지 상태
-const currentPage = ref(null);
-
-// 사용자 정보
-const userName = ref('신주연');
-
-// 자격증 데이터
-const certificates = ref([
-  { name: '정보처리기사', date: '2023-05-15', issuer: '한국산업인력공단', number: '23-12-1234', isOpen: false },
-  { name: 'SQLD', date: '2023-08-20', issuer: '한국데이터산업진흥원', number: 'SQL-2023-12345', isOpen: false },
-]);
-
-// 메뉴 항목
-const menuItems = [
-  { page: 'myHome', label: 'MyHome', icon: 'fas fa-home' },
-  { page: 'profilePage', label: '프로필', icon: 'fas fa-user' },
-  { page: 'resumePage', label: '이력서 관리', icon: 'fas fa-file-alt' },
-  { page: 'applicationsPage', label: '지원 현황', icon: 'fas fa-briefcase' },
-  { page: 'scrapPage', label: '스크랩', icon: 'fas fa-bookmark' },
-  { page: 'certificatesPage', label: '자격증 관리', icon: 'fas fa-certificate' },
-];
-
-// 요약 항목
-const summaryItems = computed(() => [
-  { label: '지원한 회사', value: 5, icon: 'fas fa-building' },
-  { label: '열람된 이력서', value: 3, icon: 'fas fa-eye' },
-  { label: '보유 자격증', value: certificates.value.length, icon: 'fas fa-award' },
-]);
-
-// 버튼 클릭 시 현재 페이지 설정
-const setCurrentPage = (page) => {
-  currentPage.value = page;
-  if (page === 'resumePage') {
-    router.push({ name: 'resumeManagement' });
-  } else if (page === 'profilePage') {
-    router.push({ name: 'profilePage' });
-  } else {
-    router.push({ name: 'mypage' });
+export default {
+  name: 'MyPage',
+  components: {
+    Header,
+    Footer,
+    ProfilePage,
+    ResumeManagementPage,
+    CertificatesPage
+  },
+  data() {
+    return {
+      currentPage: null,
+      userName: '신주연',
+      certificates: [
+        { name: '정보처리기사', date: '2023-05-15', issuer: '한국산업인력공단', number: '23-12-1234', isOpen: false },
+        { name: 'SQLD', date: '2023-08-20', issuer: '한국데이터산업진흥원', number: 'SQL-2023-12345', isOpen: false },
+      ],
+      menuItems: [
+        { page: 'myHome', label: 'MyHome', icon: 'fas fa-home' },
+        { page: 'profilePage', label: '프로필', icon: 'fas fa-user' },
+        { page: 'resumePage', label: '이력서 관리', icon: 'fas fa-file-alt' },
+        { page: 'applicationsPage', label: '지원 현황', icon: 'fas fa-briefcase' },
+        { page: 'scrapPage', label: '스크랩', icon: 'fas fa-bookmark' },
+        { page: 'certificatesPage', label: '자격증 관리', icon: 'fas fa-certificate' },
+      ]
+    }
+  },
+  computed: {
+    summaryItems() {
+      return [
+        { label: '지원한 회사', value: 5, icon: 'fas fa-building' },
+        { label: '열람된 이력서', value: 3, icon: 'fas fa-eye' },
+        { label: '보유 자격증', value: this.certificates.length, icon: 'fas fa-award' },
+      ]
+    }
+  },
+  methods: {
+    setCurrentPage(page) {
+      this.currentPage = page;
+    },
+    writeResume() {
+      this.setCurrentPage('resumePage');
+    },
+    showRecommendations() {
+      console.log('추천 채용공고 표시');
+    },
+    updateCertificates(newCertificates) {
+      this.certificates = newCertificates;
+    }
   }
-}
-
-// 버튼 클릭 핸들러
-const writeResume = () => {
-  setCurrentPage('resumePage');
-}
-
-const showRecommendations = () => {
-  console.log('추천 채용공고 표시');
-}
-
-// 자격증 업데이트 핸들러
-const updateCertificates = (newCertificates) => {
-  certificates.value = newCertificates;
 }
 </script>
 
