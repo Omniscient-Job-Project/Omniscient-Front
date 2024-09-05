@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+// import axios from "axios";
 
 // 네비게이션 경로 설정관련 로직
 export const useCurationStore = defineStore("useCurationStore", {
@@ -12,8 +12,6 @@ export const useCurationStore = defineStore("useCurationStore", {
     },
   },
 });
-
-
 
 export const useManagerMainV = defineStore("useManagerMainV", {
   state: () => ({
