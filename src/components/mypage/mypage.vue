@@ -40,9 +40,7 @@
         </div>
         <ProfilePage v-else-if="currentPage === 'profilePage'" />
         <ResumeManagementPage v-else-if="currentPage === 'resumePage'" />
-        <div v-else-if="currentPage === 'applicationsPage'" class="applications-page">
-          <h1>지원 현황</h1>
-        </div>
+        <ApplicationsPageComponent v-else-if="currentPage === 'applicationsPage'" />
         <ScrapPage v-else-if="currentPage === 'scrapPage'" />
         <CertificatesPage 
           v-else-if="currentPage === 'certificatesPage'" 
@@ -62,6 +60,7 @@ import ProfilePage from '@/components/mypage/profilePage.vue';
 import ResumeManagementPage from '@/components/mypage/resumeManagementPage.vue';
 import CertificatesPage from '@/components/mypage/certificatesPage.vue';
 import ScrapPage from '@/components/mypage/scrapPage.vue';
+import ApplicationsPageComponent from '@/components/mypage/applicationsPageComponent.vue';
 
 export default {
   name: 'MyPage',
@@ -71,7 +70,8 @@ export default {
     ProfilePage,
     ResumeManagementPage,
     CertificatesPage,
-    ScrapPage
+    ScrapPage,
+    ApplicationsPageComponent
   },
   data() {
     return {
