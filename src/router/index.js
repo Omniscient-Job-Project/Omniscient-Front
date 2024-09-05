@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-// Import components
 import Main from '../views/indexView.vue';
 import Curation from '../views/curationView.vue';
 import Certificate from '../components/certificate/certificate.vue';
@@ -16,6 +15,9 @@ import ManagerNotice from '../views/managerNotice.vue';
 import ManagerNoticeList from '../components/manager/noticeList.vue';
 import ManagerNoticePost from '../components/manager/noticePost.vue';
 import ManagerNoticeModify from '../components/manager/noticeModify.vue';
+const CertificateSearch = () => import("../components/certificate/certificateSearch.vue");
+const Mypage = () => import("../components/mypage/mypage.vue");
+const ProfilePage = () => import("../components/mypage/profilePage.vue");
 
 const routes = [
   {
