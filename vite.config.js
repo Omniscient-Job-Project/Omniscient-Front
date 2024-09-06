@@ -14,6 +14,11 @@ export default defineConfig({
     }
   },
   server: {
-    port: 8083
+    port: 8083,
+    '/api': {
+      target: 'http://localhost:8090',
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/api/, ''),
+    },
   }
 })

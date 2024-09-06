@@ -1,6 +1,6 @@
 <script setup>
-import Header from "@/components/manager/header.vue";
-import Footer from "@/components/manager/footer.vue";
+import Header from "@/components/header/header.vue";
+import Footer from "@/components/footer/footer.vue";
 import Sidebar from "@/components/manager/sidebar.vue";
 import Section from "@/components/manager/userSection.vue"; 
 </script>

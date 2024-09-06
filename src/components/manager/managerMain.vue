@@ -90,7 +90,7 @@ const visitorStore = useVisitorStore();
 
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('/api/users'); // 올바른 API 엔드포인트로 수정
+    const response = await axios.get('http://localhost:8090/api/v1/user'); 
     users.value = response.data;
   } catch (error) {
     console.error('Error fetching user list:', error);

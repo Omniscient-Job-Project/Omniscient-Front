@@ -55,40 +55,37 @@ export default {
   },
   methods: {
     async submitNotice() {
-  // 현재 시간 생성
-  const currentDate = new Date().toISOString(); 
+      const currentDate = new Date().toISOString(); 
+      const formattedDate = currentDate.split('.')[0]; 
 
-  // 날짜 포맷 맞추기
-  const formattedDate = currentDate.split('.')[0]; // 초 단위까지 잘라서 포맷 맞춤
+      const formData = {
+        userId: 1, // 백엔드 필드와 일치
+        noticeTitle: this.title, // 백엔드 필드와 일치
+        noticeContent: this.content, // 백엔드 필드와 일치
+        noticeCreateAt: formattedDate, // 날짜 포맷 맞춤
+        noticeUpdateAt: formattedDate  // 날짜 포맷 맞춤
+      };
 
-  const formData = {
-    userId: 1, // 백엔드 필드와 일치
-    noticeTitle: this.title, // 백엔드 필드와 일치
-    noticeContent: this.content, // 백엔드 필드와 일치
-    noticeCreateAt: formattedDate, // 날짜 포맷 맞춤
-    noticeUpdateAt: formattedDate  // 날짜 포맷 맞춤
-  };
-
-  try {
-    console.log('전송할 데이터:', formData);
-
-    const response = await axios.post('http://localhost:8080/api/v1/notification', formData, {
-      headers: {
-        'Content-Type': 'application/json'
+      try {
+        const response = await axios.post('http://localhost:8090/api/v1/notice', formData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        this.title = '';
+        this.content = '';
+        this.$router.push('/manager/notice/noticelist');
+      } catch (error) {
+        console.error('공지 등록 실패:', error.response ? error.response.data : error.message);
       }
-    });
-    console.log('공지 등록 성공:', response.data);
-    this.title = '';
-    this.content = '';
-    this.$router.push('/manager/notice/noticelist');
-  } catch (error) {
-    console.error('공지 등록 실패:', error.response ? error.response.data : error.message);
-  }
-}
+    },
+
+    cancel() {
+      this.$router.push('/manager/notice/noticelist');
+    }
   }
 };
 </script>
-
 
 <style scoped>
 .notice-edit-container {

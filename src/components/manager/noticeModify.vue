@@ -58,7 +58,7 @@ export default {
     async fetchNotice() {
       if (this.noticeId) {
         try {
-          const response = await axios.get(`/api/notice/${this.noticeId}`);
+          const response = await axios.get(`http://localhost:8090/api/v1/notice/${this.noticeId}`);
           const notice = response.data;
           if (notice) {
             this.noticeTitle = notice.noticeTitle;
@@ -75,32 +75,21 @@ export default {
     },
 
     async updateNotice() {
-      console.log('updateNotice 호출됨');
-      console.log('noticeTitle:', this.noticeTitle);
-      console.log('noticeContent:', this.noticeContent);
-
       if (this.noticeId) {
         const updatedNotice = {
           noticeTitle: this.noticeTitle,
-          noticeContent: this.noticeContent,
-          // 서버에서 기대하는 다른 필드가 있다면 여기에 추가
-          // 예: noticeUpdateAt: new Date().toISOString()
+          noticeContent: this.noticeContent
         };
 
         try {
-          const response = await axios.put(`/api/${this.noticeId}`, updatedNotice, {
+          const response = await axios.put(`http://localhost:8090/api/v1/notice/${this.noticeId}`, updatedNotice, {
             headers: {
               'Content-Type': 'application/json'
             }
           });
-          console.log('공지 수정 성공', response.data);
           this.$router.push('/manager/notice/noticelist');
         } catch (error) {
-          console.error('공지 수정 실패:', {
-            status: error.response?.status,
-            data: error.response?.data,
-            message: error.message
-          });
+          console.error('공지 수정 실패:', error.response ? error.response.data : error.message);
         }
       } else {
         console.error('공지 ID가 없습니다.');
