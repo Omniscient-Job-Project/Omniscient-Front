@@ -1,100 +1,114 @@
 <template>
-  <body>
-    <div class="curationMaincontainer">
-      <!-- 자격증 검색 -->
-      <div class="selectcontainer">
-        <div class="select">
-          <p>보유하고 있는 자격증 또는 취득할 자격증을 선택하세요.</p>
-        </div>
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="자격증의 이름을 입력하세요." aria-label="자격증" aria-describedby="button-addon2">
-        </div>
-        <div class="button-container">
-          <button class="btn btn-outline-secondary" type="button" @click="onSelectComplete">선택 완료</button>
-        </div>
+  <div class="curationMaincontainer">
+    <!-- 자격증 검색 -->
+    <div class="selectcontainer">
+      <div class="select">
+        <p>보유하고 있는 자격증 또는 취득할 자격증을 선택하세요.</p>
       </div>
-      <!-- 자격증 검색 끝 -->
-
-      <!-- 그 외 큐레이션 부분 -->
-      <div class="curationIndex">
-          <div>
-            <p>홈</p>
-          </div>
-          <div>
-            <p>자격증</p>
-          </div>
-          <div>
-            <p>지하철</p>
-          </div>
-          <div>
-            <p>등등</p>
-          </div>
-        </div>
-       
-      <!-- 메인페이지 검색창 -->
-      <div class="search-bar">
-        <div class="cardinput">
-          <input type="text" class="form-control" placeholder="채용 정보를 검색해보세요." aria-label="검색" aria-describedby="button-addon2">
-          <button class="btn btn-outline-secondary" type="button" id="button-addon2">검색</button>
-        </div>
+      <div class="input-group mb-3">
+        <input type="text" v-model="certificate" class="form-control" placeholder="자격증의 이름을 입력하세요." aria-label="자격증" aria-describedby="button-addon2">
       </div>
-
-      <!-- 채용정보 카드 -->
-
-      <div class="recruitmentCards">
-        <div class="row row-cols-1 row-cols-md-2 g-4">
-          <div class="col" @click="goToDetail">
-            <div class="card">
-              <img src="..." class="card-img-top" alt="...">
-              <div class="card-body">
-                <h5 class="card-title">채용 제목</h5>
-                <p class="card-text">fdsafdsafdsafsd</p>
-              </div>
-            </div>
-          </div>
-          <div class="col" @click="goToDetail">
-            <div class="card">
-              <img src="..." class="card-img-top" alt="...">
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col" @click="goToDetail">
-            <div class="card">
-              <img src="..." class="card-img-top" alt="...">
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col" @click="goToDetail">
-            <div class="card">
-              <img src="..." class="card-img-top" alt="...">
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text"></p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="button-container">
+        <button class="btn btn-outline-secondary" type="button" @click="onSelectComplete">선택 완료</button>
       </div>
-      <!-- 채용정보카드 끝 -->
     </div>
-  </body>
+    <!-- 자격증 검색 끝 -->
+
+    <!-- 그 외 큐레이션 부분 -->
+    <div class="curationIndex">
+      <div>
+        <p>홈</p>
+      </div>
+      <div>
+        <p>자격증</p>
+      </div>
+      <div>
+        <p>지하철</p>
+      </div>
+      <div>
+        <p>등등</p>
+      </div>
+    </div>
+    
+    <!-- 메인페이지 검색창 -->
+    <div class="search-bar">
+      <div class="cardinput">
+        <input type="text" v-model="searchTerm" class="form-control" placeholder="채용 정보를 검색해보세요." aria-label="검색" aria-describedby="button-addon2">
+        <button class="btn btn-outline-secondary" type="button" id="button-addon2" @click="searchJobs">검색</button>
+      </div>
+    </div>
+
+    <!-- 채용정보 카드 -->
+    <div class="recruitmentCards">
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div v-for="job in jobs" :key="job.jobId" class="col">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ job.jobInfoTitle }}</h5>
+              <p class="card-text">회사: {{ job.jobCompanyName }}</p>
+              <p class="card-text">위치: {{ job.jobLocation }}</p>
+              <p class="card-text">경력: {{ job.jobEmploymentType }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 채용정보카드 끝 -->
+  </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+
+// 상태 변수
+const searchTerm = ref('');
+const jobs = ref([]);
+
+// 채용 정보를 가져오는 함수
+const fetchJobs = async () => {
+  try {
+    const response = await axios.get('http://localhost:8090/api/jobinfo');  // 백엔드 URL
+    // API 응답에서 필요한 데이터 추출
+    const jobData = response.data.GetJobInfo.row;
+    jobs.value = jobData.map(job => ({
+      jobId: job.JO_REQST_NO,
+      jobInfoTitle: job.JO_SJ,
+      jobCompanyName: job.CMPNY_NM,
+      jobLocation: job.WORK_PARAR_BASS_ADRES_CN,
+      jobEmploymentType: job.EMPLYM_STLE_CMMN_CODE_SE
+    }));
+  } catch (error) {
+    console.error('채용 정보를 가져오는 데 실패했습니다.', error);
+  }
+};
+
+// 페이지가 로드될 때 채용 정보를 가져옴
+onMounted(() => {
+  fetchJobs();
+});
+
+// 검색 기능
+const searchJobs = () => {
+  // 검색 기능을 위한 로직 추가 필요
+  console.log('검색어:', searchTerm.value);
+};
 
 // 카드를 클릭하면 CurationDetail 페이지로 이동
 function goToDetail() {
   router.push({ name: 'curation-detail' });
 }
+
+// 자격증 선택 완료 핸들러
+const onSelectComplete = () => {
+  console.log('자격증 선택 완료:', certificate.value);
+};
+
+// 자격증 입력값
+const certificate = ref('');
 </script>
 
 <style>

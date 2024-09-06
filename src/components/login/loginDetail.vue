@@ -33,10 +33,8 @@
 
         <div class="buttons">
             <!-- 등록 버튼 -->
-            <button type="button" class="btn btn-primary">등록</button>
+            <button type="button" class="btn btn-primary">회원가입</button>
 
-            <!-- 다음에 버튼 -->
-            <button type="button" class="btn btn-warning">다음에 등록하기</button>
         </div>
     </div>
 </template>
