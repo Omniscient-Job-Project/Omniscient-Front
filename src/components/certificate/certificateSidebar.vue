@@ -1,26 +1,47 @@
 <template>
   <aside class="sidebar">
-    <!-- 자격증 카테고리 -->
-    <div class="sidebar-section">
+    <!-- 자격증 카테고리 헤더에 접기/펴기 아이콘 추가 -->
+    <div class="sidebar-header" @click="toggleSidebar">
       <h3>자격증 카테고리</h3>
-      <ul>
-        <li :class="{ active: selectedCategory === '자격증 상세 정보' }" @click="toggleCategoryContent('자격증 상세 정보')">자격증 상세 정보</li>
-        <li :class="{ active: selectedCategory === '추천 자격증' }" @click="toggleCategoryContent('추천 자격증')">추천 자격증</li>
-        <li :class="{ active: selectedCategory === '인기 자격증' }" @click="toggleCategoryContent('인기 자격증')">인기 자격증</li>
-        <li :class="{ active: selectedCategory === '채용 공고' }" @click="toggleCategoryContent('채용 공고')">채용 공고</li>
-        <li :class="{ active: selectedCategory === '자격증 취득 팁' }" @click="toggleCategoryContent('자격증 취득 팁')">자격증 취득 팁</li>
-        <li :class="{ active: selectedCategory === '커뮤니티 & 포럼' }" @click="toggleCategoryContent('커뮤니티 & 포럼')">커뮤니티 & 포럼</li>
-      </ul>
+      <!-- 아이콘 추가 (접기/펴기 상태에 따라 변경) -->
+      <span class="toggle-icon">
+        <img 
+          v-if="isSidebarCollapsed" 
+          src="/src/assets/img/arrow-down-icon.png"
+          
+          alt="펼치기"
+        />
+        <img 
+          v-else 
+          src="/src/assets/img/arrow-right-icon.png" 
+          alt="접기"
+        />
+      </span>
     </div>
 
-    <!-- 자격증 카테고리별 콘텐츠 -->
+    <!-- 자격증 카테고리 항목 및 콘텐츠 -->
     <transition name="fade">
-      <div v-if="selectedCategory" class="category-content">
-        <h3>{{ selectedCategory }}</h3>
-        <p v-if="categoryDescription">{{ categoryDescription }}</p>
-        <ul v-if="categoryItems">
-          <li v-for="(item, index) in categoryItems" :key="index">{{ item }}</li>
-        </ul>
+      <div v-if="!isSidebarCollapsed" class="sidebar-content">
+        <!-- 자격증 카테고리 항목 -->
+        <div class="sidebar-section">
+          <ul>
+            <li :class="{ active: selectedCategory === '자격증 상세 정보' }" @click="toggleCategoryContent('자격증 상세 정보')">자격증 상세 정보</li>
+            <li :class="{ active: selectedCategory === '추천 자격증' }" @click="toggleCategoryContent('추천 자격증')">추천 자격증</li>
+            <li :class="{ active: selectedCategory === '인기 자격증' }" @click="toggleCategoryContent('인기 자격증')">인기 자격증</li>
+            <li :class="{ active: selectedCategory === '채용 공고' }" @click="toggleCategoryContent('채용 공고')">채용 공고</li>
+            <li :class="{ active: selectedCategory === '자격증 취득 팁' }" @click="toggleCategoryContent('자격증 취득 팁')">자격증 취득 팁</li>
+            <li :class="{ active: selectedCategory === '커뮤니티 & 포럼' }" @click="toggleCategoryContent('커뮤니티 & 포럼')">커뮤니티 & 포럼</li>
+          </ul>
+        </div>
+
+        <!-- 자격증 카테고리별 콘텐츠 -->
+        <div v-if="!isSidebarCollapsed && selectedCategory" class="category-content">
+          <h3>{{ selectedCategory }}</h3>
+          <p v-if="categoryDescription">{{ categoryDescription }}</p>
+          <ul v-if="categoryItems">
+            <li v-for="(item, index) in categoryItems" :key="index">{{ item }}</li>
+          </ul>
+        </div>
       </div>
     </transition>
   </aside>
@@ -29,10 +50,15 @@
 <script setup>
 import { ref } from 'vue';
 
+// 선택된 카테고리와 내용을 담는 변수
 const selectedCategory = ref('');
 const categoryDescription = ref('');
 const categoryItems = ref([]);
 
+// 사이드바 접힘 상태
+const isSidebarCollapsed = ref(false);
+
+// 카테고리 데이터 정의
 const categoryData = {
   '자격증 상세 정보': {
     description: '자격증의 개요, 이점, 산업 내 중요성 등을 제공하세요.',
@@ -49,7 +75,6 @@ const categoryData = {
   '채용 공고': {
     description: '자격증과 관련된 채용 공고 및 직무 정보를 제공합니다.',
     items: ['관련 채용 공고', '회사 및 직무']
-    // 관련 채용 공고 클릭 시 헤더 부분에 있는 채용 <router-link to="">로 연결해주세용~
   },
   '자격증 취득 팁': {
     description: '자격증 취득을 위한 공부 방법과 자주 묻는 질문을 안내합니다.',
@@ -61,6 +86,7 @@ const categoryData = {
   }
 };
 
+// 카테고리 내용 토글 함수
 const toggleCategoryContent = (category) => {
   if (selectedCategory.value === category) {
     selectedCategory.value = '';
@@ -72,6 +98,11 @@ const toggleCategoryContent = (category) => {
     categoryItems.value = categoryData[category].items;
   }
 };
+
+// 사이드바 접기/펴기 함수
+const toggleSidebar = () => {
+  isSidebarCollapsed.value = !isSidebarCollapsed.value;
+};
 </script>
 
 <style scoped>
@@ -80,7 +111,19 @@ const toggleCategoryContent = (category) => {
   border-radius: 25px;
   overflow: hidden;
   padding: 20px;
-  background-color: #fff; /* 사이드바 배경 색상 */
+  background-color: #fff;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sidebar-content {
+  transition: max-height 0.3s ease;
+  overflow: hidden;
 }
 
 .sidebar-section {
@@ -131,6 +174,7 @@ const toggleCategoryContent = (category) => {
   background-color: #fff;
   margin-top: 20px;
 }
+
 .category-content ul {
   list-style: none;
   padding: 0;
@@ -139,4 +183,11 @@ const toggleCategoryContent = (category) => {
 .category-content ul li {
   padding: 5px 0;
 }
+
+.toggle-icon img {
+  width: 33px;
+  height: 25px;
+  transition: transform 0.3s ease;
+}
+
 </style>
