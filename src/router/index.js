@@ -22,6 +22,7 @@ const Manager = () => import("../views/managerMainV.vue");
 const ManagerFAQ = () => import("../views/managerFaq.vue");
 const ManagerNotice = () => import("../views/managerNotice.vue");
 const ManagerUser = () => import("../views/managerUser.vue");
+const LoginDetail = () => import("../components/login/loginDetail.vue");
 
 
 const router = createRouter({
@@ -61,7 +62,13 @@ const router = createRouter({
     },
     {
       path: '/login',
-      component: Login
+      component: Login,
+      children: [
+        {
+          path: 'detail',
+          component: LoginDetail // 'detail' 경로에서 LoginDetail 컴포넌트 렌더링
+        }
+      ]
     },
     {
       path: '/notice',
