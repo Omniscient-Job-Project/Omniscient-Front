@@ -1,17 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-// import {
-//   useCurationStore,
-//   useManagerMainV,
-//   useManagerMain,
-//   useManagerFaq,
-//   useManager,
-//   useManagerAdmin,
-//   useManagerNotice,
-//   useManagerUser,
-// } from "@/stores/rootstore.js";
 
 const Main = () => import("../views/indexView.vue");
 const Curation = () => import("../views/curationView.vue");
+const Board = () => import("../components/header/header.vue");
 const Certificate = () => import("../components/certificate/certificate.vue");
 const CertificateSearch = () => import("../components/certificate/certificateSearch.vue");
 const Mypage = () => import("../components/mypage/mypage.vue");
@@ -23,15 +14,23 @@ const ManagerFAQ = () => import("../views/managerFaq.vue");
 const ManagerNotice = () => import("../views/managerNotice.vue");
 const ManagerUser = () => import("../views/managerUser.vue");
 const LoginDetail = () => import("../components/login/loginDetail.vue");
+const AdminUser = () => import("../components/manager/adminMain.vue");
+const NoticePost = () => import("../components/manager/noticePost.vue");
+const ManagerFAQPost = () => import("../components/manager/faqPost.vue");
 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
+    { 
       path: '/',
       name: 'home',
       component: Main
+    },
+    { 
+      path: '/board',
+      name: 'board',
+      component: Board
     },
     {
       path: '/mypage',
@@ -80,45 +79,33 @@ const router = createRouter({
       component: Manager,
       children:[
         {
-          path: '/admin/userList',
+          path: 'admin/userList',
           component: ManagerUser
         },
-        // {
-        //   path: '/admin/adminMain',
-        //   component: ManagerMain
-        // },
         {
-          path: '/notice/noticeList',
+          path: 'admin/adminMain', 
+          component: AdminUser
+        },
+        {
+          path: 'notice/noticeList', 
           component: ManagerNotice
         },
         {
-          path: '/faq/faqList',
+          path: 'notice/noticePost', 
+          component:NoticePost
+        },
+        {
+          path: 'faq/faqList', 
           component: ManagerFAQ
         },
+        {
+          path: 'faq/faqPost', 
+          component: ManagerFAQPost
+        },
+
       ]
     },
   ]
 })
-
-// // 진희님 라우터
-// function resetStores() {
-//   const curationStore = useCurationStore();
-//   const managerMain = useManagerMain();
-//   const managerUser = useManagerUser();
-//   const managerAdmin = useManagerAdmin();
-//   const managerNotice = useManagerNotice();
-//   const managerFaq = useManagerFaq();
-//   const useManagerMainV = useManagerMainV();
-//   const useManager = useManager();
-
-//   curationStore.setRoot("/curation");
-//   managerMain.setRoot("/manager");
-//   managerUser.setRoot("/manager/admin/userList");
-//   managerAdmin.setRoot("/manager/admin/adminMain");
-//   managerNotice.setRoot("/manager/notice/noticeList");
-//   managerFaq.setRoot("/manager/faq/faqList");
-//   useManagerMainV.setRoot("/manager");
-//   useManager.setRoot("/manager");
-// }
 
 export default router;

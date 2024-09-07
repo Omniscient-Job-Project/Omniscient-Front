@@ -56,7 +56,7 @@ const filterRole = (role) => {
 
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('/api/');
+    const response = await axios.get('/http://localhost:8090/api/v1/user');
     users.value = response.data;
   } catch (error) {
     console.error('회원 목록을 가져오는 중 오류가 발생했습니다!', error);
