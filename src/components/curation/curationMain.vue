@@ -71,7 +71,7 @@ const jobs = ref([]);
 // 채용 정보를 가져오는 함수
 const fetchJobs = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/jobinfo');  // 백엔드 URL
+    const response = await axios.get('http://localhost:8090/api/jobinfo', { withCredentials: true });  // 백엔드 URL
     // API 응답에서 필요한 데이터 추출
     const jobData = response.data.GetJobInfo.row;
     jobs.value = jobData.map(job => ({
@@ -263,3 +263,33 @@ body {
 
 
 </style>
+
+
+<!-- `withCredentials` 옵션을 사용하는 이유는 브라우저에서 **크로스 도메인 요청**을 할 때, **쿠키, 인증 헤더, 세션 정보와 같은 자격 증명**을 서버에 함께 전송하도록 설정하기 위함입니다. 기본적으로 브라우저는 보안상의 이유로 **다른 도메인으로의 요청**에 자격 증명을 포함하지 않습니다. 이를 해결하기 위해 `withCredentials: true`를 사용하면, 자격 증명을 포함하여 요청을 보낼 수 있습니다.
+
+### `withCredentials`의 역할
+
+1. **쿠키 및 인증 헤더 전송**:
+   - 만약 백엔드에서 **세션 기반 인증**을 사용하거나, 클라이언트와 서버 간에 **쿠키**를 통해 인증 정보를 주고받는 경우, 프론트엔드에서 `withCredentials: true` 옵션을 추가해야 요청과 함께 해당 쿠키나 세션 정보가 서버로 전송됩니다.
+
+2. **크로스 오리진 환경에서 자격 증명 허용**:
+   - 크로스 오리진 요청이란, 서로 다른 도메인 간의 요청을 의미합니다. 예를 들어, 프론트엔드(`localhost:8083`)에서 백엔드(`localhost:8090`)로 요청을 보내는 것은 크로스 오리진 상황입니다.
+   - 이때, 자격 증명(쿠키, HTTP 인증 등)이 필요하다면 `withCredentials: true`를 사용해 이를 활성화해야 합니다.
+
+3. **CORS 정책에 맞는 설정**:
+   - 서버 쪽에서 `Access-Control-Allow-Credentials: true` 헤더가 설정되어 있어야 클라이언트가 `withCredentials` 옵션을 통해 자격 증명을 포함한 요청을 보낼 수 있습니다. 이때, 서버는 CORS 설정에서 자격 증명을 허용하도록 설정되어 있어야 합니다.
+   
+   ```java
+   registry.addMapping("/**")
+           .allowedOrigins("http://localhost:8083")  // Vue.js 실행되는 주소
+           .allowedMethods("GET", "POST", "PUT", "DELETE")
+           .allowedHeaders("*")
+           .exposedHeaders("Custom-Header")
+           .allowCredentials(true);  // 자격 증명 허용
+   ```
+
+### 사용 시기
+- **로그인 상태를 유지해야 할 때**: 서버와 세션 쿠키를 주고받으며 로그인 상태를 유지할 때 자주 사용됩니다.
+- **JWT 토큰**: 토큰 기반 인증을 사용하는 경우에도 이 옵션을 통해 요청 시 토큰을 자동으로 포함시킬 수 있습니다.
+  
+`withCredentials`는 서버와의 상호작용에서 클라이언트가 인증된 상태로 요청할 수 있도록 해주는 중요한 옵션입니다. -->
