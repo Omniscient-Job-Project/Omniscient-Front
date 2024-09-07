@@ -62,7 +62,6 @@
   </div>
 </template>
 
-
 <script setup>
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
@@ -91,13 +90,17 @@ function showConfirmation() {
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
   position: fixed;
-  top: 60px; /* 헤더 높이에 맞춰 조정 (헤더가 60px 높이인 경우) */
+  top: 80px; /* 헤더 높이에 맞춰 조정 */
+  bottom: 0; /* 푸터까지의 거리 조정 */
   left: 0;
-  height: calc(100% - 60px); /* 헤더 높이만큼 빼기 */
   width: 250px;
-  overflow-y: auto;
+  height: calc(100vh - 60px - 50px); /* 헤더와 푸터 사이의 높이 */
+  overflow: hidden; /* 스크롤바 제거 */
   z-index: 1; /* 헤더보다 낮은 값으로 설정 */
+  transition: width 0.3s; /* 너비 변화에 부드러운 전환 효과 추가 */
 }
+
+
 
 .sidebar-con {
   display: flex;
@@ -169,7 +172,20 @@ function showConfirmation() {
 
 @media (max-width: 992px) {
   .sidebar-wrapper {
-    width: 100%;
+    width: 200px; /* 화면이 작아질 때 사이드바 너비 조정 */
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar-wrapper {
+    width: 150px; /* 화면이 더 작아질 때 사이드바 너비 조정 */
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar-wrapper {
+    width: 100%; /* 화면이 매우 작아질 때 사이드바가 화면 전체 너비 차지 */
+    height: calc(100vh - 60px); /* 헤더 높이만큼 빼고 전체 높이 차지 */
   }
 }
 </style>

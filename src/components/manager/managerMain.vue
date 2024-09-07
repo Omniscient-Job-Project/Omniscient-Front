@@ -90,7 +90,7 @@ const visitorStore = useVisitorStore();
 
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('/api/users'); // 올바른 API 엔드포인트로 수정
+    const response = await axios.get('http://localhost:8090/api/v1/user'); 
     users.value = response.data;
   } catch (error) {
     console.error('Error fetching user list:', error);
@@ -141,8 +141,32 @@ watch(selectedRange, async () => {
   }
 }
 
-/* 헤더 높이에 맞게 여백 추가 */
 .container {
-  margin-top: 60px; /* 헤더의 높이만큼 여백 추가 (헤더 높이에 맞게 조정) */
+  margin-top: 60px; /* 헤더의 높이만큼 여백 추가 */
+}
+
+.content-wrapper {
+  display: flex;
+  margin-left: 250px; /* 사이드바 너비만큼 왼쪽 여백 추가 */
+  padding: 0 15px; /* 추가적인 패딩 조정 */
+}
+
+/* 반응형 디자인 */
+@media (max-width: 992px) {
+  .content-wrapper {
+    margin-left: 200px; /* 화면이 작아질 때 사이드바 너비에 맞춰 여백 조정 */
+  }
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    margin-left: 150px; /* 화면이 더 작아질 때 사이드바 너비에 맞춰 여백 조정 */
+  }
+}
+
+@media (max-width: 576px) {
+  .content-wrapper {
+    margin-left: 0; /* 화면이 매우 작아질 때 여백 제거 */
+  }
 }
 </style>

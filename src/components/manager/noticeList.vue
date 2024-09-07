@@ -63,8 +63,7 @@ export default {
   methods: {
     async fetchNotices() {
       try {
-        const response = await axios.get('/api/notices');
-        console.log('공지 목록 응답:', response.data);
+        const response = await axios.get('http://localhost:8090/api/v1/notice');
         this.noticeList = response.data;
       } catch (error) {
         console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다!', error);
@@ -73,8 +72,7 @@ export default {
 
     async deleteNotice(noticeId) {
       try {
-        await axios.delete(`/api/notices/${noticeId}`);
-        console.log('공지 삭제 성공');
+        await axios.delete(`http://localhost:8090/api/v1/notice/${noticeId}`);
         this.fetchNotices(); // 삭제 후 목록 새로 고침
       } catch (error) {
         console.error('공지사항을 삭제하는 중 오류가 발생했습니다!', error);
@@ -87,7 +85,7 @@ export default {
 
     async viewDetail(noticeId) {
       try {
-        const response = await axios.get(`/api/notices/${noticeId}`);
+        const response = await axios.get(`http://localhost:8090/api/v1/notice/${noticeId}`);
         this.selectedNotice = response.data;
       } catch (error) {
         console.error('공지 상세 정보를 가져오는 중 오류가 발생했습니다!', error);

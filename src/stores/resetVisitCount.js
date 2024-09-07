@@ -1,5 +1,3 @@
-// src/utils/resetVisitCount.js
-
 export function resetVisitCountAtMidnight() {
   const now = new Date();
   const millisecondsUntilMidnight =

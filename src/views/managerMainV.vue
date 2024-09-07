@@ -12,10 +12,11 @@
 </template>
 
 <script setup>
-import Header from "@/components/manager/header.vue";
+import Header from "@/components/header/header.vue";
+import Footer from "@/components/footer/footer.vue";
 import Sidebar from "@/components/manager/sidebar.vue";
 import ManagerMain from "@/components/manager/managerMain.vue";
-import Footer from "@/components/manager/footer.vue";
+
 </script>
 
 <style scoped>
