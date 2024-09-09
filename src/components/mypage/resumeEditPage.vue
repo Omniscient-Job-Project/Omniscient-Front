@@ -1,374 +1,227 @@
 <template>
-  <div class="resume-management">
-    <h1 class="page-title">
-      <i class="fas fa-file-alt"></i> 이력서 관리
-    </h1>
-    
-    <div class="resume-list">
-      <div v-for="resume in resumes" :key="resume.id" class="resume-item">
-        <div class="resume-header" @click="toggleResume(resume.id)">
-          <span>{{ resume.title }}</span>
-          <i :class="resume.isOpen ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
-        </div>
-        <div v-show="resume.isOpen" class="resume-content">
-          <div class="resume-section">
-            <h3>개인 정보</h3>
-            <p><strong>이름:</strong> {{ resume.name }}</p>
-            <p><strong>이메일:</strong> {{ resume.email }}</p>
-            <p><strong>전화번호:</strong> {{ resume.phone }}</p>
-          </div>
-          
-          <div class="resume-section">
-            <h3>학력</h3>
-            <div v-for="(edu, index) in resume.education" :key="index" class="sub-section">
-              <p><strong>학교:</strong> {{ edu.school }}</p>
-              <p><strong>전공:</strong> {{ edu.major }}</p>
-              <p><strong>학위:</strong> {{ edu.degree }}</p>
-              <p><strong>졸업년도:</strong> {{ edu.graduationYear }}</p>
-            </div>
-          </div>
-          
-          <div class="resume-section">
-            <h3>경력</h3>
-            <div v-for="(exp, index) in resume.experience" :key="index" class="sub-section">
-              <p><strong>회사:</strong> {{ exp.company }}</p>
-              <p><strong>직위:</strong> {{ exp.position }}</p>
-              <p><strong>기간:</strong> {{ exp.startDate }} - {{ exp.endDate }}</p>
-              <p><strong>업무:</strong> {{ exp.description }}</p>
-            </div>
-          </div>
-          
-          <div class="resume-section">
-            <h3>기술 스택</h3>
-            <p>{{ resume.skills }}</p>
-          </div>
-          
-          <div class="resume-section">
-            <h3>자격증</h3>
-            <div v-for="(cert, index) in resume.certificates" :key="index" class="sub-section">
-              <p><strong>자격증명:</strong> {{ cert.name }}</p>
-              <p><strong>취득일:</strong> {{ cert.date }}</p>
-            </div>
-          </div>
-          
-          <div class="resume-section">
-            <h3>자기소개서</h3>
-            <p>{{ resume.introduction }}</p>
-          </div>
-          
-          <div class="resume-actions">
-            <button @click="editResume(resume)" class="edit-btn">
-              <i class="fas fa-edit"></i> 수정
-            </button>
-            <button @click="deleteResume(resume.id)" class="delete-btn">
-              <i class="fas fa-trash-alt"></i> 삭제
-            </button>
-          </div>
-        </div>
+  <div class="resume-form-container">
+    <h2 class="form-title">이력서 등록</h2>
+    <form @submit.prevent="submitResume" class="resume-form">
+      <!-- 기본 정보 -->
+      <div class="form-group">
+        <label for="title">이력서 제목</label>
+        <input type="text" id="title" v-model="resumeData.title" required>
       </div>
-    </div>
-
-    <button @click="showAddForm" class="add-btn">
-      <i class="fas fa-plus"></i> 새 이력서 작성
-    </button>
-    
-    <!-- 이력서 추가/수정 폼 -->
-    <div v-if="showForm" class="resume-form">
-      <h2>{{ isEditing ? '이력서 수정' : '새 이력서 작성' }}</h2>
-      <form @submit.prevent="submitForm">
-        <div class="form-section">
-          <h3>개인 정보</h3>
-          <div class="form-group">
-            <label for="resumeTitle">이력서 제목</label>
-            <input type="text" id="resumeTitle" v-model="formData.title" required>
-          </div>
-          <div class="form-group">
-            <label for="name">이름</label>
-            <input type="text" id="name" v-model="formData.name" required>
-          </div>
-          <div class="form-group">
-            <label for="email">이메일</label>
-            <input type="email" id="email" v-model="formData.email" required>
-          </div>
-          <div class="form-group">
-            <label for="phone">전화번호</label>
-            <input type="tel" id="phone" v-model="formData.phone" required>
-          </div>
+      
+      <!-- 학력 정보 -->
+      <div class="form-section">
+        <h3>학력 정보</h3>
+        <div v-for="(edu, index) in resumeData.education" :key="index" class="education-item">
+          <input v-model="edu.school" placeholder="학교명" required>
+          <input v-model="edu.major" placeholder="전공" required>
+          <input v-model="edu.degree" placeholder="학위" required>
+          <input v-model="edu.graduationYear" placeholder="졸업년도" required>
+          <button type="button" @click="removeEducation(index)" class="remove-btn">삭제</button>
         </div>
+        <button type="button" @click="addEducation" class="add-btn">학력 추가</button>
+      </div>
 
-        <div class="form-section">
-          <h3>학력</h3>
-          <div v-for="(edu, index) in formData.education" :key="index" class="sub-form">
-            <div class="form-group">
-              <label :for="'school'+index">학교</label>
-              <input type="text" :id="'school'+index" v-model="edu.school" required>
-            </div>
-            <div class="form-group">
-              <label :for="'major'+index">전공</label>
-              <input type="text" :id="'major'+index" v-model="edu.major" required>
-            </div>
-            <div class="form-group">
-              <label :for="'degree'+index">학위</label>
-              <input type="text" :id="'degree'+index" v-model="edu.degree" required>
-            </div>
-            <div class="form-group">
-              <label :for="'graduationYear'+index">졸업년도</label>
-              <input type="number" :id="'graduationYear'+index" v-model="edu.graduationYear" required>
-            </div>
-          </div>
-          <button type="button" @click="addEducation" class="add-btn">학력 추가</button>
+      <!-- 경력 정보 -->
+      <div class="form-section">
+        <h3>경력 정보</h3>
+        <div v-for="(exp, index) in resumeData.experience" :key="index" class="experience-item">
+          <input v-model="exp.company" placeholder="회사명" required>
+          <input v-model="exp.position" placeholder="직위" required>
+          <input v-model="exp.startDate" type="date" required>
+          <input v-model="exp.endDate" type="date">
+          <textarea v-model="exp.description" placeholder="업무 설명" required></textarea>
+          <button type="button" @click="removeExperience(index)" class="remove-btn">삭제</button>
         </div>
+        <button type="button" @click="addExperience" class="add-btn">경력 추가</button>
+      </div>
 
-        <div class="form-section">
-          <h3>경력</h3>
-          <div v-for="(exp, index) in formData.experience" :key="index" class="sub-form">
-            <div class="form-group">
-              <label :for="'company'+index">회사</label>
-              <input type="text" :id="'company'+index" v-model="exp.company" required>
-            </div>
-            <div class="form-group">
-              <label :for="'position'+index">직위</label>
-              <input type="text" :id="'position'+index" v-model="exp.position" required>
-            </div>
-            <div class="form-group">
-              <label :for="'startDate'+index">시작일</label>
-              <input type="date" :id="'startDate'+index" v-model="exp.startDate" required>
-            </div>
-            <div class="form-group">
-              <label :for="'endDate'+index">종료일</label>
-              <input type="date" :id="'endDate'+index" v-model="exp.endDate">
-            </div>
-            <div class="form-group">
-              <label :for="'description'+index">업무 설명</label>
-              <textarea :id="'description'+index" v-model="exp.description" required></textarea>
-            </div>
-          </div>
-          <button type="button" @click="addExperience" class="add-btn">경력 추가</button>
-        </div>
+      <!-- 기술 스택 -->
+      <div class="form-group">
+        <label for="skills">기술 스택 (쉼표로 구분)</label>
+        <input type="text" id="skills" v-model="resumeData.skills">
+      </div>
 
-        <div class="form-section">
-          <h3>기술 스택</h3>
-          <div class="form-group">
-            <label for="skills">기술 (쉼표로 구분)</label>
-            <input type="text" id="skills" v-model="formData.skills">
-          </div>
+      <!-- 자격증 -->
+      <div class="form-section">
+        <h3>자격증</h3>
+        <div v-for="(cert, index) in resumeData.certificates" :key="index" class="certificate-item">
+          <input v-model="cert.name" placeholder="자격증명" required>
+          <input v-model="cert.date" type="date" required>
+          <button type="button" @click="removeCertificate(index)" class="remove-btn">삭제</button>
         </div>
+        <button type="button" @click="addCertificate" class="add-btn">자격증 추가</button>
+      </div>
 
-        <div class="form-section">
-          <h3>자격증</h3>
-          <div v-for="(cert, index) in formData.certificates" :key="index" class="sub-form">
-            <div class="form-group">
-              <label :for="'certName'+index">자격증명</label>
-              <input type="text" :id="'certName'+index" v-model="cert.name" required>
-            </div>
-            <div class="form-group">
-              <label :for="'certDate'+index">취득일</label>
-              <input type="date" :id="'certDate'+index" v-model="cert.date" required>
-            </div>
-          </div>
-          <button type="button" @click="addCertificate" class="add-btn">자격증 추가</button>
-        </div>
+      <!-- 자기소개 -->
+      <div class="form-group">
+        <label for="introduction">자기소개</label>
+        <textarea id="introduction" v-model="resumeData.introduction" rows="5" required></textarea>
+      </div>
 
-        <div class="form-section">
-          <h3>자기소개서</h3>
-          <div class="form-group">
-            <label for="introduction">자기소개</label>
-            <textarea id="introduction" v-model="formData.introduction" rows="5" required></textarea>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="submit-btn">{{ isEditing ? '수정' : '추가' }}</button>
-          <button type="button" @click="cancelForm" class="cancel-btn">취소</button>
-        </div>
-      </form>
-    </div>
+      <button type="submit" class="submit-btn">이력서 등록</button>
+    </form>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue';
+import axios from 'axios';
 
-const resumes = ref([
-  {
-    id: 1,
-    title: '소프트웨어 개발자 이력서',
-    name: '홍길동',
-    email: 'hong@example.com',
-    phone: '010-1234-5678',
-    education: [
-      { school: '서울대학교', major: '컴퓨터공학', degree: '학사', graduationYear: 2020 }
-    ],
-    experience: [
-      { company: 'ABC 기업', position: '주니어 개발자', startDate: '2020-03-01', endDate: '2022-12-31', description: '웹 애플리케이션 개발' }
-    ],
-    skills: 'JavaScript, Vue.js, Python, Django',
-    certificates: [
-      { name: '정보처리기사', date: '2019-12-20' }
-    ],
-    introduction: '열정적이고 끊임없이 학습하는 개발자입니다.',
-    isOpen: false
-  },
-  // 추가 이력서 데이터...
-]);
-
-const showForm = ref(false);
-const isEditing = ref(false);
-const editingResumeId = ref(null);
-const formData = reactive({
+const resumeData = reactive({
   title: '',
-  name: '',
-  email: '',
-  phone: '',
-  education: [],
-  experience: [],
+  education: [{ school: '', major: '', degree: '', graduationYear: '' }],
+  experience: [{ company: '', position: '', startDate: '', endDate: '', description: '' }],
   skills: '',
-  certificates: [],
+  certificates: [{ name: '', date: '' }],
   introduction: ''
 });
 
-const toggleResume = (id) => {
-  const resume = resumes.value.find(r => r.id === id);
-  if (resume) {
-    resume.isOpen = !resume.isOpen;
-  }
-};
-
-const showAddForm = () => {
-  showForm.value = true;
-  isEditing.value = false;
-  resetForm();
-};
-
-const editResume = (resume) => {
-  showForm.value = true;
-  isEditing.value = true;
-  editingResumeId.value = resume.id;
-  Object.assign(formData, resume);
-};
-
-const deleteResume = (id) => {
-  if (confirm('정말로 이 이력서를 삭제하시겠습니까?')) {
-    resumes.value = resumes.value.filter(r => r.id !== id);
-  }
-};
-
-const submitForm = () => {
-  if (isEditing.value) {
-    const index = resumes.value.findIndex(r => r.id === editingResumeId.value);
-    if (index !== -1) {
-      resumes.value[index] = { ...resumes.value[index], ...formData, isOpen: false };
-    }
-  } else {
-    resumes.value.push({
-      id: Date.now(),
-      ...formData,
-      isOpen: false
-    });
-  }
-  showForm.value = false;
-};
-
-const cancelForm = () => {
-  showForm.value = false;
-  resetForm();
-};
-
-const resetForm = () => {
-  Object.assign(formData, {
-    title: '',
-    name: '',
-    email: '',
-    phone: '',
-    education: [],
-    experience: [],
-    skills: '',
-    certificates: [],
-    introduction: ''
-  });
-};
-
 const addEducation = () => {
-  formData.education.push({ school: '', major: '', degree: '', graduationYear: '' });
+  resumeData.education.push({ school: '', major: '', degree: '', graduationYear: '' });
+};
+
+const removeEducation = (index) => {
+  resumeData.education.splice(index, 1);
 };
 
 const addExperience = () => {
-  formData.experience.push({ company: '', position: '', startDate: '', endDate: '', description: '' });
+  resumeData.experience.push({ company: '', position: '', startDate: '', endDate: '', description: '' });
+};
+
+const removeExperience = (index) => {
+  resumeData.experience.splice(index, 1);
 };
 
 const addCertificate = () => {
-  formData.certificates.push({ name: '', date: '' });
+  resumeData.certificates.push({ name: '', date: '' });
+};
+
+const removeCertificate = (index) => {
+  resumeData.certificates.splice(index, 1);
+};
+
+const submitResume = async () => {
+  try {
+    const formattedData = {
+      ...resumeData,
+      skills: resumeData.skills.split(',').map(skill => skill.trim())
+    };
+    const response = await axios.post('http://localhost:8090/api/mypage/resume', formattedData);
+    console.log('Resume submitted successfully:', response.data);
+    alert('이력서가 성공적으로 등록되었습니다.');
+    // 여기에 성공 후 처리 로직 (예: 페이지 리다이렉트) 추가
+  } catch (error) {
+    console.error('Error submitting resume:', error);
+    alert('이력서 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+  }
 };
 </script>
 
 <style scoped>
-.resume-management {
-  max-width: 1000px;
+.resume-form-container {
+  max-width: 800px;
   margin: 0 auto;
-  padding: 40px;
-  font-family: Arial, sans-serif;
-  color: #333;
-}
-
-.page-title {
-  font-size: 32px;
-  margin-bottom: 30px;
-  color: #2c3e50;
-  text-align: center;
-}
-
-.resume-list {
-  margin-bottom: 30px;
-}
-
-.resume-item {
-  background-color: #f8f9fa;
-  border-radius: 15px;
-  margin-bottom: 20px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.resume-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 25px;
-  background-color: #3498db;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  font-size: 18px;
-}
-
-.resume-header:hover {
-  background-color: #2980b9;
-}
-
-.resume-content {
-  padding: 25px;
-}
-
-.resume-section {
-  margin-bottom: 20px;
-}
-
-.resume-section h3 {
-  color: #2c3e50;
-  border-bottom: 2px solid #3498db;
-  padding-bottom: 10px;
-  margin-bottom: 15px;
-}
-
-.sub-section {
-  margin-bottom: 15px;
-  padding: 10px;
-  background-color: #ecf0f1;
+  padding: 20px;
+  background-color: #f9f9f9;
   border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.edit-btn, .delete-btn, .add-btn, .submit-btn, .cancel-btn {
-  padding: 10px 15px;
+.form-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.resume-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-section {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.form-section h3 {
+  margin-top: 0;
+  color: #444;
+}
+
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input, textarea {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.education-item, .experience-item, .certificate-item {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.add-btn, .remove-btn, .submit-btn {
+  padding: 8px 15px;
   border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.add-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.remove-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.submit-btn {
+  background-color: #2196F3;
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  align-self: center;
+}
+
+.add-btn:hover, .submit-btn:hover {
+  opacity: 0.9;
+}
+
+.remove-btn:hover {
+  background-color: #d32f2f;
+}
+
+@media (max-width: 600px) {
+  .resume-form-container {
+    padding: 10px;
+  }
+
+  .education-item, .experience-item, .certificate-item {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
