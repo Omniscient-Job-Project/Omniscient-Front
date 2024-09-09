@@ -78,244 +78,248 @@
   </div>
 </template>
 
-<script>
-import axios from 'axios';
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import axios from 'axios'
 
-export default {
-  name: 'ResumeManagement',
-  data() {
-    return {
-      resumes: [],
-      showForm: false,
-      isEditing: false,
-      editingResumeId: null,
-      formData: {
-        title: '',
-        name: '',
-        email: '',
-        phone: '',
-        education: [],
-        experience: [],
-        skills: '',
-        certificates: [],
-        introduction: ''
-      },
-      formSections: [
-        {
-          title: '개인 정보',
-          type: 'single',
-          isOpen: true,
-          fields: [
-            { name: 'title', label: '이력서 제목', type: 'text', required: true },
-            { name: 'name', label: '이름', type: 'text', required: true },
-            { name: 'email', label: '이메일', type: 'email', required: true },
-            { name: 'phone', label: '전화번호', type: 'tel', required: true }
-          ]
-        },
-        {
-          title: '학력',
-          name: 'education',
-          type: 'array',
-          isOpen: false,
-          addButtonText: '학력 추가',
-          fields: [
-            { name: 'school', label: '학교', type: 'text', required: true },
-            { name: 'major', label: '전공', type: 'text', required: true },
-            { name: 'degree', label: '학위', type: 'text', required: true },
-            { name: 'graduationYear', label: '졸업년도', type: 'number', required: true }
-          ]
-        },
-        {
-          title: '경력',
-          name: 'experience',
-          type: 'array',
-          isOpen: false,
-          addButtonText: '경력 추가',
-          fields: [
-            { name: 'company', label: '회사', type: 'text', required: true },
-            { name: 'position', label: '직위', type: 'text', required: true },
-            { name: 'startDate', label: '시작일', type: 'date', required: true },
-            { name: 'endDate', label: '종료일', type: 'date', required: false },
-            { name: 'description', label: '업무 설명', type: 'textarea', required: true }
-          ]
-        },
-        {
-          title: '기술 스택',
-          type: 'single',
-          isOpen: false,
-          fields: [
-            { name: 'skills', label: '기술 (쉼표로 구분)', type: 'text', required: false }
-          ]
-        },
-        {
-          title: '자격증',
-          name: 'certificates',
-          type: 'array',
-          isOpen: false,
-          addButtonText: '자격증 추가',
-          fields: [
-            { name: 'name', label: '자격증명', type: 'text', required: true },
-            { name: 'date', label: '취득일', type: 'date', required: true }
-          ]
-        },
-        {
-          title: '자기소개서',
-          type: 'single',
-          isOpen: false,
-          fields: [
-            { name: 'introduction', label: '자기소개', type: 'textarea', required: true }
-          ]
-        }
-      ]
-    };
+// 상태 변수 설정
+const resumes = ref([])
+const showForm = ref(false)
+const isEditing = ref(false)
+const editingResumeId = ref(null)
+
+// 폼 데이터 및 섹션 구조 정의
+const formData = reactive({
+  title: '',
+  name: '',
+  email: '',
+  phone: '',
+  education: [],
+  experience: [],
+  skills: '',
+  certificates: [],
+  introduction: ''
+})
+
+const formSections = reactive([
+  {
+    title: '개인 정보',
+    type: 'single',
+    isOpen: true,
+    fields: [
+      { name: 'title', label: '이력서 제목', type: 'text', required: true },
+      { name: 'name', label: '이름', type: 'text', required: true },
+      { name: 'email', label: '이메일', type: 'email', required: true },
+      { name: 'phone', label: '전화번호', type: 'tel', required: true }
+    ]
   },
-  created() {
-    this.loadResumes();
+  {
+    title: '학력',
+    name: 'education',
+    type: 'array',
+    isOpen: false,
+    addButtonText: '학력 추가',
+    fields: [
+      { name: 'school', label: '학교', type: 'text', required: true },
+      { name: 'major', label: '전공', type: 'text', required: true },
+      { name: 'degree', label: '학위', type: 'text', required: true },
+      { name: 'graduationYear', label: '졸업년도', type: 'number', required: true }
+    ]
   },
-  methods: {
-    async loadResumes() {
-      try {
-        const response = await axios.get('http://localhost:8090/api/mypage/resume');
-        this.resumes = response.data.map(resume => ({ ...resume, isOpen: false }));
-      } catch (error) {
-        console.error('이력서 목록을 불러오는데 실패했습니다:', error.response?.data || error.message);
-        alert('이력서 목록을 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.');
-      }
-    },
-    toggleResume(id) {
-      const resume = this.resumes.find(r => r.id === id);
-      if (resume) {
-        resume.isOpen = !resume.isOpen;
-      }
-    },
-    toggleSection(index) {
-      this.formSections[index].isOpen = !this.formSections[index].isOpen;
-    },
-    addArrayItem(sectionName) {
-      const newItem = {};
-      const section = this.formSections.find(s => s.name === sectionName);
-      section.fields.forEach(field => {
-        newItem[field.name] = '';
-      });
-      this.formData[sectionName].push(newItem);
-    },
-    removeArrayItem(sectionName, index) {
-      this.formData[sectionName].splice(index, 1);
-    },
-    showAddForm() {
-      this.showForm = true;
-      this.isEditing = false;
-      this.resetForm();
-      this.formSections.forEach(section => section.isOpen = false);
-      this.formSections[0].isOpen = true;
-    },
-    editResume(resume) {
-      this.showForm = true;
-      this.isEditing = true;
-      this.editingResumeId = resume.id;
-      Object.assign(this.formData, JSON.parse(JSON.stringify(resume)));
-    },
-    async deleteResume(id) {
-      if (confirm('정말로 이 이력서를 삭제하시겠습니까?')) {
-        try {
-          await axios.delete(`http://localhost:8090/api/mypage/resume/${id}`);
-          this.resumes = this.resumes.filter(r => r.id !== id);
-          alert('이력서가 성공적으로 삭제되었습니다.');
-        } catch (error) {
-          console.error('이력서 삭제에 실패했습니다:', error.response?.data || error.message);
-          alert('이력서 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.');
-        }
-      }
-    },
-    validateForm() {
-      const form = document.querySelector('form');
-      const requiredInputs = form.querySelectorAll('input[required], textarea[required]');
-      
-      let isValid = true;
-      requiredInputs.forEach(input => {
-        if (!input.value.trim()) {
-          input.setCustomValidity('이 필드를 작성해주세요.');
-          isValid = false;
-        } else {
-          input.setCustomValidity('');
-        }
-      });
+  {
+    title: '경력',
+    name: 'experience',
+    type: 'array',
+    isOpen: false,
+    addButtonText: '경력 추가',
+    fields: [
+      { name: 'company', label: '회사', type: 'text', required: true },
+      { name: 'position', label: '직위', type: 'text', required: true },
+      { name: 'startDate', label: '시작일', type: 'date', required: true },
+      { name: 'endDate', label: '종료일', type: 'date', required: false },
+      { name: 'description', label: '업무 설명', type: 'textarea', required: true }
+    ]
+  },
+  {
+    title: '기술 스택',
+    type: 'single',
+    isOpen: false,
+    fields: [
+      { name: 'skills', label: '기술 (쉼표로 구분)', type: 'text', required: false }
+    ]
+  },
+  {
+    title: '자격증',
+    name: 'certificates',
+    type: 'array',
+    isOpen: false,
+    addButtonText: '자격증 추가',
+    fields: [
+      { name: 'name', label: '자격증명', type: 'text', required: true },
+      { name: 'date', label: '취득일', type: 'date', required: true }
+    ]
+  },
+  {
+    title: '자기소개서',
+    type: 'single',
+    isOpen: false,
+    fields: [
+      { name: 'introduction', label: '자기소개', type: 'textarea', required: true }
+    ]
+  }
+])
 
-      return isValid;
-    },
-    handleSubmit() {
-      if (this.validateForm()) {
-        this.saveResume();
-      } else {
-        alert('모든 필수 필드를 작성해주세요.');
-      }
-    },
-    async saveResume() {
-      try {
-        const jsonData = JSON.stringify(this.formData);
-        let response;
-        
-        if (this.isEditing) {
-          response = await axios.put(`http://localhost:8090/api/mypage/resume/${this.editingResumeId}`, jsonData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-        } else {
-          response = await axios.post('http://localhost:8090/api/mypage/resume', jsonData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-        }
+// 비동기 작업을 위한 함수들
+const loadResumes = async () => {
+  try {
+    const response = await axios.get('http://localhost:8090/api/mypage/resume')
+    resumes.value = response.data.map(resume => ({ ...resume, isOpen: false }))
+  } catch (error) {
+    console.error('이력서 목록을 불러오는데 실패했습니다:', error.response?.data || error.message)
+    alert('이력서 목록을 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.')
+  }
+}
 
-        console.log('Server response:', response.data);
+// 함수들 정의
+const toggleResume = (id) => {
+  const resume = resumes.value.find(r => r.id === id)
+  if (resume) {
+    resume.isOpen = !resume.isOpen
+  }
+}
 
-        if (response.data && response.data.id) {
-          if (this.isEditing) {
-            const index = this.resumes.findIndex(r => r.id === this.editingResumeId);
-            if (index !== -1) {
-              this.resumes[index] = { ...response.data, isOpen: false };
-            }
-          } else {
-            this.resumes.push({ ...response.data, isOpen: false });
-          }
+const toggleSection = (index) => {
+  formSections[index].isOpen = !formSections[index].isOpen
+}
 
-          this.showForm = false;
-          this.resetForm();
-          alert(this.isEditing ? '이력서가 성공적으로 수정되었습니다.' : '새 이력서가 성공적으로 등록되었습니다.');
-        } else {
-          throw new Error('Invalid server response');
-        }
-      } catch (error) {
-        console.error('이력서 저장에 실패했습니다:', error.response?.data || error.message);
-        alert(`이력서 저장에 실패했습니다: ${error.response?.data?.message || error.message}`);
-      }
-    },
-    cancelForm() {
-      this.showForm = false;
-      this.resetForm();
-    },
-    resetForm() {
-      this.formData = {
-        title: '',
-        name: '',
-        email: '',
-        phone: '',
-        education: [],
-        experience: [],
-        skills: '',
-        certificates: [],
-        introduction: ''
-      };
-      this.isEditing = false;
-      this.editingResumeId = null;
+const addArrayItem = (sectionName) => {
+  const newItem = {}
+  const section = formSections.find(s => s.name === sectionName)
+  section.fields.forEach(field => {
+    newItem[field.name] = ''
+  })
+  formData[sectionName].push(newItem)
+}
+
+const removeArrayItem = (sectionName, index) => {
+  formData[sectionName].splice(index, 1)
+}
+
+const showAddForm = () => {
+  showForm.value = true
+  isEditing.value = false
+  resetForm()
+  formSections.forEach(section => (section.isOpen = false))
+  formSections[0].isOpen = true
+}
+
+const editResume = (resume) => {
+  showForm.value = true
+  isEditing.value = true
+  editingResumeId.value = resume.id
+  Object.assign(formData, JSON.parse(JSON.stringify(resume)))
+}
+
+const deleteResume = async (id) => {
+  if (confirm('정말로 이 이력서를 삭제하시겠습니까?')) {
+    try {
+      await axios.delete(`http://localhost:8090/api/mypage/resume/${id}`)
+      resumes.value = resumes.value.filter(r => r.id !== id)
+      alert('이력서가 성공적으로 삭제되었습니다.')
+    } catch (error) {
+      console.error('이력서 삭제에 실패했습니다:', error.response?.data || error.message)
+      alert('이력서 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.')
     }
   }
 }
+
+const validateForm = () => {
+  const form = document.querySelector('form')
+  const requiredInputs = form.querySelectorAll('input[required], textarea[required]')
+  
+  let isValid = true
+  requiredInputs.forEach(input => {
+    if (!input.value.trim()) {
+      input.setCustomValidity('이 필드를 작성해주세요.')
+      isValid = false
+    } else {
+      input.setCustomValidity('')
+    }
+  })
+
+  return isValid
+}
+
+const handleSubmit = () => {
+  if (validateForm()) {
+    saveResume()
+  } else {
+    alert('모든 필수 필드를 작성해주세요.')
+  }
+}
+
+const saveResume = async () => {
+  try {
+    const jsonData = JSON.stringify(formData)
+    let response
+    
+    if (isEditing.value) {
+      response = await axios.put(`http://localhost:8090/api/mypage/resume/${editingResumeId.value}`, jsonData, {
+        headers: { 'Content-Type': 'application/json' }
+      })
+    } else {
+      response = await axios.post('http://localhost:8090/api/mypage/resume', jsonData, {
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
+
+    if (response.data && response.data.id) {
+      if (isEditing.value) {
+        const index = resumes.value.findIndex(r => r.id === editingResumeId.value)
+        if (index !== -1) {
+          resumes.value[index] = { ...response.data, isOpen: false }
+        }
+      } else {
+        resumes.value.push({ ...response.data, isOpen: false })
+      }
+
+      showForm.value = false
+      resetForm()
+      alert(isEditing.value ? '이력서가 성공적으로 수정되었습니다.' : '새 이력서가 성공적으로 등록되었습니다.')
+    } else {
+      throw new Error('Invalid server response')
+    }
+  } catch (error) {
+    console.error('이력서 저장에 실패했습니다:', error.response?.data || error.message)
+    alert(`이력서 저장에 실패했습니다: ${error.response?.data?.message || error.message}`)
+  }
+}
+
+const cancelForm = () => {
+  showForm.value = false
+  resetForm()
+}
+
+const resetForm = () => {
+  formData.title = ''
+  formData.name = ''
+  formData.email = ''
+  formData.phone = ''
+  formData.education = []
+  formData.experience = []
+  formData.skills = ''
+  formData.certificates = []
+  formData.introduction = ''
+  isEditing.value = false
+  editingResumeId.value = null
+}
+
+// 컴포넌트가 마운트될 때 이력서를 불러옴
+onMounted(loadResumes)
 </script>
 
 <style scoped>
+/* 기존 스타일 코드 동일하게 유지 */
 .resume-management {
   width: 100%;
   max-width: 100%;
