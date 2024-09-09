@@ -1,72 +1,160 @@
 <template>
-    <div class="logincontainer">
-        <div class="omniscientLogo">
-            <h1>전직시</h1>
-        </div>
-        <div class="loginBox">
-            <form class="row g-3">
-                <div class="form-floating mb-3">
-                    <label for="floatingInput">아이디</label>
-                    <input type="id" class="form-control" id="floatingInput" placeholder="name@naver.com">
-                </div>
-                <div class="form-floating">
-                    <label for="floatingPassword">비밀번호</label>
-                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
-                </div>
-                <div class="loginbutton">
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary mb-3">로그인</button>
-                    </div>
-                </div>
+    <div class="auth-container">
+      <div class="login-content">
+        <!-- 로그인 폼 -->
+        <div class="login-form">
+          <div class="omniscientLogo">
+            <h1>Welcome to 전직시</h1>
+          </div>
+          <p class="subtitle">당신의 꿈을 응원합니다!</p>
+          <div class="auth-box">
+            <form @submit.prevent="handleSubmit">
+              <div class="form-floating mb-3">
+                <label for="userId">아이디</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="userId"
+                  v-model="userId"
+                  placeholder="아이디를 입력해주세요"
+                  required
+                />
+              </div>
+              <div class="form-floating">
+                <label for="password">패스워드</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  v-model="password"
+                  placeholder="패스워드를 입력해주세요"
+                  required
+                />
+              </div>
+              <div class="loginbutton">
+                <button type="submit" class="btn btn-primary mb-3">로그인</button>
+              </div>
             </form>
+          </div>
+          <div class="options">
+            <RouterLink to="/signUp" class="link">회원가입</RouterLink> |
+            <p class="link" @click="findId">아이디 찾기</p> /
+            <p class="link" @click="findPassword">비밀번호 찾기</p>
+          </div>
         </div>
-        <div class="membership">
-            <RouterLink to="/login/detail">
-                회원가입
-            </RouterLink>
+  
+        <!-- 이미지 섹션 -->
+        <div class="login-image">
+          <div class="image-content">
+            <h2>Make a Dream.</h2>
+          </div>
         </div>
-        <div>
-            <p>아이디 찾기</p>
-            <p>비밀번호 찾기</p>
-        </div>
+      </div>
     </div>
-</template>
-
-<script setup>
-</script>
-
-<style>
-.logincontainer {
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 70%;
-    height: 100vh;
-    /* 전체 높이를 차지하도록 설정 */
-    border: 1px solid #ffffff;
-    /* 보더 박스 추가 */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    /* 그림자 효과 */
+  </template>
+  
+  <script setup>
+  </script>
+  
+  <style>
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
 }
 
-.loginBox {
-    width: 100%;
-    max-width: 400px;
-    /* 최대 너비 설정 (필요에 따라 조정 가능) */
+.login-content {
+  display: flex;
+  width: 90%; /* 너비를 90%로 변경 */
+  max-width: 1400px; /* 최대 너비를 1400px로 변경 */
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  height: 80vh; /* 높이를 80vh로 설정 */
 }
 
-.loginbutton {
-    margin: 10px 0 10px 0;
+/* 로그인 이미지 스타일 */
+.login-image {
+  flex: 1; /* 이미지 섹션이 남은 공간을 꽉 채움 */
+  background-color: #0000ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
 }
 
-.btn {
-    width: 100%;
+/* 로그인 폼 스타일 */
+.login-form {
+  flex: 1; /* 로그인 폼이 남은 공간을 꽉 채움 */
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.omniscientLogo h1 {
+  font-size: 30px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.auth-box {
+  margin-bottom: 20px;
+}
+
+.form-floating {
+  margin-bottom: 15px;
 }
 
 .form-control {
-    width: 50%;
-    /* 입력창 너비를 logincontainer의 50%로 설정 */
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
-</style>
+
+.btn-primary {
+  width: 100%; /* 버튼을 꽉 채우기 */
+  background-color: #0000ff;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+/* 회원가입, 아이디/비밀번호 찾기 스타일 */
+.options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.link {
+  color: #0056b3;
+  text-decoration: none; /* 기본 상태에서 밑줄 제거 */
+  cursor: pointer;
+}
+
+.link:hover {
+  color: #2f1ae4; /* 호버 시 글자 색상 변경 */
+  text-decoration: none; /* 호버 시에도 밑줄 없음 */
+}
+
+.image-content h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+  </style>
+  
