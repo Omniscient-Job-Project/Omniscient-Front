@@ -54,7 +54,10 @@
           <div class="card-body">
             <h5 class="card-title fixed-title">신규 회원 목록</h5>
             <ul class="list-group list-group-flush members-list">
-              <li v-for="(user, index) in users" :key="index" class="list-group-item d-flex align-items-center">
+              <li v-if="users.length === 0" class="list-group-item">
+                신규 회원이 없습니다.
+              </li>
+              <li v-for="(user, index) in users.slice(0, 10)" :key="index" class="list-group-item d-flex align-items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person me-2" viewBox="0 0 16 16">
                   <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm4-3a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/>
                   <path d="M8 9a5 5 0 0 0-4.546 2.914C3.582 12.83 4.768 14 8 14s4.418-1.17 4.546-2.086A5 5 0 0 0 8 9zM2.869 13.145C3.98 14.596 5.606 16 8 16s4.02-1.404 5.131-2.855C12.454 11.667 10.979 11 8 11c-2.979 0-4.454.667-5.131 2.145z"/>
@@ -133,7 +136,7 @@ watch(selectedRange, async () => {
 }
 .members-list {
   max-height: 400px; /* 필요에 따라 높이를 조정 */
-  overflow-y: auto;
+  overflow-y: auto; /* 수직 스크롤바 표시 */
 }
 @media (max-width: 992px) {
   .card-body canvas {

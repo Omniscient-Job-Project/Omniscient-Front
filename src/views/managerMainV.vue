@@ -4,7 +4,7 @@
     <div class="content">
       <Sidebar />
       <div class="main-content">
-        <ManagerMain />
+        <router-view></router-view> <!-- 여기에서 하위 라우트 컴포넌트를 렌더링합니다 -->
       </div>
     </div>
     <Footer />

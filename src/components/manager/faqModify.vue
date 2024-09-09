@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="faq-form">
     <h1>FAQ 수정</h1>
     <form @submit.prevent="updateFaq">
       <div>
@@ -12,7 +12,7 @@
       </div>
       <button type="submit">저장</button>
     </form>
-    <router-link to="/faq/list">돌아가기</router-link>
+    <router-link to="/faq/list" class="link-button">돌아가기</router-link>
   </div>
 </template>
 
@@ -28,7 +28,7 @@ const faq = ref({ question: '', answer: '' });
 
 const fetchFaq = async () => {
   try {
-    const response = await axios.get(`/api/faqs/${route.params.id}`);
+    const response = await axios.get(`http://localhost:8090/api/v1/faqs/${route.params.id}`);
     faq.value = response.data;
   } catch (error) {
     console.error('Error fetching FAQ:', error);
@@ -37,8 +37,8 @@ const fetchFaq = async () => {
 
 const updateFaq = async () => {
   try {
-    await axios.put(`/api/faqs/${route.params.id}`, faq.value);
-    router.push('/faq/list');
+    await axios.put(`http://localhost:8090/api/v1/faqs/${route.params.id}`, faq.value);
+    router.push('/manager/faq/faqList');
   } catch (error) {
     console.error('Error updating FAQ:', error);
   }
@@ -48,5 +48,54 @@ onMounted(fetchFaq);
 </script>
 
 <style scoped>
-/* Add your styles here */
+.faq-form {
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+form div {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.link-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.link-button:hover {
+  background-color: #0056b3;
+}
 </style>

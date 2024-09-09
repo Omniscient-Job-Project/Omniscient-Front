@@ -1,11 +1,11 @@
+// src/assets/js/fetchUserCount.js
 import axios from 'axios';
 
-// 'todayVisitorCount'는 Vue의 ref 객체로 가정
-export const fetchTodayVisitorCount = async (todayVisitorCount) => {
+export async function fetchUserCount(userCountRef) {
     try {
-        const response = await axios.get('http://localhost:8090/api/v1/visitor-today'); // 올바른 API 엔드포인트로 수정
-        todayVisitorCount.value = response.data.count || response.data; 
+        const response = await axios.get('http://localhost:8090/api/v1/user/user-count'); 
+        userCountRef.value = response.data;
     } catch (error) {
-        console.error('Failed to fetch today visitor count:', error);
+        console.error('Error fetching user count:', error);
     }
-};
+}
