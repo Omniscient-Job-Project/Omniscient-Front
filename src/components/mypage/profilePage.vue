@@ -1,117 +1,224 @@
 <template>
   <div class="profile-page">
     <h1 class="profile-title">프로필</h1>
-    <div class="profile-content">
-      <div class="profile-left">
-        <div class="profile-section basic-info">
-          <h2 class="section-title">기본 정보</h2>
-          <div class="profile-main">
-            <div class="profile-image">
-              <img :src="profileImage" alt="프로필 이미지" @click="triggerImageUpload" />
-              <input type="file" ref="imageInput" @change="handleImageUpload" style="display: none;" accept="image/*">
-              <div v-if="isEditing" class="image-upload-prompt">
-                <i class="fas fa-camera"></i>
-                <span>이미지 변경</span>
+    <form @submit.prevent="saveProfile" class="profile-form">
+      <div class="profile-content">
+        <div class="profile-left">
+          <div class="profile-section basic-info">
+            <h2 class="section-title">기본 정보</h2>
+            <div class="profile-main">
+              <div class="profile-image">
+                <img :src="profileImageUrl" alt="프로필 이미지" @click="triggerImageUpload" />
+                <input type="file" ref="imageInput" @change="handleImageUpload" style="display: none;" accept="image/*" id="profileImage">
+                <label for="profileImage" v-if="isEditing" class="image-upload-prompt">
+                  <i class="fas fa-camera"></i>
+                  <span>이미지 변경</span>
+                </label>
+              </div>
+              <div class="profile-details">
+                <div v-if="!isEditing">
+                  <h2>{{ profile.name }}</h2>
+                  <p class="job-title">{{ profile.jobTitle }}</p>
+                </div>
+                <div v-else>
+                  <div class="form-group">
+                    <label for="name">이름</label>
+                    <input id="name" v-model="profile.name" type="text" class="edit-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="jobTitle">직책</label>
+                    <input id="jobTitle" v-model="profile.jobTitle" type="text" class="edit-input">
+                  </div>
+                </div>
+                <div class="contact-info">
+                  <div v-if="!isEditing">
+                    <p><i class="fas fa-envelope"></i> {{ profile.email }}</p>
+                    <p><i class="fas fa-phone"></i> {{ profile.phone }}</p>
+                  </div>
+                  <div v-else>
+                    <div class="form-group">
+                      <label for="email">이메일</label>
+                      <input id="email" v-model="profile.email" type="email" class="edit-input" placeholder="이메일" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="phone">전화번호</label>
+                      <input id="phone" v-model="profile.phone" type="tel" class="edit-input" placeholder="전화번호">
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="profile-details">
-              <h2 v-if="!isEditing">{{ name }}</h2>
-              <input v-else v-model="name" type="text" class="edit-input">
-              <p v-if="!isEditing" class="job-title">{{ jobTitle }}</p>
-              <input v-else v-model="jobTitle" type="text" class="edit-input">
-              <div class="contact-info">
-                <p v-if="!isEditing"><i class="fas fa-envelope"></i> {{ email }}</p>
-                <input v-else v-model="email" type="email" class="edit-input" placeholder="이메일">
-                <p v-if="!isEditing"><i class="fas fa-phone"></i> {{ phone }}</p>
-                <input v-else v-model="phone" type="tel" class="edit-input" placeholder="전화번호">
+          </div>
+        </div>
+        <div class="profile-right">
+          <div class="profile-section additional-info">
+            <h2 class="section-title">추가 정보</h2>
+            <div class="info-section">
+              <div v-if="!isEditing">
+                <p>나이: {{ profile.age }}세</p>
+                <p>주소: {{ profile.address }}</p>
+              </div>
+              <div v-else>
+                <div class="form-group">
+                  <label for="age">나이</label>
+                  <input id="age" v-model.number="profile.age" type="number" class="edit-input" placeholder="나이">
+                </div>
+                <div class="form-group">
+                  <label for="address">주소</label>
+                  <input id="address" v-model="profile.address" type="text" class="edit-input" placeholder="주소">
+                </div>
               </div>
             </div>
+          </div>
+          <div class="profile-section certificates">
+            <h2 class="section-title">자격증</h2>
+            <div class="certificates-section">
+              <ul v-if="!isEditing">
+                <li v-for="cert in profile.certificates" :key="cert">{{ cert }}</li>
+              </ul>
+              <div v-else>
+                <div v-for="(cert, index) in profile.certificates" :key="index" class="certificate-edit">
+                  <div class="form-group">
+                    <label :for="'certificate-' + index">자격증 {{ index + 1 }}</label>
+                    <input :id="'certificate-' + index" v-model="profile.certificates[index]" type="text" class="edit-input">
+                  </div>
+                  <button type="button" @click="removeCertificate(index)" class="remove-btn"><i class="fas fa-minus-circle"></i></button>
+                </div>
+                <button type="button" @click="addCertificate" class="add-btn"><i class="fas fa-plus-circle"></i> 자격증 추가</button>
+              </div>
+            </div>
+          </div>
+          <div class="button-container">
+            <button type="submit" v-if="isEditing" class="edit-button save-mode">
+              <i class="fas fa-save"></i> 저장
+            </button>
+            <button type="button" @click="toggleEditMode" v-else class="edit-button">
+              <i class="fas fa-edit"></i> 수정
+            </button>
           </div>
         </div>
       </div>
-      <div class="profile-right">
-        <div class="profile-section additional-info">
-          <h2 class="section-title">추가 정보</h2>
-          <div class="info-section">
-            <p v-if="!isEditing">나이: {{ age }}세</p>
-            <input v-else v-model="age" type="number" class="edit-input" placeholder="나이">
-            <p v-if="!isEditing">주소: {{ address }}</p>
-            <input v-else v-model="address" type="text" class="edit-input" placeholder="주소">
-          </div>
-        </div>
-        <div class="profile-section certificates">
-          <h2 class="section-title">자격증</h2>
-          <div class="certificates-section">
-            <ul v-if="!isEditing">
-              <li v-for="cert in certificates" :key="cert">{{ cert }}</li>
-            </ul>
-            <div v-else>
-              <div v-for="(cert, index) in certificates" :key="index" class="certificate-edit">
-                <input v-model="certificates[index]" type="text" class="edit-input">
-                <button @click="removeCertificate(index)" class="remove-btn"><i class="fas fa-minus-circle"></i></button>
-              </div>
-              <button @click="addCertificate" class="add-btn"><i class="fas fa-plus-circle"></i> 자격증 추가</button>
-            </div>
-          </div>
-        </div>
-        <div class="button-container">
-          <button @click="toggleEditMode" class="edit-button" :class="{ 'save-mode': isEditing }">
-            <i :class="isEditing ? 'fas fa-save' : 'fas fa-edit'"></i>
-            {{ isEditing ? '저장' : '수정' }}
-          </button>
-        </div>
-      </div>
-    </div>
+    </form>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script>
+import axios from 'axios';
 
-const isEditing = ref(false);
-const name = ref('신주연');
-const jobTitle = ref('주니어 천재 개발자');
-const email = ref('joo@naver.com');
-const phone = ref('010-1234-5678');
-const age = ref(25);
-const address = ref('서울특별시 강남구');
-const certificates = ref(['정보처리기사', 'SQLD']);
-const profileImage = ref('https://via.placeholder.com/150');
-const imageInput = ref(null);
-
-const toggleEditMode = () => {
-  isEditing.value = !isEditing.value;
-  if (!isEditing.value) {
-    // Here you would typically save the changes to a backend
-    console.log('Changes saved');
-  }
-};
-
-const addCertificate = () => {
-  certificates.value.push('');
-};
-
-const removeCertificate = (index) => {
-  certificates.value.splice(index, 1);
-};
-
-const triggerImageUpload = () => {
-  if (isEditing.value) {
-    imageInput.value.click();
-  }
-};
-
-const handleImageUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      profileImage.value = e.target.result;
+export default {
+  name: 'ProfilePage',
+  data() {
+    return {
+      profile: {
+        id: null,
+        name: '',
+        jobTitle: '',
+        email: '',
+        phone: '',
+        age: null,
+        address: '',
+        certificates: [],
+        profileImage: null
+      },
+      isEditing: false,
+      imageFile: null
     };
-    reader.readAsDataURL(file);
+  },
+  computed: {
+    profileImageUrl() {
+      return this.profile.profileImage
+        ? `data:image/jpeg;base64,${this.profile.profileImage}`
+        : 'https://via.placeholder.com/150';
+    }
+  },
+  created() {
+    this.loadProfile();
+  },
+  methods: {
+    async loadProfile() {
+      try {
+        const response = await axios.get('http://localhost:8090/api/mypage');
+        if (response.data && response.data.length > 0) {
+          this.profile = response.data[0];  // 첫 번째 프로필을 사용
+        } else {
+          throw new Error('프로필을 찾을 수 없습니다.');
+        }
+      } catch (error) {
+        console.error('프로필을 불러오는데 실패했습니다:', error);
+        alert('프로필을 불러오는데 실패했습니다.');
+      }
+    },
+    toggleEditMode() {
+      this.isEditing = !this.isEditing;
+    },
+    addCertificate() {
+      this.profile.certificates.push('');
+    },
+    removeCertificate(index) {
+      this.profile.certificates.splice(index, 1);
+    },
+    triggerImageUpload() {
+      if (this.isEditing) {
+        this.$refs.imageInput.click();
+      }
+    },
+    handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.imageFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.profile.profileImage = e.target.result.split(',')[1]; // Store base64 string
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    async saveProfile() {
+  try {
+    const formData = new FormData();
+    Object.keys(this.profile).forEach(key => {
+      if (key === 'id' && !this.profile.id) {
+        // id가 없거나 0이면 전송하지 않음
+        return;
+      }
+      if (key === 'certificates') {
+        formData.append(key, JSON.stringify(this.profile[key]));
+      } else {
+        formData.append(key, this.profile[key]);
+      }
+    });
+
+    if (this.imageFile) {
+      formData.append('profileImage', this.imageFile);
+    }
+
+    let response;
+    if (this.profile.id) {
+      response = await axios.put(`http://localhost:8090/api/mypage/${this.profile.id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    } else {
+      response = await axios.post('http://localhost:8090/api/mypage', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    }
+
+    this.profile = response.data;
+    this.isEditing = false;
+    alert('프로필이 성공적으로 업데이트되었습니다.');
+  } catch (error) {
+    console.error('프로필 저장에 실패했습니다:', error);
+    alert('프로필 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
   }
-};
+}
+  }
+}
 </script>
+
 
 <style scoped>
 .profile-page {
@@ -135,6 +242,12 @@ const handleImageUpload = (event) => {
   flex: 1;
   min-width: 300px;
 }
+.label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
 
 .profile-right {
   flex: 2;
@@ -156,7 +269,7 @@ const handleImageUpload = (event) => {
 }
 
 .additional-info {
-  flex: 2;  /* 추가 정보 섹션의 크기를 2배로 늘림 */
+  flex: 2;
 }
 
 .certificates {
@@ -247,11 +360,10 @@ const handleImageUpload = (event) => {
 
 .edit-input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
+  padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .certificate-edit {
