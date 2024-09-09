@@ -1,59 +1,70 @@
 <template>
-    <body>
-        <!-- 디테일 페이지 전체 컨테이너 -->
-        <div class="container">
-            <div class="top">
-                <!-- 회사이름 및 채용 제목 -->
-                <div>
-                    <div class="companyname">
-                        회사이름
-                    </div>
-                    <div class="subject">
-                        채용 제목
-                    </div>
-                </div>
-                <div class="buttons">
-                    <!-- 스크랩 버튼 -->
-                    <div class="scrapbutton" @click="toggleBookmark">
-                        <svg v-if="!isBookmarked" xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16">
-                            <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2" />
-                        </svg>
-                        <svg v-if="isBookmarked" xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-bookmark-fill" viewBox="0 0 16 16">
-                            <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2" />
-                        </svg>
-                    </div>
-                    <!-- 홈페이지 지원 버튼 -->
-                    <div class="homepagelink">
-                        <a class="btn btn-primary" href="#" role="button">홈페이지 지원</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 중간 내용 -->
-            <div class="middle">
-                <div>경력</div>
-                <div>급여</div>
-                <div>학력</div>
-                <div>근무지역</div>
-                <div>근무형태</div>
-            </div>
-            <!-- 채용 구체적 내용 -->
-            <div class="bottom">
-                <div>디테일 내용</div>
-            </div>
+    <div v-if="jobDetail" class="container">
+      <div class="top">
+        <div>
+          <h1>{{ jobDetail.jobCompanyName }}</h1>
+          <h2>{{ jobDetail.jobInfoTitle }}</h2>
         </div>
-    </body>
-</template>
-
-<script setup>
-import { ref } from 'vue';
-
-const isBookmarked = ref(false);
-
-function toggleBookmark() {
+        <div class="buttons">
+          <!-- 스크랩 버튼 -->
+          <div class="scrapbutton" @click="toggleBookmark">
+            <svg v-if="!isBookmarked" xmlns="http://www.w3.org/2000/svg" width="35" height="35"
+              fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16">
+              <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2" />
+            </svg>
+            <svg v-if="isBookmarked" xmlns="http://www.w3.org/2000/svg" width="35" height="35"
+              fill="currentColor" class="bi bi-bookmark-fill" viewBox="0 0 16 16">
+              <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2" />
+            </svg>
+          </div>
+          <!-- 홈페이지 지원 버튼 -->
+          <div class="homepagelink">
+            <a class="btn btn-primary" :href="jobDetail.jobWebInfoUrl" role="button" target="_blank">홈페이지 지원</a>
+          </div>
+        </div>
+      </div>
+  
+      <div class="middle">
+        <div>경력: {{ jobDetail.jobCareerCondition }}</div>
+        <div>급여: {{ jobDetail.jobSalary }}</div>
+        <div>학력: {{ jobDetail.academicCondition }}</div>
+        <div>근무지역: {{ jobDetail.jobLocation }}</div>
+        <div>근무형태: {{ jobDetail.jobEmploymentType }}</div>
+      </div>
+  
+      <div class="bottom">
+        <p>{{ jobDetail.detailDescription }}</p>
+      </div>
+    </div>
+  
+    <div v-else>로딩 중...</div>
+  </template>
+  
+  <script setup>
+  import { ref, onMounted } from 'vue';
+  import { useRoute } from 'vue-router';
+  import axios from 'axios';
+  
+  const route = useRoute();
+  const jobId = route.params.id;
+  const jobDetail = ref(null);
+  
+  // 북마크 상태
+  const isBookmarked = ref(false);
+  const toggleBookmark = () => {
     isBookmarked.value = !isBookmarked.value;
-}
-</script>
+  };
+  
+  onMounted(async () => {
+    try {
+      const response = await axios.get(`http://localhost:8090/api/jobinfo/${jobId}`);
+      jobDetail.value = response.data; // API에서 받은 세부 정보
+    } catch (error) {
+      console.error('세부 정보를 가져오는 데 실패했습니다.', error);
+    }
+  });
+  </script>
+  
 
 <style>
 body {

@@ -6,14 +6,8 @@
         <p>보유하고 있는 자격증 또는 취득할 자격증을 선택하세요.</p>
       </div>
       <div class="input-group mb-3">
-        <input
-          type="text"
-          v-model="certificate"
-          class="form-control"
-          placeholder="자격증의 이름을 입력하세요."
-          aria-label="자격증"
-          aria-describedby="button-addon2"
-        />
+        <input type="text" v-model="certificate" class="form-control" placeholder="자격증의 이름을 입력하세요." aria-label="자격증"
+          aria-describedby="button-addon2" />
       </div>
       <div class="button-container">
         <button class="btn btn-outline-secondary" type="button" @click="onSelectComplete">선택 완료</button>
@@ -21,25 +15,27 @@
     </div>
     <!-- 자격증 검색 끝 -->
 
-    <!-- 그 외 큐레이션 부분 -->
+    <!-- 큐레이션 -->
     <div class="curationIndex">
-      <div><p>홈</p></div>
-      <div><p>자격증</p></div>
-      <div><p>지하철</p></div>
-      <div><p>등등</p></div>
+      <div>
+        <p>홈</p>
+      </div>
+      <div>
+        <p>자격증</p>
+      </div>
+      <div>
+        <p>지하철</p>
+      </div>
+      <div>
+        <p>등등</p>
+      </div>
     </div>
 
-    <!-- 메인페이지 검색창 -->
+    <!-- 검색창 -->
     <div class="search-bar">
       <div class="cardinput">
-        <input
-          type="text"
-          v-model="searchTerm"
-          class="form-control"
-          placeholder="채용 정보를 검색해보세요."
-          aria-label="검색"
-          aria-describedby="button-addon2"
-        />
+        <input type="text" v-model="searchTerm" class="form-control" placeholder="채용 정보를 검색해보세요." aria-label="검색"
+          aria-describedby="button-addon2" />
         <button class="btn btn-outline-secondary" type="button" id="button-addon2" @click="searchJobs">검색</button>
       </div>
     </div>
@@ -47,8 +43,8 @@
     <!-- 채용정보 카드 -->
     <div class="recruitmentCards">
       <div class="row row-cols-1 row-cols-md-2 g-4">
-        <div v-for="job in filteredJobs" :key="job.jobId" class="col">
-          <div class="card">
+        <div v-for="job in paginatedJobs" :key="job.jobId" class="col">
+          <div class="card" @click="goToDetail(job.jobId)">
             <div class="card-body">
               <h5 class="card-title">{{ job.jobInfoTitle }}</h5>
               <p class="card-text">회사: {{ job.jobCompanyName }}</p>
@@ -59,7 +55,25 @@
         </div>
       </div>
     </div>
-    <!-- 채용정보카드 끝 -->
+
+    <!-- 페이지네이션 -->
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <a class="page-link" href="#" aria-label="Previous" @click.prevent="changePage(currentPage - 1)">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: page === currentPage }">
+          <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <a class="page-link" href="#" aria-label="Next" @click.prevent="changePage(currentPage + 1)">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
@@ -69,10 +83,10 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-
-// 상태 변수
 const searchTerm = ref('');
 const jobs = ref([]);
+const currentPage = ref(1);
+const itemsPerPage = 40; // 한 페이지에 보이는 카드 수
 
 // 채용 정보를 가져오는 함수
 const fetchJobs = async () => {
@@ -106,22 +120,27 @@ const filteredJobs = computed(() => {
   );
 });
 
-// 검색 기능
-const searchJobs = () => {
-  console.log('검색어:', searchTerm.value);
+// 페이지네이션을 위한 데이터
+const totalPages = computed(() => Math.ceil(filteredJobs.value.length / itemsPerPage));
+const paginatedJobs = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredJobs.value.slice(start, end);
+});
+
+// 페이지 변경 함수
+const changePage = (page) => {
+  if (page < 1 || page > totalPages.value) return;
+  currentPage.value = page;
 };
 
-// 자격증 선택 완료 핸들러
-const onSelectComplete = () => {
-  console.log('자격증 선택 완료:', certificate.value);
+// 디테일 페이지 이동
+const goToDetail = (jobId) => {
+  router.push({ name: 'curationDetail', params: { id: jobId } });
 };
-
-// 자격증 입력값
-const certificate = ref('');
 </script>
 
 <style>
-
 body {
   background-color: #E6F3FF;
 }
@@ -172,7 +191,8 @@ body {
 }
 
 .btn {
-  width: 150px; /* 너비를 더 넓히기 */
+  width: 150px;
+  /* 너비를 더 넓히기 */
   height: 6vh;
   background-color: #0166FF;
   color: white;
@@ -188,22 +208,25 @@ body {
   display: flex;
   justify-content: flex-end;
   width: 100%;
-  margin-bottom: 30px; /* 검색창 아래에 여유 공간 추가 */
+  margin-bottom: 30px;
+  /* 검색창 아래에 여유 공간 추가 */
 }
 
 .search-bar .cardinput {
   display: flex;
-  align-items: center; /* input과 버튼을 수직으로 가운데 정렬 */
+  align-items: center;
+  /* input과 버튼을 수직으로 가운데 정렬 */
 }
 
 .search-bar input {
-  height: 40px; 
+  height: 40px;
   width: 300px;
-  margin-right: 10px; /* 인풋창과 버튼 사이의 간격 추가 */
+  margin-right: 10px;
+  /* 인풋창과 버튼 사이의 간격 추가 */
 }
 
 .search-bar .btn {
-  height: 45px; 
+  height: 45px;
   width: 80px;
 }
 
@@ -240,7 +263,8 @@ body {
 /* 채용정보 카드 스타일 */
 .recruitmentCards {
   width: 100%;
-  margin: 0 auto; /* 가운데 정렬 */
+  margin: 0 auto;
+  /* 가운데 정렬 */
 }
 
 .recruitmentCards .row {
@@ -269,8 +293,42 @@ body {
   flex-grow: 1;
 }
 
+/* 페이지네이션 스타일 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+}
 
+.pagination .page-item {
+  margin: 0 5px;
+}
 
+.pagination .page-link {
+  display: block;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  color: blue; /* 글자 색상 변경 */
+  text-decoration: none; /* 밑줄 제거 */
+  border-radius: 4px; /* 모서리 둥글게 */
+}
+
+.pagination .page-link:hover {
+  background-color: #f8f9fa; /* 호버 시 배경색 변경 */
+  border-color: #007bff; /* 호버 시 테두리 색상 변경 */
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #6c757d; /* 비활성화된 링크 색상 */
+  pointer-events: none; /* 클릭 방지 */
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* 현재 페이지 색상 */
+  color: white; /* 현재 페이지 글자 색상 */
+  border-color: #007bff; /* 현재 페이지 테두리 색상 */
+}
 </style>
 
 
