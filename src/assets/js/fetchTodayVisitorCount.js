@@ -1,11 +1,12 @@
-// src/assets/js/fetchUserCount.js
+// src/assets/js/fetchTodayVisitorCount.js
+
 import axios from 'axios';
 
-export async function fetchUserCount(userCountRef) {
-    try {
-        const response = await axios.get('http://localhost:8090/api/v1/user/user-count'); 
-        userCountRef.value = response.data;
-    } catch (error) {
-        console.error('Error fetching user count:', error);
-    }
-}
+export const fetchTodayVisitorCount = async (visitorCountRef) => {
+  try {
+    const response = await axios.get('http://localhost:8090/api/v1/todayVisitor');
+    visitorCountRef.value = response.data.todayVisitorCount;
+  } catch (error) {
+    console.error('Failed to fetch today\'s visitor count:', error);
+  }
+};

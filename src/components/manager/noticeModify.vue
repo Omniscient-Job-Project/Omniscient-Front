@@ -58,7 +58,7 @@ export default {
     async fetchNotice() {
       if (this.noticeId) {
         try {
-          const response = await axios.get(`http://localhost:8090/api/v1/notice/${this.noticeId}`);
+          const response = await axios.get(`/api/v1/notice/${this.noticeId}`);
           const notice = response.data;
           if (notice) {
             this.noticeTitle = notice.noticeTitle;
@@ -82,12 +82,12 @@ export default {
         };
 
         try {
-          const response = await axios.put(`http://localhost:8090/api/v1/notice/${this.noticeId}`, updatedNotice, {
+          const response = await axios.put(`/api/v1/notice/${this.noticeId}`, updatedNotice, {
             headers: {
               'Content-Type': 'application/json'
             }
           });
-          this.$router.push('/manager/notice/noticelist');
+          this.$router.push('/manager/noticelist');
         } catch (error) {
           console.error('공지 수정 실패:', error.response ? error.response.data : error.message);
         }
@@ -97,7 +97,7 @@ export default {
     },
 
     cancel() {
-      this.$router.push('/manager/notice/noticelist');
+      this.$router.push('/manager/noticelist');
     }
   }
 }
@@ -149,7 +149,7 @@ h1 {
 }
 
 .buttongroup .btn-custom {
-  background-color: #1244AF;
+  background-color: #AFF6C3;
   color: white;
   border: none;
 }

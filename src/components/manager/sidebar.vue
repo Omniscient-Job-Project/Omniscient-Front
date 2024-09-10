@@ -5,7 +5,7 @@
       <div class="list-group list-group-flush">
         <!-- 홈화면 -->
         <div class="menu-group">
-          <router-link class="menu-item" to="/manager">
+          <router-link class="menu-item" to="/manager/main">
             홈화면
           </router-link>
         </div>
@@ -15,10 +15,10 @@
         <div class="menu-group">
           <button class="menu-group-header">회원</button>
           <div class="submenu">
-            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/admin/userList">
+            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/userList">
               회원목록
             </router-link>
-            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/admin/adminMain">
+            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/adminMain">
               회원권한설정
             </router-link>
           </div>
@@ -29,10 +29,10 @@
         <div class="menu-group">
           <button class="menu-group-header">공지 관리</button>
           <div class="submenu">
-            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/notice/noticeList">
+            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/noticeList">
               공지목록
             </router-link>
-            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/notice/noticePost">
+            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/noticePost">
               공지등록
             </router-link>
           </div>
@@ -43,10 +43,10 @@
         <div class="menu-group">
           <button class="menu-group-header">F&Q</button>
           <div class="submenu">
-            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/faq/faqList">
+            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/faqList">
               F&Q목록
             </router-link>
-            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/faq/faqPost">
+            <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/faqPost">
               F&Q등록
             </router-link>
           </div>

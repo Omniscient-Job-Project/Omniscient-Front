@@ -17,11 +17,11 @@ const route = useRoute();
 watch(
   () => route.path,
   (newPath) => {
-    if (newPath === '/manager/faq/faqList') {
+    if (newPath === '/manager/faqList') {
       setRoot('faqList');
-    } else if (newPath === '/manager/faq/faqPost') {
+    } else if (newPath === '/manager/faqPost') {
       setRoot('faqPost');
-    } else if (newPath === '/manager/faq/faqModify') {
+    } else if (newPath === '/manager/faqModify') {
       setRoot('faqModify');
     } 
   },

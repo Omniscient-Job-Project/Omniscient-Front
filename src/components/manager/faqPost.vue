@@ -10,9 +10,12 @@
         <label for="answer">답변:</label>
         <textarea v-model="newFaq.answer" id="answer" required></textarea>
       </div>
-      <button type="submit">등록</button>
+      <!-- 버튼들을 감싸는 div 추가 -->
+      <div class="button-group">
+        <button type="submit">등록</button>
+        <router-link to="/manager/faq/faqList" class="link-button">돌아가기</router-link>
+      </div>
     </form>
-    <router-link to="/manager/faq/faqList" class="link-button">돌아가기</router-link>
   </div>
 </template>
 
@@ -27,10 +30,10 @@ const router = useRouter();
 const createFaq = async () => {
   try {
     // API 요청 URL 확인
-    const response = await axios.post('http://localhost:8090/api/v1/faqs', newFaq.value);
+    const response = await axios.post('/api/v1/faqs', newFaq.value);
     console.log('FAQ created:', response.data);
     // 리스트 페이지로 리다이렉트
-    router.push('/manager/faq/faqList');
+    router.push('/manager/faqList');
   } catch (error) {
     console.error('Error creating FAQ:', error.response?.data || error.message);
   }
@@ -62,30 +65,35 @@ input, textarea {
   border-radius: 4px;
 }
 
+/* 버튼들을 오른쪽 정렬하기 위한 스타일 */
+.button-group {
+  display: flex;
+  justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
+  gap: 10px; /* 버튼 간격을 추가 */
+}
+
 button {
   padding: 10px 15px;
-  background-color: #007bff;
-  color: #fff;
+  background-color: #AFF6C3;
+  color: #030303;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #A1D4B4; /* 버튼 hover 색상 */
 }
 
 .link-button {
-  display: inline-block;
-  margin-top: 20px;
   padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
+  background-color: #AFF6C3;
+  color: #050505;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: 4px;  
 }
 
 .link-button:hover {
-  background-color: #0056b3;
+  background-color: #A1D4B4; /* 링크 버튼 hover 색상 */
 }
 </style>
