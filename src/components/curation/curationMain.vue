@@ -91,7 +91,8 @@ const itemsPerPage = 40; // 한 페이지에 보이는 카드 수
 // 채용 정보를 가져오는 함수
 const fetchJobs = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/jobinfo', { withCredentials: true });
+    const response = await axios.get('http://localhost:8090/api/v1/seoul/jobinfo', { withCredentials: true });
+    // const response = await axios.get('http://localhost:8090/api/v1/jobaba/jobinfo', { withCredentials: true });
     const jobData = response.data.GetJobInfo.row;
     jobs.value = jobData.map(job => ({
       jobId: job.JO_REQST_NO,
