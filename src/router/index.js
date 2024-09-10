@@ -30,10 +30,15 @@ const router = createRouter({
       name: 'home',
       component: Main
     },
-    { 
-      path: '/board',
+    {
+      path: '/board/:category?',
       name: 'board',
-      component: Board
+      component: Board,
+    },
+    {
+      path: '/post-form',
+      name: 'postFormPage',
+      component: PostForm,
     },
     {
       path: '/mypage',

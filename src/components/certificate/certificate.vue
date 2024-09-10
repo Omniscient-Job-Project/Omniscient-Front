@@ -45,7 +45,7 @@
               <!-- 즐겨찾기 아이콘 -->
               <div class="favorite-icon">
                 <img 
-                  :src="isFavorite(index) ? '/src/assets/img/bookmark-yellow-icon.svg' : '/src/assets/img/bookmark-icon.svg'" 
+                  :src="isFavorite(index) ? '/src/assets/img/certificate/bookmark-yellow-icon.svg' : '/src/assets/img/certificate/bookmark-icon.svg'" 
                   alt="즐겨찾기" 
                   @click="toggleFavorite(index)" 
                 />
@@ -247,12 +247,12 @@
   
   .input-wrapper {
     position: relative;
-    display: flex; /* flexbox를 사용하여 아이콘과 버튼을 정렬 */
-    align-items: center; /* 아이콘과 버튼을 수직으로 정렬 */
+    display: flex;
+    align-items: center;
   }
   
   .search-input-box {
-    flex: 1; /* 검색 창이 가능한 많은 공간을 차지하도록 설정 */
+    flex: 1;
     padding: 15px;
     border: 2px solid #007bff;
     border-radius: 25px;
@@ -262,7 +262,7 @@
   
   .search-icon {
     position: absolute;
-    right: 10px; /* 입력창 안에서 오른쪽에 위치하게 조정 */
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     width: 40px;
@@ -291,13 +291,13 @@
   .autocomplete-list li {
     padding: 10px 15px;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s; /* 배경색과 글자색 전환 추가 */
+    transition: background-color 0.2s, color 0.2s;
   }
   
   /* 선택된 항목 강조 스타일 */
   .autocomplete-list li.highlighted {
-    background-color: #007bff; /* 강조 배경색 */
-    color: white; /* 강조 글자색 */
+    background-color: #007bff;
+    color: white;
   }
   
   .autocomplete-list li:hover {
@@ -342,19 +342,19 @@
   padding: 20px;
   border-radius: 10px;
   background-color: #fff;
-  width: 100%; /* 기본적으로 100% 너비 */
-  max-width: 1000px; /* 최대 너비 설정 */
-  text-align: center; /* 텍스트 가운데 정렬 */
+  width: 100%;
+  max-width: 1000px;
+  text-align: center;
 }
 
 /* 카드 컨테이너 스타일 (수평 정렬) */
 .card-container {
   display: flex;
-  gap: 20px; /* 카드 사이의 간격 */
-  height: 100%; /* 컨테이너 높이 */
+  gap: 20px;
+  height: 100%;
   width: 100%;
-  overflow-x: auto; /* 카드가 컨테이너를 넘을 경우 스크롤 가능 */
-  max-width: 1000px; /* 최대 너비 설정 */
+  overflow-x: auto;
+  max-width: 1000px;
 }
 
 /* 카드 스타일 */
