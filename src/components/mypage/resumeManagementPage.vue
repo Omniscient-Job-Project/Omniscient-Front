@@ -172,7 +172,7 @@ const formSections = reactive([
 // 비동기 작업을 위한 함수들
 const loadResumes = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/mypage/resume')
+    const response = await axios.get('http://localhost:8090/api/v1/mypage/resume')
     resumes.value = response.data.map(resume => ({ ...resume, isOpen: false }))
   } catch (error) {
     console.error('이력서 목록을 불러오는데 실패했습니다:', error.response?.data || error.message)
@@ -223,7 +223,7 @@ const editResume = (resume) => {
 const deleteResume = async (id) => {
   if (confirm('정말로 이 이력서를 삭제하시겠습니까?')) {
     try {
-      await axios.delete(`http://localhost:8090/api/mypage/resume/${id}`)
+      await axios.delete(`http://localhost:8090/api/v1/mypage/resume/${id}`)
       resumes.value = resumes.value.filter(r => r.id !== id)
       alert('이력서가 성공적으로 삭제되었습니다.')
     } catch (error) {
@@ -264,11 +264,11 @@ const saveResume = async () => {
     let response
     
     if (isEditing.value) {
-      response = await axios.put(`http://localhost:8090/api/mypage/resume/${editingResumeId.value}`, jsonData, {
+      response = await axios.put(`http://localhost:8090/api/v1/mypage/resume/${editingResumeId.value}`, jsonData, {
         headers: { 'Content-Type': 'application/json' }
       })
     } else {
-      response = await axios.post('http://localhost:8090/api/mypage/resume', jsonData, {
+      response = await axios.post('http://localhost:8090/api/v1/mypage/resume', jsonData, {
         headers: { 'Content-Type': 'application/json' }
       })
     }

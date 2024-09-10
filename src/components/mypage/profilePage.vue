@@ -137,7 +137,7 @@ export default {
   methods: {
     async loadProfile() {
       try {
-        const response = await axios.get('http://localhost:8090/api/mypage');
+        const response = await axios.get('http://localhost:8090/api/v1/mypage');
         if (response.data && response.data.length > 0) {
           this.profile = response.data[0];  // 첫 번째 프로필을 사용
         } else {
@@ -194,13 +194,13 @@ export default {
 
     let response;
     if (this.profile.id) {
-      response = await axios.put(`http://localhost:8090/api/mypage/${this.profile.id}`, formData, {
+      response = await axios.put(`http://localhost:8090/api/v1/mypage/${this.profile.id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
     } else {
-      response = await axios.post('http://localhost:8090/api/mypage', formData, {
+      response = await axios.post('http://localhost:8090/api/v1/mypage', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
