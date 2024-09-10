@@ -33,7 +33,7 @@ const router = useRouter();
 
 const fetchFaqs = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/v1/faqs');
+    const response = await axios.get('/api/v1/faqs');
     faqs.value = response.data;
   } catch (error) {
     console.error('Error fetching FAQs:', error);
@@ -45,9 +45,10 @@ const editFaq = (id) => {
 };
 
 
+
 const deleteFaq = async (id) => {
   try {
-    await axios.delete(`http://localhost:8090/api/v1/faqs/${id}`);
+    await axios.delete(`/api/v1/faqs/${id}`);
     fetchFaqs(); // Refresh the list
   } catch (error) {
     console.error('Error deleting FAQ:', error);
@@ -90,13 +91,13 @@ button {
   display: inline-block;
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #AFF6C3;
   color: #fff;
   text-decoration: none;
   border-radius: 4px;
 }
 
 .link-button:hover {
-  background-color: #0056b3;
+  background-color: #AFF6C3;
 }
 </style>

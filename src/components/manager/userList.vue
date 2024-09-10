@@ -1,6 +1,4 @@
 <template>
-  <div class="container mt-5">
-    <div class="header-container mb-4">
       <h1 class="title">회원 목록</h1>
       <div class="filter-container">
         <div class="btn-group">
@@ -9,7 +7,6 @@
           <button @click="filterRole('ADMIN')" :class="{'active': selectedRole === 'ADMIN'}" class="btn">관리자</button>
         </div>
       </div>
-    </div>
     <div class="table-container" v-if="users.length > 0"> <!-- 조건부 렌더링 추가 -->
       <table class="table table-striped table-bordered">
         <thead class="thead-dark">
@@ -33,7 +30,6 @@
     <div v-else>
       <p>회원 목록을 불러오는 중입니다...</p> <!-- 데이터 로딩 중일 때 표시할 메시지 -->
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -111,8 +107,8 @@ body {
 }
 
 .btn {
-    background-color: #1244AF; /* 버튼 배경색 */
-    color: white;
+    background-color: #AFF6C3; /* 버튼 배경색 */
+    color: rgb(6, 6, 6);
     border: none;
     padding: 8px 20px; /* 버튼의 padding 조정 */
     border-radius: 20px; /* 버튼 모서리를 둥글게 */
@@ -122,9 +118,14 @@ body {
     min-width: 100px; /* 버튼의 최소 너비 설정 */
     text-align: center; /* 텍스트 중앙 정렬 */
 }
+.filter-container {
+    display: flex;
+    justify-content: flex-end; /* 버튼들을 오른쪽 정렬 */
+    margin-bottom: 20px; /* 버튼과 표 사이의 간격 추가 */
+}
 
 .btn.active {
-    background-color: #1244AF; /* 활성화된 버튼 배경색 */
+    background-color: #AFF6C3; /* 활성화된 버튼 배경색 */
 }
 
 .table-container {
@@ -144,9 +145,6 @@ body {
     border: 1px solid #ddd;
 }
 
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f9f9f9;
-}
 
 .table-bordered {
     border: 1px solid #ddd;
@@ -158,8 +156,8 @@ body {
 }
 
 .thead-dark th {
-    background-color: #1244AF; /* 헤더 배경색 */
-    color: white;
+    background-color: #AFF6C3; /* 헤더 배경색 */
+    color: rgb(6, 6, 6);
     font-weight: bold;
 }
 

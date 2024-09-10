@@ -7,13 +7,13 @@
       <span class="toggle-icon">
         <img 
           v-if="isSidebarCollapsed" 
-          src="/src/assets/img/arrow-down-icon.png"
+          src="/src/assets/img/certificate/arrow-down-icon.png"
           
           alt="펼치기"
         />
         <img 
           v-else 
-          src="/src/assets/img/arrow-right-icon.png" 
+          src="/src/assets/img/certificate/arrow-right-icon.png" 
           alt="접기"
         />
       </span>
