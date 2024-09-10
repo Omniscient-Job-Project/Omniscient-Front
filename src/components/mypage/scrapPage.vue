@@ -47,6 +47,7 @@ onMounted(loadScrapItems);
 
 watch(scrapItems, saveScrapItems, { deep: true });
 </script>
+
 <style scoped>
 .scrap-page {
   padding: 20px;
