@@ -38,9 +38,9 @@
           <div v-for="job in paginatedJobs" :key="job.jobId" class="col-md-3">
               <div class="card" @click="goToDetail(job.jobId)">
                   <div class="card-body">
-                      <div class="bookmark-icon" @click.stop="toggleBookmark(job.jobId)">
-                          <i :class="['fas', 'fa-bookmark', { 'bookmarked': isBookmarked(job.jobId) }]"></i>
-                      </div>
+                    <div class="bookmark-icon" @click.stop="toggleBookmark(job)">
+    <i :class="['fas', 'fa-bookmark', { 'bookmarked': isBookmarked(job.jobId) }]"></i>
+  </div>
                       <h5 class="card-title">{{ job.jobInfoTitle }}</h5>
                       <p class="card-text company"><i class="fas fa-building"></i> {{ job.jobCompanyName }}</p>
                       <p class="card-text location"><i class="fas fa-map-marker-alt"></i> {{ job.jobLocation }}</p>
@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
@@ -81,37 +81,52 @@ const router = useRouter();
 const searchTerm = ref('');
 const jobs = ref([]);
 const currentPage = ref(1);
-const itemsPerPage = 16; // 4x4 레이아웃을 위해 16개로 설정
+const itemsPerPage = 16;
 const bookmarks = ref([]);
+
+// localStorage에서 북마크 불러오기
+const loadBookmarks = () => {
+  const savedBookmarks = localStorage.getItem('bookmarks');
+  if (savedBookmarks) {
+    bookmarks.value = JSON.parse(savedBookmarks);
+  }
+};
+
+// 북마크 저장하기
+const saveBookmarks = () => {
+  localStorage.setItem('bookmarks', JSON.stringify(bookmarks.value));
+};
 
 // 채용 정보를 가져오는 함수
 const fetchJobs = async () => {
   try {
-      const response = await axios.get('http://localhost:8090/api/v1/jobaba/jobinfo', { withCredentials: true });
-      const jobData = response.data.GGJOBABARECRUSTM.row;
-      jobs.value = jobData.map(job => ({
-          jobId: job.ENTRPRS_NM,
-          jobInfoTitle: job.PBANC_CONT,
-          jobCompanyName: job.ENTRPRS_NM,
-          jobLocation: job.WORK_REGION_CONT,
-          jobCareerCondition: job.CAREER_DIV
-      }));
+    const response = await axios.get('http://localhost:8090/api/v1/jobaba/jobinfo', { withCredentials: true });
+    const jobData = response.data.GGJOBABARECRUSTM.row;
+    jobs.value = jobData.map(job => ({
+      jobId: job.ENTRPRS_NM,
+      jobInfoTitle: job.PBANC_CONT,
+      jobCompanyName: job.ENTRPRS_NM,
+      jobLocation: job.WORK_REGION_CONT,
+      jobCareerCondition: job.CAREER_DIV
+    }));
   } catch (error) {
-      console.error('채용 정보를 가져오는 데 실패했습니다.', error);
+    console.error('채용 정보를 가져오는 데 실패했습니다.', error);
   }
 };
 
+// 컴포넌트가 마운트될 때 저장된 북마크 불러오기
 onMounted(() => {
+  loadBookmarks();
   fetchJobs();
 });
 
 // 검색된 채용 정보만 필터링
 const filteredJobs = computed(() => {
   if (!searchTerm.value) {
-      return jobs.value;
+    return jobs.value;
   }
   return jobs.value.filter(job =>
-      job.jobInfoTitle.includes(searchTerm.value) || job.jobCompanyName.includes(searchTerm.value)
+    job.jobInfoTitle.includes(searchTerm.value) || job.jobCompanyName.includes(searchTerm.value)
   );
 });
 
@@ -132,17 +147,37 @@ const goToDetail = (jobId) => {
   router.push({ name: 'curationDetail', params: { id: jobId } });
 };
 
-const toggleBookmark = (jobId) => {
-  const index = bookmarks.value.indexOf(jobId);
+// 북마크 토글 함수
+const toggleBookmark = (job) => {
+  const index = bookmarks.value.findIndex(item => item.jobId === job.jobId);
   if (index > -1) {
-      bookmarks.value.splice(index, 1);
+    // 이미 북마크된 항목이면 제거
+    bookmarks.value.splice(index, 1);
   } else {
-      bookmarks.value.push(jobId);
+    // 북마크되지 않은 항목이면 추가
+    bookmarks.value.push(job);
   }
+  saveBookmarks(); // 북마크 변경 후 즉시 저장
 };
 
+// 북마크 여부 확인 함수
 const isBookmarked = (jobId) => {
-  return bookmarks.value.includes(jobId);
+  return bookmarks.value.some(item => item.jobId === jobId);
+};
+
+// bookmarks ref가 변경될 때마다 saveBookmarks 함수 실행
+watch(bookmarks, saveBookmarks, { deep: true });
+
+const certificate = ref('');
+const onSelectComplete = () => {
+  // 자격증 선택 완료 로직
+  console.log('선택된 자격증:', certificate.value);
+};
+
+const searchJobs = () => {
+  // 채용 정보 검색 로직
+  console.log('검색어:', searchTerm.value);
+  // 여기에 실제 검색 로직을 구현하세요
 };
 </script>
 
