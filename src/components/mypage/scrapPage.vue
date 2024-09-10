@@ -2,8 +2,7 @@
   <div class="scrap-page">
     <h1 class="page-title"><i class="fas fa-bookmark"></i> 스크랩</h1>
     <div class="scrap-list">
-      <!-- scrapItems 배열을 순회하며 각 스크랩 항목을 표시 -->
-      <div v-for="(item, index) in scrapItems" :key="index" class="scrap-item">
+      <div v-for="(item, index) in scrapItems" :key="item.jobId" class="scrap-item">
         <div class="scrap-content">
           <h3>{{ item.jobInfoTitle }}</h3>
           <p>{{ item.jobCompanyName }}</p>
@@ -11,14 +10,12 @@
           <p>{{ item.jobCareerCondition }}</p>
         </div>
         <div class="scrap-actions">
-          <!-- 삭제 버튼 클릭 시 removeScrap 함수 호출 -->
           <button @click="removeScrap(index)" class="remove-btn">
             <i class="fas fa-trash"></i>
           </button>
         </div>
       </div>
     </div>
-    <!-- 스크랩 항목이 없을 경우 표시할 내용 -->
     <div v-if="scrapItems.length === 0" class="empty-state">
       <i class="fas fa-folder-open"></i>
       <p>스크랩한 채용공고가 없습니다.</p>
@@ -29,41 +26,27 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 
-// 스크랩 항목을 저장할 반응형 참조 생성
 const scrapItems = ref([]);
 
-// localStorage에서 스크랩 항목을 불러오는 함수
 const loadScrapItems = () => {
-  // 'bookmarks' 키로 저장된 데이터를 localStorage에서 가져옴
   const savedItems = localStorage.getItem('bookmarks');
   if (savedItems) {
-    // 저장된 데이터가 있으면 JSON 형식으로 파싱하여 scrapItems에 할당
     scrapItems.value = JSON.parse(savedItems);
   }
 };
 
-// 현재 스크랩 항목을 localStorage에 저장하는 함수
 const saveScrapItems = () => {
-  // scrapItems의 현재 값을 JSON 문자열로 변환하여 localStorage에 저장
   localStorage.setItem('bookmarks', JSON.stringify(scrapItems.value));
 };
 
-// 특정 인덱스의 스크랩 항목을 제거하는 함수
 const removeScrap = (index) => {
-  // splice 메서드를 사용하여 해당 인덱스의 항목을 제거
   scrapItems.value.splice(index, 1);
-  // 항목이 제거된 후 자동으로 watch에 의해 saveScrapItems 함수가 호출됨
 };
 
-// 컴포넌트가 마운트될 때 저장된 스크랩 항목을 불러옴
 onMounted(loadScrapItems);
 
-// scrapItems가 변경될 때마다 saveScrapItems 함수를 호출하여 localStorage에 저장
-// deep: true 옵션은 배열 내부의 객체 변경도 감지하도록 함
 watch(scrapItems, saveScrapItems, { deep: true });
 </script>
-
-
 <style scoped>
 .scrap-page {
   padding: 20px;
