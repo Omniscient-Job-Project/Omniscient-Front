@@ -12,7 +12,7 @@
       </div>
       <button type="submit">저장</button>
     </form>
-    <router-link to="/faq/list" class="link-button">돌아가기</router-link>
+    <router-link to="/manager/faq/list" class="link-button">돌아가기</router-link>
   </div>
 </template>
 
@@ -28,7 +28,7 @@ const faq = ref({ question: '', answer: '' });
 
 const fetchFaq = async () => {
   try {
-    const response = await axios.get(`http://localhost:8090/api/v1/faqs/${route.params.id}`);
+    const response = await axios.get(`/api/v1/faqs/${route.params.id}`);
     faq.value = response.data;
   } catch (error) {
     console.error('Error fetching FAQ:', error);
@@ -37,12 +37,13 @@ const fetchFaq = async () => {
 
 const updateFaq = async () => {
   try {
-    await axios.put(`http://localhost:8090/api/v1/faqs/${route.params.id}`, faq.value);
-    router.push('/manager/faq/faqList');
+    await axios.put(`/api/v1/faqs/${route.params.id}`, faq.value);
+    router.push('/manager/faqList'); // 경로 확인
   } catch (error) {
     console.error('Error updating FAQ:', error);
   }
 };
+
 
 onMounted(fetchFaq);
 </script>
@@ -74,7 +75,7 @@ input, textarea {
 
 button {
   padding: 10px 15px;
-  background-color: #007bff;
+  background-color: #AFF6C3;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -82,20 +83,20 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #AFF6C3;
 }
 
 .link-button {
   display: inline-block;
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #AFF6C3;
   color: #fff;
   text-decoration: none;
   border-radius: 4px;
 }
 
 .link-button:hover {
-  background-color: #0056b3;
+  background-color: #AFF6C3;
 }
 </style>

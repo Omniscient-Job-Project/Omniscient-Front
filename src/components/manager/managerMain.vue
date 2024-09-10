@@ -1,10 +1,12 @@
 <template>
   <div class="container mt-5">
     <div class="row">
-      <div class="col-sm-6 col-md-3 mb-3">
+      <!-- 방문자수 카드 (왼쪽) -->
+      <div class="col-md-6 mb-3">
         <div class="card text-white bg-primary">
           <div class="card-body d-flex justify-content-between align-items-center">
             <div class="card-icon">
+              <!-- SVG Icon for 방문자수 -->
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-person-raised-hand" viewBox="0 0 16 16">
                 <path d="M6 6.207v9.043a.75.75 0 0 0 1.5 0V10.5a.5.5 0 0 1 1 0v4.75a.75.75 0 0 0 1.5 0v-8.5a.25.25 0 1 1 .5 0v2.5a.75.75 0 0 0 1.5 0V6.5a3 3 0 0 0-3-3H6.236a1 1 0 0 1-.447-.106l-.33-.165A.83.83 0 0 1 5 2.488V.75a.75.75 0 0 0-1.5 0v2.083c0 .715.404 1.37 1.044 1.689L5.5 5c.32.32.5.754.5 1.207"/>
                 <path d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
@@ -17,10 +19,13 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-6 col-md-3 mb-3">
+
+      <!-- 회원수 카드 (오른쪽) -->
+      <div class="col-md-6 mb-3">
         <div class="card text-white bg-info">
           <div class="card-body d-flex justify-content-between align-items-center">
             <div class="card-icon">
+              <!-- SVG Icon for 회원수 -->
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
                 <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
               </svg>
@@ -38,7 +43,7 @@
       <div class="col-12 col-lg-8 mb-3">
         <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title fixed-title">방문자수 차트</h5>
+            <h5 class="card-title">방문자수 차트</h5>
             <div class="d-flex justify-content-end">
               <select v-model="selectedRange" @change="updateChart">
                 <option value="daily">일일</option>
@@ -52,7 +57,7 @@
       <div class="col-12 col-lg-4 mb-3">
         <div class="card h-100">
           <div class="card-body">
-            <h5 class="card-title fixed-title">신규 회원 목록</h5>
+            <h5 class="card-title">신규 회원 목록</h5>
             <ul class="list-group list-group-flush members-list">
               <li v-if="users.length === 0" class="list-group-item">
                 신규 회원이 없습니다.
@@ -85,7 +90,7 @@ const todayVisitorCount = ref(0);
 const visitorCount = ref([]);
 const visitorCountMonth = ref([]);
 const selectedRange = ref('daily');
-const users = ref([]);
+const users = ref([]);  // 초기화
 const userCount = ref(0);
 let chartInstance = ref(null);
 
@@ -93,7 +98,7 @@ const visitorStore = useVisitorStore();
 
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/v1/user'); 
+    const response = await axios.get('/api/v1/user'); 
     users.value = response.data;
   } catch (error) {
     console.error('Error fetching user list:', error);
@@ -117,15 +122,19 @@ watch(selectedRange, async () => {
 .card-icon {
   font-size: 3rem;
 }
+
 .bg-purple {
   background-color: #6f42c1;
 }
+
 .card-body {
   overflow: auto;
 }
+
 .card-body canvas {
   height: 400px !important; /* 차트의 고정 높이 줄이기 */
 }
+
 .fixed-title {
   position: sticky;
   top: 0;
@@ -134,13 +143,15 @@ watch(selectedRange, async () => {
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
+
 .members-list {
   max-height: 400px; /* 필요에 따라 높이를 조정 */
   overflow-y: auto; /* 수직 스크롤바 표시 */
 }
+
 @media (max-width: 992px) {
   .card-body canvas {
-      height: 200px !important; /* 작은 화면에서는 차트 높이 더 줄이기 */
+    height: 200px !important; /* 작은 화면에서는 차트 높이 더 줄이기 */
   }
 }
 
@@ -148,28 +159,51 @@ watch(selectedRange, async () => {
   margin-top: 60px; /* 헤더의 높이만큼 여백 추가 */
 }
 
-.content-wrapper {
+.row {
   display: flex;
-  margin-left: 250px; /* 사이드바 너비만큼 왼쪽 여백 추가 */
-  padding: 0 15px; /* 추가적인 패딩 조정 */
+  flex-wrap: wrap; /* 줄 바꿈 허용 */
+  gap: 1rem; /* 카드 간의 간격 추가 */
 }
 
-/* 반응형 디자인 */
+.col-md-6,
+.col-lg-6 {
+  flex: 1 1 48%; /* 카드가 한 줄에 두 개씩 배치되도록 설정, 간격을 고려하여 48% */
+  max-width: 48%; /* 최대 너비를 48%로 설정 */
+}
+
+@media (max-width: 768px) {
+  .col-md-6,
+  .col-lg-6 {
+    flex: 1 1 100%; /* 작은 화면에서는 카드가 한 줄에 하나씩 배치되도록 설정 */
+    max-width: 100%; /* 최대 너비를 100%로 설정 */
+  }
+}
+
+/* 메인 페이지 스타일 */
+.main-content {
+  margin-left: 240px; /* 사이드바 너비만큼 왼쪽 여백 추가 */
+  padding: 50px; /* 메인 페이지 내용과 사이드바 간의 간격 조정 */
+  position: relative; /* 상대 위치 지정 */
+}
+
+/* 모바일에서 메인 페이지 여백 조정 */
 @media (max-width: 992px) {
-  .content-wrapper {
-    margin-left: 200px; /* 화면이 작아질 때 사이드바 너비에 맞춰 여백 조정 */
+  .main-content {
+    margin-left: 200px; /* 사이드바 너비 조정에 맞춰 여백 조정 */
   }
 }
 
 @media (max-width: 768px) {
-  .content-wrapper {
-    margin-left: 150px; /* 화면이 더 작아질 때 사이드바 너비에 맞춰 여백 조정 */
+  .main-content {
+    margin-left: 150px; /* 사이드바 너비 조정에 맞춰 여백 조정 */
   }
 }
 
 @media (max-width: 576px) {
-  .content-wrapper {
-    margin-left: 0; /* 화면이 매우 작아질 때 여백 제거 */
+  .main-content {
+    margin-left: 0; /* 사이드바가 전체 너비를 차지할 때 여백 제거 */
   }
 }
+
+
 </style>

@@ -32,11 +32,11 @@ const route = useRoute();
 watch(
   () => route.path,
   (newPath) => {
-    if (newPath === '/manager/notice/noticeList') {
+    if (newPath === '/manager/noticeList') {
       setRoot('noticeList');
-    } else if (newPath === '/manager/notice/noticePost') {
+    } else if (newPath === '/manager/noticePost') {
       setRoot('noticePost');
-    } else if (newPath === '/manager/notice/noticeModify') {
+    } else if (newPath === '/manager/noticeModify') {
       setRoot('noticeModify');
     }
   },

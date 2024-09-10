@@ -1,50 +1,48 @@
 <template>
-  <div class="notice-page-container">
     <div class="noticeHeader">
-      <h1>공지 목록</h1>
+      <h1 class="title">공지 목록</h1>
     </div>
-    <table class="table table-striped table-hover">
-      <thead>
-        <tr>
-          <th scope="col">번호</th>
-          <th scope="col">제목</th>
-          <th scope="col">작성 날짜</th>
-          <th scope="col">수정</th>
-          <th scope="col">삭제</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="notification in noticeList" :key="notification.noticeId">
-          <td>{{ notification.noticeId }}</td>
-          <td>
-            <a href="javascript:void(0);" @click="viewDetail(notification.noticeId)">
-              {{ notification.noticeTitle }}
-            </a>
-          </td>
-          <td>{{ formatDate(notification.noticeCreateAt) }}</td>
-          <td>
-            <button @click="editNotice(notification.noticeId)" class="btn btn-custom btn-sm">
-              수정
-            </button>
-          </td>
-          <td>
-            <button @click="deleteNotice(notification.noticeId)" class="btn btn-custom btn-sm">
-              삭제
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div v-if="selectedNotice">
-      <div class="noticeDetail">
-        <h2>{{ selectedNotice.noticeTitle }}</h2>
-        <p>{{ selectedNotice.noticeContent }}</p>
-        <button @click="selectedNotice = null" class="btn btn-custom">
-          목록으로 돌아가기
-        </button>
-      </div>
+    <div class="table-container">
+      <table class="table table-striped table-hover">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">번호</th>
+            <th scope="col">제목</th>
+            <th scope="col">작성 날짜</th>
+            <th scope="col">수정</th>
+            <th scope="col">삭제</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="notification in noticeList" :key="notification.noticeId">
+            <td>{{ notification.noticeId }}</td>
+            <td>
+              <a href="javascript:void(0);" @click="viewDetail(notification.noticeId)">
+                {{ notification.noticeTitle }}
+              </a>
+            </td>
+            <td>{{ formatDate(notification.noticeCreateAt) }}</td>
+            <td>
+              <button @click="editNotice(notification.noticeId)" class="btn btn-custom btn-sm">
+                수정
+              </button>
+            </td>
+            <td>
+              <button @click="deleteNotice(notification.noticeId)" class="btn btn-custom btn-sm">
+                삭제
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </div>
+    <div v-if="selectedNotice" class="noticeDetail">
+      <h2>{{ selectedNotice.noticeTitle }}</h2>
+      <p>{{ selectedNotice.noticeContent }}</p>
+      <button @click="selectedNotice = null" class="btn btn-primary">
+        목록으로 돌아가기
+      </button>
+    </div>
 </template>
 
 <script>
@@ -63,8 +61,8 @@ export default {
   methods: {
     async fetchNotices() {
       try {
-        const response = await axios.get('http://localhost:8090/api/v1/notice');
-        this.noticeList = response.data;
+        const response = await axios.get(`/api/v1/notice`);
+        this.noticeList = response.data.filter(notice => notice.status !== false);
       } catch (error) {
         console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다!', error);
       }
@@ -72,20 +70,21 @@ export default {
 
     async deleteNotice(noticeId) {
       try {
-        await axios.delete(`http://localhost:8090/api/v1/notice/${noticeId}`);
-        this.fetchNotices(); // 삭제 후 목록 새로 고침
+        const response = await axios.delete(`/api/v1/notice/${noticeId}`);
+        console.log('삭제 응답:', response);
+        await this.fetchNotices();
       } catch (error) {
         console.error('공지사항을 삭제하는 중 오류가 발생했습니다!', error);
       }
     },
 
     editNotice(noticeId) {
-      this.$router.push({ path: '/manager/notice/noticeModify', query: { id: noticeId } });
+      this.$router.push({ path: '/manager/noticeModify', query: { id: noticeId } });
     },
 
     async viewDetail(noticeId) {
       try {
-        const response = await axios.get(`http://localhost:8090/api/v1/notice/${noticeId}`);
+        const response = await axios.get(`/api/v1/notice/${noticeId}`);
         this.selectedNotice = response.data;
       } catch (error) {
         console.error('공지 상세 정보를 가져오는 중 오류가 발생했습니다!', error);
@@ -101,41 +100,76 @@ export default {
 </script>
 
 <style scoped>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #F0F2F5; /* 부드러운 배경색 */
+}
+
 .notice-page-container {
-  width: 100%;
+  width: 80%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 20px auto;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #AFF6C3;
-  margin-top: 40px;
+  background-color: #ffffff; /* 흰색 배경 */
 }
 
 .noticeHeader {
-  text-align: center;
+  text-align: left;
   margin-bottom: 20px;
 }
 
-.noticeHeader h1 {
-  font-size: 2.5em;
-  font-weight: bold;
+.noticeHeader .title {
+  font-size: 24px;
+  margin: 0;
+}
+
+.table-container {
+  max-height: 400px; /* 테이블 높이 제한 */
+  overflow-y: auto; /* 수직 스크롤 추가 */
 }
 
 .table {
   width: 100%;
-  margin-bottom: 20px;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+
+.table-bordered {
+  border: 1px solid #ddd;
+}
+
+.thead-dark {
+  position: sticky;
+  top: 0;
+}
+
+.thead-dark th {
+  background-color: #AFF6C3;
+  color: rgb(4, 4, 4);
+  font-weight: bold;
 }
 
 .noticeDetail {
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 20px auto;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background-color: #fff;
-  margin-top: 40px;
+  background-color: #ffffff; /* 흰색 배경 */
   text-align: center;
 }
 
@@ -151,12 +185,28 @@ export default {
 }
 
 .btn-custom {
-  background-color: #1eaf49;
-  color: white;
+  background-color: #AFF6C3;
+  color: rgb(4, 4, 4);
   border: none;
 }
 
 .btn-custom:hover {
-  background-color: #1eaf49; /* Hover 상태에서 조금 더 어두운 색상 */
+  background-color: #9be1b8; /* Hover 상태에서 조금 더 밝은 색상 */
+}
+
+.btn-primary {
+  background-color: #AFF6C3;
+  color: rgb(4, 4, 4);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  height: 40px;
+  line-height: 20px;
+}
+
+.btn-primary:hover {
+  background-color: #9be1b8; /* 버튼 hover 색상 */
 }
 </style>

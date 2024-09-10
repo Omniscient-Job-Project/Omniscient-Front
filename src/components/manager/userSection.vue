@@ -16,9 +16,9 @@ const route = useRoute();
 watch(
   () => route.path,
   (newPath) => {
-    if (newPath === '/manager/admin/userList') {
+    if (newPath === '/manager/userList') {
       setRoot('userList');
-    } else if (newPath === '/manager/admin/adminList') {
+    } else if (newPath === '/manager/adminList') {
       setRoot('adminList');
     }
   },
