@@ -11,7 +11,43 @@
           <i :class="resume.isOpen ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
         </div>
         <div v-show="resume.isOpen" class="resume-content">
-          <!-- 이력서 내용 표시 -->
+          <div class="resume-view">
+            <div class="resume-section">
+              <h3>개인 정보</h3>
+              <p><strong>이름:</strong> {{ resume.name }}</p>
+              <p><strong>이메일:</strong> {{ resume.email }}</p>
+              <p><strong>전화번호:</strong> {{ resume.phone }}</p>
+            </div>
+            <div class="resume-section">
+              <h3>학력</h3>
+              <div v-for="(edu, index) in resume.education" :key="index" class="resume-item">
+                <p><strong>{{ edu.school }}</strong> - {{ edu.major }}</p>
+                <p>{{ edu.degree }} ({{ edu.graduationYear }})</p>
+              </div>
+            </div>
+            <div class="resume-section">
+              <h3>경력</h3>
+              <div v-for="(exp, index) in resume.experience" :key="index" class="resume-item">
+                <p><strong>{{ exp.company }}</strong> - {{ exp.position }}</p>
+                <p>{{ exp.startDate }} - {{ exp.endDate || '현재' }}</p>
+                <p>{{ exp.description }}</p>
+              </div>
+            </div>
+            <div class="resume-section">
+              <h3>기술 스택</h3>
+              <p>{{ resume.skills }}</p>
+            </div>
+            <div class="resume-section">
+              <h3>자격증</h3>
+              <div v-for="(cert, index) in resume.certificates" :key="index" class="resume-item">
+                <p><strong>{{ cert.name }}</strong> ({{ cert.date }})</p>
+              </div>
+            </div>
+            <div class="resume-section">
+              <h3>자기소개서</h3>
+              <p>{{ resume.introduction }}</p>
+            </div>
+          </div>
           <div class="resume-actions">
             <button @click="editResume(resume)" class="edit-btn">
               <i class="fas fa-edit"></i> 수정
@@ -28,7 +64,6 @@
       <i class="fas fa-plus"></i> 새 이력서 작성
     </button>
     
-    <!-- 이력서 폼 -->
     <form v-if="showForm" @submit.prevent="handleSubmit" class="resume-form-enlarged">
       <h2>{{ isEditing ? '이력서 수정' : '새 이력서 작성' }}</h2>
       <div v-for="(section, index) in formSections" :key="index" class="form-section">
@@ -295,21 +330,14 @@ const saveResume = async () => {
   }
 }
 
-const cancelForm = () => {
-  showForm.value = false
-  resetForm()
-}
-
 const resetForm = () => {
-  formData.title = ''
-  formData.name = ''
-  formData.email = ''
-  formData.phone = ''
-  formData.education = []
-  formData.experience = []
-  formData.skills = ''
-  formData.certificates = []
-  formData.introduction = ''
+  Object.keys(formData).forEach(key => {
+    if (Array.isArray(formData[key])) {
+      formData[key] = []
+    } else {
+      formData[key] = ''
+    }
+  })
   isEditing.value = false
   editingResumeId.value = null
 }
@@ -319,7 +347,6 @@ onMounted(loadResumes)
 </script>
 
 <style scoped>
-/* 기존 스타일 코드 동일하게 유지 */
 .resume-management {
   width: 100%;
   max-width: 100%;
@@ -335,6 +362,63 @@ onMounted(loadResumes)
   margin-bottom: 30px;
   color: #2c3e50;
   text-align: center;
+}
+
+.resume-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.resume-item {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.resume-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.resume-header:hover {
+  background-color: #2980b9;
+}
+
+.resume-content {
+  padding: 20px;
+}
+
+.resume-view {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.resume-section {
+  margin-bottom: 20px;
+}
+
+.resume-section h3 {
+  color: #34495e;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.resume-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
 }
 
 .resume-form-enlarged {
@@ -417,22 +501,40 @@ onMounted(loadResumes)
   font-size: 16px;
 }
 
+.edit-btn {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #27ae60;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
 .add-btn, .submit-btn {
-  background-color: #28a745;
+  background-color: #3498db;
   color: white;
 }
 
 .add-btn:hover, .submit-btn:hover {
-  background-color: #218838;
+  background-color: #2980b9;
 }
 
 .cancel-btn, .remove-btn {
-  background-color: #dc3545;
+  background-color: #95a5a6;
   color: white;
 }
 
 .cancel-btn:hover, .remove-btn:hover {
-  background-color: #c82333;
+  background-color: #7f8c8d;
 }
 
 .form-actions {
@@ -452,6 +554,11 @@ onMounted(loadResumes)
   
   .section-content {
     padding: 15px;
+  }
+  
+  .edit-btn, .delete-btn, .add-btn, .submit-btn, .cancel-btn, .remove-btn {
+    padding: 8px 15px;
+    font-size: 14px;
   }
 }
 </style>
