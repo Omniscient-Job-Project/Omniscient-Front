@@ -79,7 +79,8 @@ const toggleBookmark = () => {
 
 const fetchJobData = async () => {
   try {
-    const response = await axios.get(`http://localhost:8090/api/v1/jobinfo/${jobId}`);
+    const response = await axios.get(`http://localhost:8090/api/v1/seoul/jobinfo/${jobId}`);
+    // const response = await axios.get(`http://localhost:8090/api/v1/jobaba/jobinfo/${Id}`);
     console.log('API Response:', response.data); // 응답 데이터 확인
     jobDetail.value = response.data;
   } catch (error) {
