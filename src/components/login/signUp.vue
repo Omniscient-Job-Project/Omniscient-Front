@@ -61,17 +61,37 @@
 <script setup>
 import { ref } from 'vue'
 
-const userid = ref('')
+const userId = ref('')
 const password = ref('')
 const name = ref('')
-const birthdate = ref('')
+const birthDate = ref('')
 const phone = ref('')
 const email = ref('')
 
-const submitForm = () => {
-  // 여기에 폼 제출 로직을 구현합니다.
-  console.log('Form submitted')
-}
+const handleSubmit = async () => {
+  try {
+    const response = await axios.post('http://localhost:8090/api/v1/signup/post', {
+      userId: userId.value, // userId를 포함해야 함
+      username: username.value,
+      password: password.value,
+      birthDate: birthDate.value,
+      email: email.value,
+      phoneNumber: phoneNumber.value,
+    });
+
+    if (response.status === 200) {
+      alert('회원가입 성공!'); // 성공 메시지
+    } else {
+      alert('회원가입 실패: ' + response.data);
+    }
+  } catch (error) {
+    if (error.response) {
+      alert('서버 에러: ' + error.response.data);
+    } else {
+      alert('회원가입 요청 중 문제가 발생했습니다.');
+    }
+  }
+};
 </script>
 
 <style scoped>
