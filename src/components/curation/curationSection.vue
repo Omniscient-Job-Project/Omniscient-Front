@@ -2,7 +2,8 @@
 import { useCurationStore } from "@/stores/rootstore";
 import { computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import CurationMain from "./curationMain.vue";
+// import CurationMain from "./curationMain.vue";
+import Jobaba from "./jobaba.vue";
 import CurationDetail from "./curationDetail.vue"
 
 const store = useCurationStore();
@@ -38,7 +39,7 @@ watch(
     <div class="section">
       <div>
         <div v-if="root === 'main'">
-          <CurationMain />
+          <Jobaba />
         </div>
         <div v-if="root.includes('detail')">
           <CurationDetail />
