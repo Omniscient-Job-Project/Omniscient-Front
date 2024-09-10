@@ -2,8 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 const Main = () => import("../views/indexView.vue");
 const Curation = () => import("../views/curationView.vue");
-const Board = () => import("../components/header/header.vue");
-const Certificate = () => import("../views/certificateView.vue");
+const Board = () => import("../components/board/board.vue");
+const PostForm = () => import("../components/board/postForm.vue");
+const PostDetail = () => import("../components/board/postDetail.vue");
+const Certificate = () => import("../components/certificate/certificate.vue");
 const CertificateSearch = () => import("../components/certificate/certificateSearch.vue");
 const Mypage = () => import("../components/mypage/mypage.vue");
 const Login = () => import("../views/loginView.vue");
@@ -20,7 +22,11 @@ const NoticePost = () => import("../components/manager/noticePost.vue");
 const ManagerFAQPost = () => import("../components/manager/faqPost.vue");
 const ManagerFAQModify =() => import("../components/manager/faqModify.vue");
 // const NoticeModify =() => import("../components/manager/noticeModify.vue");
-
+const MyHome = () => import("../components/mypage/myhome.vue");
+const ResumeManagementPage = () => import("../components/mypage/resumeManagementPage.vue");
+const ApplicationsPageComponent = () => import("../components/mypage/applicationsPageComponent.vue");
+const ScrapPage = () => import("../components/mypage/scrapPage.vue");
+const CertificatesPage = () => import("../components/mypage/certificatesPage.vue");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,10 +36,21 @@ const router = createRouter({
       name: 'home',
       component: Main
     },
-    { 
+    {
+      // path: '/board/:category?',
       path: '/board',
       name: 'board',
       component: Board
+    },
+    {
+      path: '/post/:id',
+      name: 'postDetail',
+      component: PostDetail,
+    },
+    {
+      path: '/post-form',
+      name: 'postFormPage',
+      component: PostForm,
     },
     {
       path: '/mypage',
@@ -41,9 +58,34 @@ const router = createRouter({
       component: Mypage,
       children: [
         {
-          path: 'profilePage',
+          path: '',
+          name: 'myHome',
+          component: MyHome
+        },
+        {
+          path: 'profile',
           name: 'profilePage',
           component: ProfilePage
+        },
+        {
+          path: 'resume',
+          name: 'resumePage',
+          component: ResumeManagementPage
+        },
+        {
+          path: 'applications',
+          name: 'applicationsPage',
+          component: ApplicationsPageComponent
+        },
+        {
+          path: 'scrap',
+          name: 'scrapPage',
+          component: ScrapPage
+        },
+        {
+          path: 'certificates',
+          name: 'certificatesPage',
+          component: CertificatesPage
         }
       ]
     },
