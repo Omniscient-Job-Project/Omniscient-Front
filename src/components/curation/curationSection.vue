@@ -2,10 +2,9 @@
 import { useCurationStore } from "@/stores/rootstore";
 import { computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-// import CurationMain from "./curationMain.vue";
-// import Jobaba from "./jobaba.vue";
-import Job from './jobMain.vue'
-import CurationDetail from "./curationDetail.vue"
+import Job from './jobMain.vue';
+import Detail from "./curationDetail.vue";
+// import Detail frim "./detaul.vue";
 
 const store = useCurationStore();
 const route = useRoute();
@@ -43,7 +42,7 @@ watch(
           <Job />
         </div>
         <div v-if="root.includes('detail')">
-          <CurationDetail />
+          <Detail />
         </div>
       </div>
     </div>
