@@ -64,7 +64,7 @@
       <i class="fas fa-plus"></i> 새 이력서 작성
     </button>
     
-    <form v-if="showForm" @submit.prevent="handleSubmit" class="resume-form-enlarged">
+    <form v-if="showForm" @submit.prevent="showConfirmModal" class="resume-form-enlarged">
       <h2>{{ isEditing ? '이력서 수정' : '새 이력서 작성' }}</h2>
       <div v-for="(section, index) in formSections" :key="index" class="form-section">
         <div class="section-header" @click="toggleSection(index)">
@@ -110,6 +110,22 @@
         <button type="button" @click="cancelForm" class="cancel-btn">취소</button>
       </div>
     </form>
+
+    <!-- 확인 모달 -->
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <h3><i class="fas fa-question-circle"></i> 확인</h3>
+        <p>{{ isEditing ? '이력서를 수정하시겠습니까?' : '새 이력서를 등록하시겠습니까?' }}</p>
+        <div class="modal-actions">
+          <button @click="confirmSave" class="confirm-button">
+            <i class="fas fa-check"></i> 예
+          </button>
+          <button @click="closeModal" class="cancel-button">
+            <i class="fas fa-times"></i> 아니오
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -122,6 +138,7 @@ const resumes = ref([])
 const showForm = ref(false)
 const isEditing = ref(false)
 const editingResumeId = ref(null)
+const showModal = ref(false)
 
 // 폼 데이터 및 섹션 구조 정의
 const formData = reactive({
@@ -285,12 +302,21 @@ const validateForm = () => {
   return isValid
 }
 
-const handleSubmit = () => {
+const showConfirmModal = () => {
   if (validateForm()) {
-    saveResume()
+    showModal.value = true
   } else {
     alert('모든 필수 필드를 작성해주세요.')
   }
+}
+
+const closeModal = () => {
+  showModal.value = false
+}
+
+const confirmSave = () => {
+  saveResume()
+  closeModal()
 }
 
 const saveResume = async () => {
@@ -320,7 +346,6 @@ const saveResume = async () => {
 
       showForm.value = false
       resetForm()
-      alert(isEditing.value ? '이력서가 성공적으로 수정되었습니다.' : '새 이력서가 성공적으로 등록되었습니다.')
     } else {
       throw new Error('Invalid server response')
     }
@@ -347,12 +372,15 @@ onMounted(loadResumes)
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css');
+
 .resume-management {
   width: 100%;
   max-width: 100%;
   margin: 0;
   padding: 20px;
-  font-family: Arial, sans-serif;
+  font-family: 'Noto Sans KR', Arial, sans-serif;
   color: #333;
   box-sizing: border-box;
 }
@@ -543,21 +571,172 @@ onMounted(loadResumes)
   justify-content: center;
 }
 
+/* 모달 스타일 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  color: #3498db;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.modal-content p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.confirm-button,
+.cancel-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-button {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.confirm-button:hover {
+  background-color: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-content {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@media (max-width: 1024px) {
+  .profile-content {
+    flex-direction: column;
+  }
+
+  .profile-left, .profile-right {
+    width: 100%;
+  }
+
+  .basic-info {
+    height: auto;
+  }
+
+  .additional-info, .certificates {
+    flex: 1;
+  }
+
+  .button-container {
+    text-align: center;
+  }
+}
+
+@media (max-width: 1024px) {
+  .profile-content {
+    flex-direction: column;
+  }
+
+  .profile-left, .profile-right {
+    width: 100%;
+  }
+
+  .basic-info {
+    height: auto;
+  }
+
+  .additional-info, .certificates {
+    flex: 1;
+  }
+
+  .button-container {
+    text-align: center;
+  }
+}
+
 @media (max-width: 768px) {
-  .resume-form-enlarged {
+  .profile-section {
     padding: 20px;
   }
-  
-  .section-header {
-    padding: 10px 15px;
+
+  .section-title {
+    font-size: 24px;
   }
-  
-  .section-content {
-    padding: 15px;
+
+  .profile-details h2 {
+    font-size: 28px;
   }
-  
-  .edit-btn, .delete-btn, .add-btn, .submit-btn, .cancel-btn, .remove-btn {
-    padding: 8px 15px;
+
+  .job-title {
+    font-size: 20px;
+  }
+
+  .edit-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+
+  .modal-content h3 {
+    font-size: 20px;
+  }
+
+  .modal-content p {
+    font-size: 16px;
+  }
+
+  .confirm-button,
+  .cancel-button {
+    padding: 8px 16px;
     font-size: 14px;
   }
 }

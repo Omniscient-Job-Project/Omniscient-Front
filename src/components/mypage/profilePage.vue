@@ -1,7 +1,7 @@
 <template>
   <div class="profile-page">
     <h1 class="profile-title">프로필</h1>
-    <form @submit.prevent="saveProfile" class="profile-form">
+    <form @submit.prevent="showConfirmModal" class="profile-form">
       <div class="profile-content">
         <div class="profile-left">
           <div class="profile-section basic-info">
@@ -99,6 +99,21 @@
         </div>
       </div>
     </form>
+    <!-- 확인 모달 -->
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <h3><i class="fas fa-question-circle"></i> 확인</h3>
+        <p>프로필을 저장하시겠습니까?</p>
+        <div class="modal-actions">
+          <button @click="confirmSave" class="confirm-button">
+            <i class="fas fa-check"></i> 예
+          </button>
+          <button @click="closeModal" class="cancel-button">
+            <i class="fas fa-times"></i> 아니오
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -121,7 +136,8 @@ export default {
         profileImage: null
       },
       isEditing: false,
-      imageFile: null
+      imageFile: null,
+      showModal: false
     };
   },
   computed: {
@@ -173,6 +189,15 @@ export default {
         reader.readAsDataURL(file);
       }
     },
+    showConfirmModal() {
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+    },
+    confirmSave() {
+      this.saveProfile();
+    },
     async saveProfile() {
   try {
     const formData = new FormData();
@@ -209,7 +234,8 @@ export default {
 
     this.profile = response.data;
     this.isEditing = false;
-    alert('프로필이 성공적으로 업데이트되었습니다.');
+    this.showModal = false;  // 모달 닫기
+    // alert 구문 제거됨
   } catch (error) {
     console.error('프로필 저장에 실패했습니다:', error);
     alert('프로필 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
@@ -219,8 +245,10 @@ export default {
 }
 </script>
 
-
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css');
+
 .profile-page {
   padding: 20px;
   max-width: 1400px;
@@ -242,12 +270,12 @@ export default {
   flex: 1;
   min-width: 300px;
 }
+
 .label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
 }
-
 
 .profile-right {
   flex: 2;
@@ -414,6 +442,91 @@ export default {
 
 .edit-button i {
   margin-right: 10px;
+}
+
+/* 모달 스타일 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  color: #007bff;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.modal-content p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.confirm-button,
+.cancel-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-content {
+  animation: fadeIn 0.3s ease-out;
 }
 
 @media (max-width: 1024px) {
