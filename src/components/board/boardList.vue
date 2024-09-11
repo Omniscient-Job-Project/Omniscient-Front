@@ -16,13 +16,13 @@
           :class="{ active: selectedCategory === category }"
           @click="selectCategory(category)"
         >
-          <i :class="getCategoryIcon(category)"></i> {{ category }}
+          <i :class="getCategoryIcon(category)"></i> {{ getCategoryDisplayName(category) }}
         </button>
       </div>
 
       <!-- 게시판 목록 -->
       <div class="board-content">
-        <h3><i class="fas fa-list"></i> {{ selectedCategory }}</h3>
+        <h3><i class="fas fa-list"></i> {{ getCategoryDisplayName(selectedCategory) }}</h3>
         <div class="post-grid">
           <div v-for="post in paginatedPosts" :key="post.id" class="post-card" @click="goToPostDetail(post.id)">
             <div class="post-card-header">
@@ -31,10 +31,9 @@
             </div>
             <p>{{ truncateContent(post.content) }}</p>
             <div class="post-card-footer">
-              <span><i class="fas fa-user"></i> {{ post.author }}</span>
-              <span><i class="fas fa-calendar-alt"></i> {{ post.date }}</span>
+              <span><i class="fas fa-calendar-alt"></i> {{ formatDate(post.createdAt) }}</span>
               <span>
-                <i class="fas fa-thumbs-up"></i> {{ post.likes }}
+                <i class="fas fa-thumbs-up"></i> {{ post.status ? '활성' : '비활성' }}
               </span>
             </div>
           </div>
@@ -50,9 +49,9 @@
           </button>
         </div>
         <!-- 게시글 작성 버튼: '채용'과 '자격증' 카테고리에서만 표시 -->
-        <div v-if="['채용', '자격증'].includes(selectedCategory)" class="post-actions">
-    <button @click="goToPostForm"><i class="fas fa-pen"></i> 게시글 작성</button>
-  </div>
+        <div v-if="['RECRUITMENT', 'CERTIFICATION'].includes(selectedCategory)" class="post-actions">
+          <button @click="goToPostForm"><i class="fas fa-pen"></i> 게시글 작성</button>
+        </div>
       </div>
     </div>
     <Footer />
@@ -60,27 +59,38 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import axios from 'axios';
 import Header from '../header/header.vue';
 import Footer from '../footer/footer.vue';
 
-const categories = ['전체글', '채용', '자격증'];
+const categories = ['전체글', 'RECRUITMENT', 'CERTIFICATION'];
 const router = useRouter();
 const route = useRoute();
 const selectedCategory = ref(route.params.category || '전체글');
 
-const posts = ref([
-  { id: 1, title: "신입 개발자 채용", content: "우리 회사에서 열정적인 신입 개발자를 찾고 있습니다...", category: "채용", author: "HR팀", date: "2024-09-10", likes: 5 },
-  { id: 2, title: "SQLD 자격증 스터디", content: "SQLD 자격증 준비를 위한 스터디원을 모집합니다...", category: "자격증", author: "데이터분석가", date: "2024-09-09", likes: 3 },
-  // ... 더 많은 게시글 추가
-]);
-
+const posts = ref([]);
 const itemsPerPage = 20;
 const currentPage = ref(1);
 
+// API에서 게시글 데이터를 가져오는 함수
+const fetchPosts = async () => {
+  try {
+    const response = await axios.get('http://localhost:8090/api/v1/boards');
+    posts.value = response.data;
+  } catch (error) {
+    console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
+  }
+};
+
+// 컴포넌트가 마운트될 때 게시글 데이터를 가져옵니다
+onMounted(fetchPosts);
+
 const filteredPosts = computed(() => {
-  return posts.value.filter(post => post.category === selectedCategory.value || selectedCategory.value === '전체글');
+  return posts.value.filter(post => 
+    selectedCategory.value === '전체글' || post.category === selectedCategory.value
+  );
 });
 
 const totalPages = computed(() => Math.ceil(filteredPosts.value.length / itemsPerPage));
@@ -98,7 +108,7 @@ const selectCategory = (category) => {
 };
 
 const goToPostForm = () => {
-  router.push({ name: 'postForm', params: { category: selectedCategory } });
+  router.push({ name: 'postForm', params: { category: selectedCategory.value } });
 };
 
 const goToPostDetail = (postId) => {
@@ -116,15 +126,28 @@ const nextPage = () => {
 const getCategoryIcon = (category) => {
   switch(category) {
     case '전체글': return 'fas fa-globe';
-    case '채용': return 'fas fa-briefcase';
-    case '자격증': return 'fas fa-certificate';
+    case 'RECRUITMENT': return 'fas fa-briefcase';
+    case 'CERTIFICATION': return 'fas fa-certificate';
     default: return 'fas fa-folder';
   }
 };
 
+const getCategoryDisplayName = (category) => {
+  switch(category) {
+    case 'RECRUITMENT': return '채용';
+    case 'CERTIFICATION': return '자격증';
+    case '전체글': return '전체글';
+    default: return category;
+  }
+};
 
 const truncateContent = (content) => {
   return content.length > 50 ? content.slice(0, 50) + '...' : content;
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 </script>
 
