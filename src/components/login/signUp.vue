@@ -5,10 +5,10 @@
       <div class="signup-content">
         <h1 class="title">회원가입</h1>
         <p class="subtitle">당신의 꿈의 직장을 찾아보세요!</p>
-        <form @submit.prevent="submitForm" class="signup-form">
+        <form @submit.prevent="handleSubmit" class="signup-form">
           <div class="form-group">
-            <label for="userid">아이디</label>
-            <input type="text" id="userid" v-model="userid" placeholder="4-20자리 / 영문, 숫자, 특수문자 '_' 사용가능">
+            <label for="userId">아이디</label>
+            <input type="text" id="userId" v-model="userId" placeholder="4-20자리 / 영문, 숫자, 특수문자 '_' 사용가능">
             <small>4 ~ 20자의 영문, 숫자와 특수문자 '_'만 사용해주세요.</small>
           </div>
 
@@ -17,20 +17,20 @@
             <input type="password" id="password" v-model="password" placeholder="8-16자리/영문 대소문자, 숫자, 특수문자 조합">
           </div>
 
-          <div class="form-group1">
-            <label for="name">이름</label>
-            <input type="text" id="name" v-model="name" placeholder="이름 입력">
+          <div class="form-group">
+            <label for="username">이름</label>
+            <input type="text" id="username" v-model="username" placeholder="이름 입력">
           </div>
 
           <div class="form-group">
-            <label for="birthdate">생년월일</label>
-            <input type="text" id="birthdate" v-model="birthdate" placeholder="YYYYMMDD">
+            <label for="birthDate">생년월일</label>
+            <input type="text" id="birthDate" v-model="birthDate" placeholder="YYYYMMDD">
           </div>
 
           <div class="form-group">
-            <label for="phone">휴대폰</label>
+            <label for="phoneNumber">휴대폰</label>
             <div class="phone-input-group">
-              <input type="text" id="phone" v-model="phone" placeholder="'-' 빼고 숫자만 입력">
+              <input type="text" id="phoneNumber" v-model="phoneNumber" placeholder="'-' 빼고 숫자만 입력">
             </div>
           </div>
 
@@ -60,18 +60,20 @@
 
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios'  // Axios 임포트
 
 const userId = ref('')
 const password = ref('')
-const name = ref('')
+const username = ref('')
 const birthDate = ref('')
-const phone = ref('')
+const phoneNumber = ref('')
 const email = ref('')
+
 
 const handleSubmit = async () => {
   try {
     const response = await axios.post('http://localhost:8090/api/v1/signup/post', {
-      userId: userId.value, // userId를 포함해야 함
+      userId: userId.value,
       username: username.value,
       password: password.value,
       birthDate: birthDate.value,
@@ -79,12 +81,16 @@ const handleSubmit = async () => {
       phoneNumber: phoneNumber.value,
     });
 
+    console.log(response); // 응답 데이터 확인
+
     if (response.status === 200) {
-      alert('회원가입 성공!'); // 성공 메시지
+      alert(response.data); // 서버에서 받은 메시지 출력
+      window.location.href = '/login'; // 로그인 페이지로 리다이렉트
     } else {
       alert('회원가입 실패: ' + response.data);
     }
   } catch (error) {
+    console.error(error); // 에러 로그 출력
     if (error.response) {
       alert('서버 에러: ' + error.response.data);
     } else {
@@ -92,6 +98,7 @@ const handleSubmit = async () => {
     }
   }
 };
+
 </script>
 
 <style scoped>
