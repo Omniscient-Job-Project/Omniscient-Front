@@ -7,19 +7,19 @@
         <form @submit.prevent="showConfirmModal">
           <div class="form-group">
             <label for="category"><i class="fas fa-folder"></i> 카테고리:</label>
-            <select id="category" v-model="selectedCategory" required>
+            <select id="category" v-model="newPost.category" required>
               <option value="" disabled>카테고리 선택</option>
-              <option value="채용">채용</option>
-              <option value="자격증">자격증</option>
+              <option value="RECRUITMENT">채용</option>
+              <option value="CERTIFICATION">자격증</option>
             </select>
           </div>
           <div class="form-group">
             <label for="title"><i class="fas fa-heading"></i> 제목:</label>
-            <input type="text" id="title" v-model="newPost.title" required />
+            <input type="text" id="title" v-model="newPost.title" required maxlength="30" />
           </div>
           <div class="form-group">
             <label for="content"><i class="fas fa-paragraph"></i> 내용:</label>
-            <textarea id="content" v-model="newPost.content" required></textarea>
+            <textarea id="content" v-model="newPost.content" required maxlength="2000"></textarea>
           </div>
           <button type="submit"><i class="fas fa-paper-plane"></i> 게시글 등록</button>
         </form>
@@ -47,15 +47,18 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 import Header from '../header/header.vue';
 import Footer from '../footer/footer.vue';
 
-const newPost = ref({ title: '', content: '' });
 const router = useRouter();
-const route = useRoute();
-const selectedCategory = ref(route.params.category || '');
 const showModal = ref(false);
+const newPost = ref({
+  title: '',
+  content: '',
+  category: '',
+});
 
 const showConfirmModal = () => {
   showModal.value = true;
@@ -65,15 +68,17 @@ const closeModal = () => {
   showModal.value = false;
 };
 
-const submitPost = () => {
-  // 게시글 추가 로직 (예: API 호출)
-  console.log('제출된 게시글:', { ...newPost.value, category: selectedCategory.value });
-  
-  // 모달 닫기
-  closeModal();
-  
-  // 게시글 추가 후 게시판 목록으로 이동
-  router.push({ name: 'boardList', params: { category: selectedCategory.value } });
+const submitPost = async () => {
+  try {
+    const response = await axios.post('http://localhost:8090/api/v1/boards', newPost.value);
+    console.log('게시글이 성공적으로 등록되었습니다:', response.data);
+    closeModal();
+    // 게시글 추가 후 게시판 목록으로 이동
+    router.push({ name: 'boardList', params: { category: newPost.value.category } });
+  } catch (error) {
+    console.error('게시글 등록 중 오류가 발생했습니다:', error);
+    alert('게시글 등록에 실패했습니다. 다시 시도해 주세요.');
+  }
 };
 </script>
 
