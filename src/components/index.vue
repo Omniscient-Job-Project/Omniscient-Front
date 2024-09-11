@@ -30,8 +30,15 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+const router = useRouter(); // Add this line
 
 const jobs = ref([]);
+
+const goToDetail = (jobId) => {
+  router.push({ name: 'curationDetail', params: { id: jobId } });
+};
 
 const fetchJobs = async () => {
   try {
@@ -76,6 +83,7 @@ const jobGroups = computed(() => {
 onMounted(() => {
   fetchJobs();
 });
+
 </script>
 
 <style scoped>
