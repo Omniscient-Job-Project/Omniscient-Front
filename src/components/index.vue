@@ -1,129 +1,96 @@
 <template>
-
-  <body>
-    <div class="container">
-      <!-- 검색창 -->
-      <div class="search-container">
-        <input type="text" class="search-input" placeholder="검색할 내용을 입력하세요" aria-label="Search" />
-        <button class="search-button" type="button">search</button>
-      </div>
-
-      <!-- 베너 카드 부분 -->
-      <div class="card-group">
-        <div class="card">
-          <img src="..." class="card-img-top" alt="..." />
-          <div class="card-body">
-            <h5 class="card-title">채용 제목</h5>
-            <p class="card-text">
-              This is a wider card with supporting text below as a natural lead-in
-              to additional content. This content is a little bit longer.
-            </p>
-            <p class="card-text">
-              <small class="text-muted">Last updated 3 mins ago</small>
-            </p>
-          </div>
-        </div>
-        <div class="card">
-          <img src="..." class="card-img-top" alt="..." />
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">
-              This card has supporting text below as a natural lead-in to
-              additional content.
-            </p>
-            <p class="card-text">
-              <small class="text-muted">Last updated 3 mins ago</small>
-            </p>
-          </div>
-        </div>
-        <div class="card">
-          <img src="..." class="card-img-top" alt="..." />
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">
-              This is a wider card with supporting text below as a natural lead-in
-              to additional content. This card has even longer content than the
-              first to show that equal height action.
-            </p>
-            <p class="card-text">
-              <small class="text-muted">Last updated 3 mins ago</small>
-            </p>
+  <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div v-for="(group, groupIndex) in jobGroups" :key="groupIndex" :class="['carousel-item', { active: groupIndex === 0 }]">
+        <div class="row">
+          <div class="col-4" v-for="(job, index) in group" :key="index">
+            <div class="card" @click="goToDetail(job.jobId)">
+              <div class="card-body">
+                <h5 class="card-title">{{ job.jobInfoTitle }}</h5>
+                <p class="card-text company"><i class="fas fa-building"></i> {{ job.jobCompanyName }}</p>
+                <p class="card-text location"><i class="fas fa-map-marker-alt"></i> {{ job.jobLocation }}</p>
+                <p class="card-text career"><i class="fas fa-briefcase"></i> {{ job.jobCareerCondition }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </body>
-
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden"><<</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">>></span>
+    </button>
+  </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 
+const jobs = ref([]);
+
+const fetchJobs = async () => {
+  try {
+    const response1 = await axios.get('http://localhost:8090/api/v1/jobaba/jobinfo', { withCredentials: true });
+    const jobData1 = response1.data.GGJOBABARECRUSTM.row;
+    const jobsFromJobaba = jobData1.map(job => ({
+      jobId: job.ENTRPRS_NM,
+      jobInfoTitle: job.PBANC_CONT,
+      jobCompanyName: job.ENTRPRS_NM,
+      jobLocation: job.WORK_REGION_CONT,
+      jobCareerCondition: job.CAREER_DIV,
+      apiType: 'jobaba'
+    }));
+
+    const response2 = await axios.get('http://localhost:8090/api/v1/seoul/jobinfo', { withCredentials: true });
+    const jobData2 = response2.data.GetJobInfo.row;
+    const jobsFromSeoul = jobData2.map(job => ({
+      jobId: job.JO_REQST_NO,
+      jobInfoTitle: job.JO_SJ,
+      jobCompanyName: job.CMPNY_NM,
+      jobLocation: job.WORK_PARAR_BASS_ADRES_CN,
+      jobCareerCondition: job.CAREER_CND_NM,
+      apiType: 'seoul'
+    }));
+
+    jobs.value = [...jobsFromJobaba, ...jobsFromSeoul].slice(0, 6); // 처음 6개의 항목만 가져오기
+  } catch (error) {
+    console.error('채용 정보를 가져오는 데 실패했습니다.', error);
+  }
+};
+
+// 3개씩 그룹화된 배열로 변환하는 계산된 속성
+const jobGroups = computed(() => {
+  const chunkSize = 3;
+  const groups = [];
+  for (let i = 0; i < jobs.value.length; i += chunkSize) {
+    groups.push(jobs.value.slice(i, i + chunkSize));
+  }
+  return groups;
+});
+
+onMounted(() => {
+  fetchJobs();
+});
 </script>
 
 <style scoped>
-/* 전체 레이아웃 */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  min-height: 80vh;
-  /* 페이지 전체를 채우도록 설정 */
-}
-
-.container {
-  height: 80vh;
-}
-
-.search-container {
-  display: flex;
-  justify-content: flex-end;
-  /* 오른쪽 정렬 */
-  align-items: center;
-  margin: 20px;
-}
-
-.search-input {
-  width: 300px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  /* border-radius: 25px 0 0 25px; */
-  outline: none;
-}
-
-.search-button {
-  padding: 10px 20px;
-  border: 1px solid #007bff;
-  background-color: #007bff;
-  color: white;
-  /* border-radius: 0 25px 25px 0; */
-  cursor: pointer;
-}
-
-.card-group {
-  display: flex;
-  justify-content: space-around;
-  padding: 20px;
-  flex: 1;
-  /* 컨텐츠가 충분하지 않으면 푸터를 밀어내도록 설정 */
+.carousel-item {
+  height: auto;
 }
 
 .card {
-  width: 500px;
-  height: 60vh;
+  height: 100%;
+  width: 50%;
   border: 1px solid #ccc;
   border-radius: 5px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 10px;
-}
-
-.card-img-top {
-  width: 100%;
-  height: 150px;
-  background-color: #e0e0e0;
+  display: flex;
 }
 
 .card-body {
@@ -139,9 +106,5 @@ body {
 .card-text {
   font-size: 14px;
   color: #666;
-}
-
-.text-muted {
-  color: #999;
 }
 </style>
