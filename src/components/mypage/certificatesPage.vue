@@ -15,7 +15,7 @@
           <button @click="editCertificate(cert)" class="edit-btn">
             <i class="fas fa-edit"></i> 수정
           </button>
-          <button @click="deleteCertificate(cert.id)" class="delete-btn">
+          <button @click="showDeleteModal(cert.id)" class="delete-btn">
             <i class="fas fa-trash-alt"></i> 삭제
           </button>
         </div>
@@ -28,7 +28,7 @@
     <!-- 자격증 추가/수정 폼 -->
     <div v-if="showForm" class="certificate-form">
       <h2>{{ isEditing ? '자격증 수정' : '자격증 추가' }}</h2>
-      <form @submit.prevent="submitForm">
+      <form @submit.prevent="showConfirmModal">
         <div class="form-group">
           <label for="certName">자격증명</label>
           <input type="text" id="certName" v-model="formData.name" required>
@@ -51,6 +51,23 @@
         </div>
       </form>
     </div>
+
+    <!-- 확인 모달 -->
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <h3><i class="fas fa-question-circle"></i> 확인</h3>
+        <p>{{ modalMessage }}</p>
+        <p v-if="modalType !== 'delete'"><strong>자격증명:</strong> {{ formData.name }}</p>
+        <div class="modal-actions">
+          <button @click="confirmAction" class="confirm-button">
+            <i class="fas fa-check"></i> 예
+          </button>
+          <button @click="closeModal" class="cancel-button">
+            <i class="fas fa-times"></i> 아니오
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -59,13 +76,15 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8090/api/v1/certificates';
+console.log('API_URL:', API_URL);
 
 const axiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: 'http://localhost:8090/api/v1/certificates',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
-  }
+  },
+  withCredentials: true
 });
 
 const certificates = ref([]);
@@ -73,6 +92,10 @@ const showForm = ref(false);
 const isEditing = ref(false);
 const formData = ref({ id: null, name: '', date: '', issuer: '', number: '' });
 const error = ref(null);
+const showModal = ref(false);
+const modalType = ref('');
+const modalMessage = ref('');
+const deletingCertId = ref(null);
 
 const log = (message, level = 'info') => {
   const logMessage = `[${new Date().toISOString()}] ${message}`;
@@ -95,6 +118,12 @@ const fetchCertificates = async () => {
   } catch (err) {
     handleError('자격증 목록을 가져오는데 실패했습니다', err);
   }
+};
+
+const formatDateForServer = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toISOString().split('T')[0];
 };
 
 const addCertificate = async () => {
@@ -135,15 +164,13 @@ const updateCertificate = async () => {
 };
 
 const deleteCertificate = async (id) => {
-  if (confirm('정말로 이 자격증을 삭제하시겠습니까?')) {
-    try {
-      log(`자격증 삭제 시작: ID ${id}`);
-      await axiosInstance.delete(`/${id}`);
-      certificates.value = certificates.value.filter(cert => cert.id !== id);
-      log(`자격증 삭제 완료: ID ${id}`);
-    } catch (err) {
-      handleError('자격증 삭제에 실패했습니다', err);
-    }
+  try {
+    log(`자격증 삭제 시작: ID ${id}`);
+    await axiosInstance.delete(`/${id}`);
+    certificates.value = certificates.value.filter(cert => cert.id !== id);
+    log(`자격증 삭제 완료: ID ${id}`);
+  } catch (err) {
+    handleError('자격증 삭제에 실패했습니다', err);
   }
 };
 
@@ -160,15 +187,40 @@ const showAddForm = () => {
 const editCertificate = (cert) => {
   showForm.value = true;
   isEditing.value = true;
-  formData.value = { ...cert, date: formatDateForInput(cert.date) };
+  formData.value = { ...cert };
 };
 
-const submitForm = () => {
-  if (isEditing.value) {
+const showConfirmModal = () => {
+  if (validateFormData()) {
+    modalType.value = isEditing.value ? 'edit' : 'add';
+    modalMessage.value = isEditing.value ? '자격증을 수정하시겠습니까?' : '새 자격증을 등록하시겠습니까?';
+    showModal.value = true;
+  }
+};
+
+const showDeleteModal = (id) => {
+  modalType.value = 'delete';
+  modalMessage.value = '정말로 이 자격증을 삭제하시겠습니까?';
+  deletingCertId.value = id;
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+  modalType.value = '';
+  modalMessage.value = '';
+  deletingCertId.value = null;
+};
+
+const confirmAction = () => {
+  if (modalType.value === 'delete') {
+    deleteCertificate(deletingCertId.value);
+  } else if (modalType.value === 'edit') {
     updateCertificate();
   } else {
     addCertificate();
   }
+  closeModal();
 };
 
 const cancelForm = () => {
@@ -180,15 +232,20 @@ const validateFormData = () => {
   if (!name.trim() || !date || !issuer.trim() || !number.trim()) {
     throw new Error('모든 필드를 입력해주세요.');
   }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(formatDateForServer(date))) {
+    throw new Error('날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식이어야 합니다.');
+  }
+  return true;
 };
 
 const handleError = (message, err) => {
   log(`에러 발생: ${message}`, 'error');
   console.error(err);
   if (err.response) {
-    log(`서버 응답: ${JSON.stringify(err.response.data)}`, 'error');
+    log(`서버 응답 상태: ${err.response.status}`, 'error');
+    log(`서버 응답 데이터: ${JSON.stringify(err.response.data)}`, 'error');
   }
-  error.value = `${message}: ${err.message}`;
+  error.value = `${message}: ${err.response?.data?.message || err.message}`;
   setTimeout(() => {
     error.value = null;
   }, 5000);
@@ -200,45 +257,49 @@ const formatDateForDisplay = (dateString) => {
   return new Date(dateString).toLocaleDateString('ko-KR', options);
 };
 
-const formatDateForServer = (dateString) => {
-  if (!dateString) return '';
-  return new Date(dateString).toISOString().split('T')[0];
-};
-
-const formatDateForInput = (dateString) => {
-  if (!dateString) return '';
-  return new Date(dateString).toISOString().split('T')[0];
-};
-
 onMounted(fetchCertificates);
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css');
+
 .certificates-page {
-  padding: 20px;
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .certificate-list {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 40px;
 }
 
 .certificate-item {
   background-color: #f8f9fa;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 1000px;
 }
 
 .certificate-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
+  padding: 25px 30px;
   background-color: #007bff;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-size: 20px;
 }
 
 .certificate-header:hover {
@@ -246,17 +307,19 @@ onMounted(fetchCertificates);
 }
 
 .certificate-details {
-  padding: 20px;
+  padding: 30px;
   background-color: white;
+  font-size: 18px;
 }
 
 .edit-btn, .delete-btn, .add-btn, .submit-btn, .cancel-btn {
-  padding: 8px 15px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-right: 10px;
+  margin-right: 15px;
+  font-size: 18px;
 }
 
 .edit-btn {
@@ -281,39 +344,149 @@ onMounted(fetchCertificates);
 
 .certificate-form {
   background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 10px;
-  margin-top: 20px;
+  padding: 40px;
+  border-radius: 15px;
+  margin-top: 40px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 25px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  font-size: 18px;
 }
 
 .form-group input {
   width: 100%;
-  padding: 8px;
+  padding: 12px;
   border: 1px solid #ced4da;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-size: 18px;
 }
 
 .form-actions {
-  margin-top: 20px;
+  margin-top: 40px;
+}
+
+/* 모달 스타일 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 50px;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  color: #007bff;
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+.modal-content p {
+  font-size: 20px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.confirm-button,
+.cancel-button {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 1200px) {
+  .certificates-page {
+    max-width: 95%;
+    padding: 30px;
+  }
+
+  .certificate-item,
+  .certificate-form {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
   .certificate-header, .certificate-details {
-    padding: 10px;
+    padding: 20px;
   }
   
   .edit-btn, .delete-btn, .add-btn, .submit-btn, .cancel-btn {
-    padding: 6px 10px;
-    font-size: 14px;
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+
+  .modal-content {
+    padding: 40px;
+  }
+
+  .modal-content h3 {
+    font-size: 28px;
+  }
+
+  .modal-content p {
+    font-size: 18px;
+  }
+
+  .confirm-button,
+  .cancel-button {
+    padding: 12px 24px;
+    font-size: 18px;
   }
 }
 </style>
