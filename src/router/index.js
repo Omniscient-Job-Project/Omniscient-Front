@@ -12,6 +12,8 @@ const Login = () => import("../views/loginView.vue");
 const Signup = () => import("../views/signUp.vue");
 const ProfilePage = () => import("../components/mypage/profilePage.vue");
 const Notice = () => import("../views/noticeView.vue");
+const NoticeFAQ = () => import("../components/notice/noticeFAQ.vue");
+const NoticeDetail = () => import("../components/notice/noticeDetail.vue");
 const Manager = () => import("../views/managerMainV.vue");
 const ManagerMain = () => import ("../components/manager/managerMain.vue");
 const ManagerFAQ = () => import("../views/managerFaq.vue");
@@ -120,6 +122,17 @@ const router = createRouter({
     {
       path: '/notice',
       component: Notice
+    },
+    {
+      path: '/noticeFAQ',
+      name: 'NoticeFAQ',
+      component: NoticeFAQ, 
+    },
+    {
+      path: '/notice/:id', 
+      name: 'noticeDetail',
+      component: NoticeDetail,
+      props: true,
     },
     {
       path: '/manager',
