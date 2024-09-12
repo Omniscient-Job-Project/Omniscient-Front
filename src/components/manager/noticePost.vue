@@ -65,7 +65,7 @@ export default {
           };
 
           try {
-              const response = await axios.post('/api/v1/notice', formData, {
+              const response = await axios.post('http://localhost:8090/api/v1/notice', formData, {
                   headers: {
                       'Content-Type': 'application/json'
                   }

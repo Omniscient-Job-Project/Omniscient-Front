@@ -12,7 +12,7 @@
       </div>
       <button type="submit">저장</button>
     </form>
-    <router-link to="/manager/faq/list" class="link-button">돌아가기</router-link>
+    <router-link to="/manager/faqlist" class="link-button">돌아가기</router-link>
   </div>
 </template>
 
@@ -28,7 +28,7 @@ const faq = ref({ question: '', answer: '' });
 
 const fetchFaq = async () => {
   try {
-    const response = await axios.get(`/api/v1/faqs/${route.params.id}`);
+    const response = await axios.get(`http://localhost:8090/api/v1/faqs/${route.params.id}`);
     faq.value = response.data;
   } catch (error) {
     console.error('Error fetching FAQ:', error);
@@ -37,12 +37,14 @@ const fetchFaq = async () => {
 
 const updateFaq = async () => {
   try {
-    await axios.put(`/api/v1/faqs/${route.params.id}`, faq.value);
+    const response = await axios.put(`http://localhost:8090/api/v1/faqs/${route.params.id}`, faq.value);
+    console.log('FAQ updated:', response.data);
     router.push('/manager/faqList'); // 경로 확인
   } catch (error) {
     console.error('Error updating FAQ:', error);
   }
 };
+
 
 
 onMounted(fetchFaq);

@@ -1,48 +1,48 @@
 <template>
-    <div class="noticeHeader">
-      <h1 class="title">공지 목록</h1>
-    </div>
-    <div class="table-container">
-      <table class="table table-striped table-hover">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">번호</th>
-            <th scope="col">제목</th>
-            <th scope="col">작성 날짜</th>
-            <th scope="col">수정</th>
-            <th scope="col">삭제</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="notification in noticeList" :key="notification.noticeId">
-            <td>{{ notification.noticeId }}</td>
-            <td>
-              <a href="javascript:void(0);" @click="viewDetail(notification.noticeId)">
-                {{ notification.noticeTitle }}
-              </a>
-            </td>
-            <td>{{ formatDate(notification.noticeCreateAt) }}</td>
-            <td>
-              <button @click="editNotice(notification.noticeId)" class="btn btn-custom btn-sm">
-                수정
-              </button>
-            </td>
-            <td>
-              <button @click="deleteNotice(notification.noticeId)" class="btn btn-custom btn-sm">
-                삭제
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div v-if="selectedNotice" class="noticeDetail">
-      <h2>{{ selectedNotice.noticeTitle }}</h2>
-      <p>{{ selectedNotice.noticeContent }}</p>
-      <button @click="selectedNotice = null" class="btn btn-primary">
-        목록으로 돌아가기
-      </button>
-    </div>
+  <div class="noticeHeader">
+    <h1 class="title">공지 목록</h1>
+  </div>
+  <div class="table-container">
+    <table class="table table-striped table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">번호</th>
+          <th scope="col">제목</th>
+          <th scope="col">작성 날짜</th>
+          <th scope="col">수정</th>
+          <th scope="col">삭제</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="notification in noticeList" :key="notification.noticeId">
+          <td>{{ notification.noticeId }}</td>
+          <td>
+            <a href="javascript:void(0);" @click="viewDetail(notification.noticeId)">
+              {{ notification.noticeTitle }}
+            </a>
+          </td>
+          <td>{{ formatDate(notification.noticeCreateAt) }}</td>
+          <td>
+            <button @click="editNotice(notification.noticeId)" class="btn btn-custom btn-sm">
+              수정
+            </button>
+          </td>
+          <td>
+            <button @click="deleteNotice(notification.noticeId)" class="btn btn-custom btn-sm">
+              삭제
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div v-if="selectedNotice" class="noticeDetail">
+    <h2>{{ selectedNotice.noticeTitle }}</h2>
+    <p>{{ selectedNotice.noticeContent }}</p>
+    <button @click="selectedNotice = null" class="btn btn-primary">
+      목록으로 돌아가기
+    </button>
+  </div>
 </template>
 
 <script>
@@ -61,8 +61,9 @@ export default {
   methods: {
     async fetchNotices() {
       try {
-        const response = await axios.get(`/api/v1/notice`);
-        this.noticeList = response.data.filter(notice => notice.status !== false);
+        const response = await axios.get(`http://localhost:8090/api/v1/notice`);
+        // 상태가 true인 공지사항만 표시
+        this.noticeList = response.data.filter(notice => notice.noticeStatus !== false);
       } catch (error) {
         console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다!', error);
       }
@@ -70,9 +71,10 @@ export default {
 
     async deleteNotice(noticeId) {
       try {
-        const response = await axios.delete(`/api/v1/notice/${noticeId}`);
+        // 상태를 false로 변경하는 로직 호출
+        const response = await axios.delete(`http://localhost:8090/api/v1/notice/${noticeId}`);
         console.log('삭제 응답:', response);
-        await this.fetchNotices();
+        await this.fetchNotices(); // 목록 새로고침
       } catch (error) {
         console.error('공지사항을 삭제하는 중 오류가 발생했습니다!', error);
       }
@@ -98,6 +100,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 body {
