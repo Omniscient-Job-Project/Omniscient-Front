@@ -5,7 +5,7 @@
       <h2 class="hero-title">당신의 꿈을 위한 첫걸음</h2>
       <p class="hero-subtitle">수천 개의 채용 정보에서 당신에게 맞는 직업을 찾아보세요</p>
       <div class="search-bar">
-        <input type="text" v-model="searchTerm" placeholder="직무, 회사, 키워드 검색" class="search-input">
+        <input type="text" v-model="searchTerm" placeholder="직무, 회사, 키워드 검색" class="search-input" @input="searchJobs">
         <button @click="searchJobs" class="search-button">검색</button>
       </div>
     </section>
@@ -48,12 +48,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const jobs = ref([]);
+
 const currentPage = ref(1);
 const itemsPerPage = 16;
 const searchTerm = ref('');
@@ -93,6 +94,7 @@ const fetchJobs = async () => {
     }));
 
     jobs.value = [...jobsFromJobaba, ...jobsFromSeoul];
+    filteredJobs.value = jobs.value;
   } catch (error) {
     console.error('채용 정보를 가져오는 데 실패했습니다.', error);
   }
@@ -110,9 +112,8 @@ const paginatedJobs = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   return filteredJobs.value.slice(start, end);
+  return filteredJobs.value.slice(start, end);
 });
-
-const totalPages = computed(() => Math.ceil(filteredJobs.value.length / itemsPerPage));
 
 const goToDetail = (jobId) => {
   router.push({ name: 'curationDetail', params: { id: jobId } });
@@ -132,9 +133,23 @@ const nextPage = () => {
 };
 
 const searchJobs = () => {
-  currentPage.value = 1; // 검색 시 페이지를 1로 초기화
-  // 추가적인 로직이 필요 없지만, 검색어 입력 후 검색 버튼을 클릭할 때 호출됩니다.
+  if (searchTerm.value.trim() === '') {
+    filteredJobs.value = jobs.value;
+  } else {
+    const searchLower = searchTerm.value.toLowerCase();
+    filteredJobs.value = jobs.value.filter(job => 
+      job.jobInfoTitle.toLowerCase().includes(searchLower) ||
+      job.jobCompanyName.toLowerCase().includes(searchLower) ||
+      job.jobLocation.toLowerCase().includes(searchLower) ||
+      job.jobCareerCondition.toLowerCase().includes(searchLower)
+    );
+  }
+  currentPage.value = 1; // 검색 후 첫 페이지로 리셋
 };
+
+watch(searchTerm, () => {
+  searchJobs();
+});
 
 onMounted(() => {
   fetchJobs();
