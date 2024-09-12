@@ -1,25 +1,28 @@
 <template>
   <div class="faq-list">
     <h1>FAQ 목록</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>질문</th>
-          <th>답변</th>
-          <th>작업</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="faq in faqs" :key="faq.id">
-          <td>{{ faq.question }}</td>
-          <td>{{ faq.answer }}</td>
-          <td>
-            <button @click="editFaq(faq.id)">수정</button>
-            <button @click="deleteFaq(faq.id)">삭제</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>질문</th>
+            <th>답변</th>
+            <th>작업</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 6개까지만 보여줌 -->
+          <tr v-for="faq in faqs.slice(0, 6)" :key="faq.id">
+            <td>{{ faq.question }}</td>
+            <td>{{ faq.answer }}</td>
+            <td>
+              <button @click="editFaq(faq.id)">수정</button>
+              <button @click="deleteFaq(faq.id)">삭제</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -33,7 +36,7 @@ const router = useRouter();
 
 const fetchFaqs = async () => {
   try {
-    const response = await axios.get('/api/v1/faqs');
+    const response = await axios.get('http://localhost:8090/api/v1/faqs');
     faqs.value = response.data;
   } catch (error) {
     console.error('Error fetching FAQs:', error);
@@ -44,11 +47,9 @@ const editFaq = (id) => {
   router.push({ name: 'ManagerFaqModify', params: { id } });
 };
 
-
-
 const deleteFaq = async (id) => {
   try {
-    await axios.delete(`/api/v1/faqs/${id}`);
+    await axios.delete(`http://localhost:8090/api/v1/faqs/${id}`);
     fetchFaqs(); // Refresh the list
   } catch (error) {
     console.error('Error deleting FAQ:', error);
@@ -65,6 +66,11 @@ onMounted(fetchFaqs);
 
 h1 {
   margin-bottom: 20px;
+}
+
+.table-container {
+  max-height: 300px; /* 테이블 높이 제한 */
+  overflow-y: auto; /* 수직 스크롤 추가 */
 }
 
 table {

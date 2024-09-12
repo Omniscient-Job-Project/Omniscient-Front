@@ -20,10 +20,10 @@ const ManagerFAQ = () => import("../views/managerFaq.vue");
 const ManagerNotice = () => import("../views/managerNotice.vue");
 const ManagerUser = () => import("../views/managerUser.vue");
 const AdminUser = () => import("../components/manager/adminMain.vue");
-const NoticePost = () => import("../components/manager/noticePost.vue");
 const ManagerFAQPost = () => import("../components/manager/faqPost.vue");
 const ManagerFAQModify =() => import("../components/manager/faqModify.vue");
-// const NoticeModify =() => import("../components/manager/noticeModify.vue");
+const ManagerNoticeModify =() => import("../components/manager/noticeModify.vue");
+const ManagerNoticePost =() => import("../components/manager/noticePost.vue");
 const MyHome = () => import("../components/mypage/myhome.vue");
 const ResumeManagementPage = () => import("../components/mypage/resumeManagementPage.vue");
 const ApplicationsPageComponent = () => import("../components/mypage/applicationsPageComponent.vue");
@@ -138,37 +138,44 @@ const router = createRouter({
       path: '/manager',
       name: 'manager',
       component: Manager,
+      redirect: '/manager/main',
       children:[
+
         {
-          path: '/main',
+          path: 'main',
           component: ManagerMain
         },
         {
-          path: '/userList',
+          path: 'userList',
           component: ManagerUser
         },
         {
-          path: '/adminMain', 
+          path: 'adminMain', 
           component: AdminUser
         },
         {
-          path: '/noticeList', 
+          path: 'noticeList', 
           component: ManagerNotice
         },
         {
-          path: '/noticePost', 
-          component:NoticePost
+          path: 'noticePost', 
+          component:ManagerNoticePost
         },
         {
-          path: '/faqList', 
+          path: 'noticeModify',
+          component: ManagerNoticeModify
+        },
+
+        {
+          path: 'faqList', 
           component: ManagerFAQ
         },
         {
-          path: '/faqPost', 
+          path: 'faqPost', 
           component: ManagerFAQPost
         },
         {
-          path: '/faqModify/:id',
+          path: 'faqModify/:id',
           name: 'ManagerFaqModify',
           component: ManagerFAQModify,
           props: true

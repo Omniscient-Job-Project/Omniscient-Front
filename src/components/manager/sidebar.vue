@@ -23,7 +23,7 @@
             </router-link>
           </div>
         </div>
-        <hr>
+        <hr class="divider">
 
         <!-- 공지 관리 메뉴 -->
         <div class="menu-group">
@@ -37,7 +37,7 @@
             </router-link>
           </div>
         </div>
-        <hr>
+        <hr class="divider">
 
         <!-- F&Q 메뉴 -->
         <div class="menu-group">
@@ -51,7 +51,7 @@
             </router-link>
           </div>
         </div>
-        <hr>
+        <hr class="divider">
 
         <!-- 종료 -->
         <div class="menu-group">
@@ -86,7 +86,7 @@ function showConfirmation() {
 
 <style scoped>
 .sidebar-wrapper {
-  background-color: #c1eece !important;
+  background-color: #AFF6C3 !important;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
   position: fixed;
@@ -111,7 +111,7 @@ function showConfirmation() {
 .sidebar-title {
   font-family: "LINESeedKR-Bd";
   font-size: 28px;
-  color: #1eaf49;
+  color: #AFF6C3;
   margin-top: 30px;
 }
 
@@ -130,8 +130,8 @@ function showConfirmation() {
 }
 
 .menu-group-header {
-  background-color: #1eaf49;
-  color: white;
+  background-color: #c7dbcc;
+  color: rgb(5, 5, 5);
   border: none;
   font-size: 16px;
   padding: 10px;
@@ -142,12 +142,12 @@ function showConfirmation() {
 
 .menu-item {
   display: block;
-  background-color: #1eaf49;
-  color: white;
+  background-color: #AFF6C3;
+  color: rgb(7, 7, 7);
   text-decoration: none;
   padding: 10px;
-  font-size: 16px;
-  text-align: left;
+  font-size: 20px;
+  text-align: center;
   width: 100%;
 }
 
@@ -170,6 +170,10 @@ function showConfirmation() {
   border-top: 1px solid #ddd;
 }
 
+.sidebar-text,
+.menu-item {
+  text-decoration: none !important; /* 밑줄 제거 */
+}  
 @media (max-width: 992px) {
   .sidebar-wrapper {
     width: 200px; /* 화면이 작아질 때 사이드바 너비 조정 */

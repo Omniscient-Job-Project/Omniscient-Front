@@ -13,7 +13,7 @@
       <!-- 버튼들을 감싸는 div 추가 -->
       <div class="button-group">
         <button type="submit">등록</button>
-        <router-link to="/manager/faq/faqList" class="link-button">돌아가기</router-link>
+        <router-link to="/manager/faqList" class="link-button">돌아가기</router-link>
       </div>
     </form>
   </div>
@@ -30,7 +30,7 @@ const router = useRouter();
 const createFaq = async () => {
   try {
     // API 요청 URL 확인
-    const response = await axios.post('/api/v1/faqs', newFaq.value);
+    const response = await axios.post('http://localhost:8090/api/v1/faqs', newFaq.value);
     console.log('FAQ created:', response.data);
     // 리스트 페이지로 리다이렉트
     router.push('/manager/faqList');
