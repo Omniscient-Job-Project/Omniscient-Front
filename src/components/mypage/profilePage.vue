@@ -95,12 +95,15 @@
             <button type="button" @click="toggleEditMode" v-else class="edit-button">
               <i class="fas fa-edit"></i> 수정
             </button>
+            <button type="button" @click="showDeactivateModal" class="deactivate-button">
+              <i class="fas fa-user-times"></i> 프로필 비활성화
+            </button>
           </div>
         </div>
       </div>
     </form>
-    <!-- 확인 모달 -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+    <!-- 저장 확인 모달 -->
+    <div v-if="showSaveModal" class="modal-overlay" @click="closeSaveModal">
       <div class="modal-content" @click.stop>
         <h3><i class="fas fa-question-circle"></i> 확인</h3>
         <p>프로필을 저장하시겠습니까?</p>
@@ -108,8 +111,23 @@
           <button @click="confirmSave" class="confirm-button">
             <i class="fas fa-check"></i> 예
           </button>
-          <button @click="closeModal" class="cancel-button">
+          <button @click="closeSaveModal" class="cancel-button">
             <i class="fas fa-times"></i> 아니오
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 비활성화 확인 모달 -->
+    <div v-if="showDeactivateModal" class="modal-overlay" @click="closeDeactivateModal">
+      <div class="modal-content" @click.stop>
+        <h3><i class="fas fa-exclamation-triangle"></i> 경고</h3>
+        <p>정말로 이 프로필을 비활성화하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+        <div class="modal-actions">
+          <button @click="confirmDeactivate" class="confirm-button">
+            <i class="fas fa-check"></i> 예, 비활성화합니다
+          </button>
+          <button @click="closeDeactivateModal" class="cancel-button">
+            <i class="fas fa-times"></i> 아니오, 취소합니다
           </button>
         </div>
       </div>
@@ -137,7 +155,8 @@ export default {
       },
       isEditing: false,
       imageFile: null,
-      showModal: false
+      showSaveModal: false,
+      showDeactivateModal: false
     };
   },
   computed: {
@@ -190,57 +209,72 @@ export default {
       }
     },
     showConfirmModal() {
-      this.showModal = true;
+      this.showSaveModal = true;
     },
-    closeModal() {
-      this.showModal = false;
+    closeSaveModal() {
+      this.showSaveModal = false;
     },
     confirmSave() {
       this.saveProfile();
     },
     async saveProfile() {
-  try {
-    const formData = new FormData();
-    Object.keys(this.profile).forEach(key => {
-      if (key === 'id' && !this.profile.id) {
-        // id가 없거나 0이면 전송하지 않음
-        return;
-      }
-      if (key === 'certificates') {
-        formData.append(key, JSON.stringify(this.profile[key]));
-      } else {
-        formData.append(key, this.profile[key]);
-      }
-    });
+      try {
+        const formData = new FormData();
+        Object.keys(this.profile).forEach(key => {
+          if (key === 'id' && !this.profile.id) {
+            return;
+          }
+          if (key === 'certificates') {
+            formData.append(key, JSON.stringify(this.profile[key]));
+          } else {
+            formData.append(key, this.profile[key]);
+          }
+        });
 
-    if (this.imageFile) {
-      formData.append('profileImage', this.imageFile);
-    }
-
-    let response;
-    if (this.profile.id) {
-      response = await axios.put(`http://localhost:8090/api/v1/mypage/${this.profile.id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+        if (this.imageFile) {
+          formData.append('profileImage', this.imageFile);
         }
-      });
-    } else {
-      response = await axios.post('http://localhost:8090/api/v1/mypage', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-    }
 
-    this.profile = response.data;
-    this.isEditing = false;
-    this.showModal = false;  // 모달 닫기
-    // alert 구문 제거됨
-  } catch (error) {
-    console.error('프로필 저장에 실패했습니다:', error);
-    alert('프로필 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
-  }
-}
+        let response;
+        if (this.profile.id) {
+          response = await axios.put(`http://localhost:8090/api/v1/mypage/${this.profile.id}`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+        } else {
+          response = await axios.post('http://localhost:8090/api/v1/mypage', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+        }
+
+        this.profile = response.data;
+        this.isEditing = false;
+        this.showSaveModal = false;
+      } catch (error) {
+        console.error('프로필 저장에 실패했습니다:', error);
+        alert('프로필 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
+      }
+    },
+    showDeactivateModal() {
+      this.showDeactivateModal = true;
+    },
+    closeDeactivateModal() {
+      this.showDeactivateModal = false;
+    },
+    async confirmDeactivate() {
+      try {
+        await axios.put(`http://localhost:8090/api/v1/mypage/deactivate/${this.profile.id}`);
+        this.showDeactivateModal = false;
+        alert('프로필이 성공적으로 비활성화되었습니다.');
+        // 여기서 로그아웃 처리나 홈페이지로 리다이렉트 등을 수행할 수 있습니다.
+      } catch (error) {
+        console.error('프로필 비활성화에 실패했습니다:', error);
+        alert('프로필 비활성화에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
+      }
+    }
   }
 }
 </script>

@@ -15,8 +15,8 @@
           <button @click="editCertificate(cert)" class="edit-btn">
             <i class="fas fa-edit"></i> 수정
           </button>
-          <button @click="showDeleteModal(cert.id)" class="delete-btn">
-            <i class="fas fa-trash-alt"></i> 삭제
+          <button @click="showDeactivateModal(cert.id)" class="deactivate-btn">
+            <i class="fas fa-ban"></i> 비활성화
           </button>
         </div>
       </div>
@@ -57,7 +57,7 @@
       <div class="modal-content" @click.stop>
         <h3><i class="fas fa-question-circle"></i> 확인</h3>
         <p>{{ modalMessage }}</p>
-        <p v-if="modalType !== 'delete'"><strong>자격증명:</strong> {{ formData.name }}</p>
+        <p v-if="modalType !== 'deactivate'"><strong>자격증명:</strong> {{ formData.name }}</p>
         <div class="modal-actions">
           <button @click="confirmAction" class="confirm-button">
             <i class="fas fa-check"></i> 예
@@ -95,7 +95,7 @@ const error = ref(null);
 const showModal = ref(false);
 const modalType = ref('');
 const modalMessage = ref('');
-const deletingCertId = ref(null);
+const deactivatingCertId = ref(null);
 
 const log = (message, level = 'info') => {
   const logMessage = `[${new Date().toISOString()}] ${message}`;
@@ -163,14 +163,18 @@ const updateCertificate = async () => {
   }
 };
 
-const deleteCertificate = async (id) => {
+const deactivateCertificate = async (id) => {
   try {
-    log(`자격증 삭제 시작: ID ${id}`);
-    await axiosInstance.delete(`/${id}`);
-    certificates.value = certificates.value.filter(cert => cert.id !== id);
-    log(`자격증 삭제 완료: ID ${id}`);
+    log(`자격증 비활성화 시작: ID ${id}`);
+    const response = await axiosInstance.put(`/${id}/deactivate`);
+    if (response.data.message) {
+      certificates.value = certificates.value.filter(cert => cert.id !== id);
+      log(`자격증 비활성화 완료: ID ${id}`);
+    } else {
+      throw new Error('자격증 비활성화에 실패했습니다.');
+    }
   } catch (err) {
-    handleError('자격증 삭제에 실패했습니다', err);
+    handleError('자격증 비활성화에 실패했습니다', err);
   }
 };
 
@@ -198,10 +202,10 @@ const showConfirmModal = () => {
   }
 };
 
-const showDeleteModal = (id) => {
-  modalType.value = 'delete';
-  modalMessage.value = '정말로 이 자격증을 삭제하시겠습니까?';
-  deletingCertId.value = id;
+const showDeactivateModal = (id) => {
+  modalType.value = 'deactivate';
+  modalMessage.value = '정말로 이 자격증을 비활성화하시겠습니까?';
+  deactivatingCertId.value = id;
   showModal.value = true;
 };
 
@@ -209,12 +213,12 @@ const closeModal = () => {
   showModal.value = false;
   modalType.value = '';
   modalMessage.value = '';
-  deletingCertId.value = null;
+  deactivatingCertId.value = null;
 };
 
 const confirmAction = () => {
-  if (modalType.value === 'delete') {
-    deleteCertificate(deletingCertId.value);
+  if (modalType.value === 'deactivate') {
+    deactivateCertificate(deactivatingCertId.value);
   } else if (modalType.value === 'edit') {
     updateCertificate();
   } else {

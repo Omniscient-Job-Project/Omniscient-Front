@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+// 기본 뷰 및 컴포넌트
 const Main = () => import("../views/indexView.vue");
 const Curation = () => import("../views/curationView.vue");
-const Board = () => import("../components/board/board.vue");
-const PostForm = () => import("../components/board/postForm.vue");
+const BoardList = () => import("../components/board/boardList.vue");
 const PostDetail = () => import("../components/board/postDetail.vue");
+const PostForm = () => import("../components/board/postForm.vue");
 const Certificate = () => import("../components/certificate/certificate.vue");
 const CertificateSearch = () => import("../components/certificate/certificateSearch.vue");
 const Mypage = () => import("../components/mypage/mypage.vue");
@@ -15,15 +16,16 @@ const Notice = () => import("../views/noticeView.vue");
 const NoticeFAQ = () => import("../components/notice/noticeFAQ.vue");
 const NoticeDetail = () => import("../components/notice/noticeDetail.vue");
 const Manager = () => import("../views/managerMainV.vue");
-const ManagerMain = () => import ("../components/manager/managerMain.vue");
+const ManagerMain = () => import("../components/manager/managerMain.vue");
 const ManagerFAQ = () => import("../views/managerFaq.vue");
 const ManagerNotice = () => import("../views/managerNotice.vue");
 const ManagerUser = () => import("../views/managerUser.vue");
 const AdminUser = () => import("../components/manager/adminMain.vue");
+const NoticePost = () => import("../components/manager/noticePost.vue");
 const ManagerFAQPost = () => import("../components/manager/faqPost.vue");
-const ManagerFAQModify =() => import("../components/manager/faqModify.vue");
-const ManagerNoticeModify =() => import("../components/manager/noticeModify.vue");
-const ManagerNoticePost =() => import("../components/manager/noticePost.vue");
+const ManagerFAQModify = () => import("../components/manager/faqModify.vue");
+
+// 추가된 마이페이지 관련 컴포넌트
 const MyHome = () => import("../components/mypage/myhome.vue");
 const ResumeManagementPage = () => import("../components/mypage/resumeManagementPage.vue");
 const ApplicationsPageComponent = () => import("../components/mypage/applicationsPageComponent.vue");
@@ -39,10 +41,9 @@ const router = createRouter({
       component: Main
     },
     {
-      // path: '/board/:category?',
-      path: '/board',
-      name: 'board',
-      component: Board
+      path: '/board/:category?',
+      name: 'boardList',
+      component: BoardList,
     },
     {
       path: '/post/:id',
@@ -50,8 +51,8 @@ const router = createRouter({
       component: PostDetail,
     },
     {
-      path: '/post-form',
-      name: 'postFormPage',
+      path: '/post-form/:category?',
+      name: 'postForm',
       component: PostForm,
     },
     {
@@ -138,9 +139,7 @@ const router = createRouter({
       path: '/manager',
       name: 'manager',
       component: Manager,
-      redirect: '/manager/main',
       children:[
-
         {
           path: 'main',
           component: ManagerMain
@@ -150,28 +149,23 @@ const router = createRouter({
           component: ManagerUser
         },
         {
-          path: 'adminMain', 
+          path: 'admin/adminMain',
           component: AdminUser
         },
         {
-          path: 'noticeList', 
+          path: 'notice/noticeList',
           component: ManagerNotice
         },
         {
-          path: 'noticePost', 
-          component:ManagerNoticePost
+          path: 'notice/noticePost',
+          component: NoticePost
         },
         {
-          path: 'noticeModify',
-          component: ManagerNoticeModify
-        },
-
-        {
-          path: 'faqList', 
+          path: 'faq/faqList',
           component: ManagerFAQ
         },
         {
-          path: 'faqPost', 
+          path: 'faq/faqPost',
           component: ManagerFAQPost
         },
         {
@@ -183,6 +177,6 @@ const router = createRouter({
       ]
     },
   ]
-})
+});
 
 export default router;
