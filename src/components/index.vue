@@ -98,13 +98,21 @@ const fetchJobs = async () => {
   }
 };
 
+const filteredJobs = computed(() => {
+  if (!searchTerm.value) return jobs.value;
+  return jobs.value.filter(job =>
+    job.jobInfoTitle.includes(searchTerm.value) ||
+    job.jobCompanyName.includes(searchTerm.value)
+  );
+});
+
 const paginatedJobs = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return jobs.value.slice(start, end);
+  return filteredJobs.value.slice(start, end);
 });
 
-const totalPages = computed(() => Math.ceil(jobs.value.length / itemsPerPage));
+const totalPages = computed(() => Math.ceil(filteredJobs.value.length / itemsPerPage));
 
 const goToDetail = (jobId) => {
   router.push({ name: 'curationDetail', params: { id: jobId } });
@@ -124,8 +132,8 @@ const nextPage = () => {
 };
 
 const searchJobs = () => {
-  // TODO: 검색 로직 구현
-  console.log('Searching for:', searchTerm.value);
+  currentPage.value = 1; // 검색 시 페이지를 1로 초기화
+  // 추가적인 로직이 필요 없지만, 검색어 입력 후 검색 버튼을 클릭할 때 호출됩니다.
 };
 
 onMounted(() => {

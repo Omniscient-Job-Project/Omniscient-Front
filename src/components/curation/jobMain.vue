@@ -105,6 +105,7 @@ const saveBookmarks = () => {
 // 북마크 변경 감지 및 저장
 watch(bookmarks, saveBookmarks, { deep: true });
 
+// 자격증 데이터 가져오기 함수
 const fetchJobs = async () => {
   try {
     // 경기도잡아바 API 호출
@@ -138,11 +139,22 @@ const fetchJobs = async () => {
   }
 };
 
+// 페이지 로드 시 채용 정보 가져오기
 onMounted(() => {
   fetchJobs();
   loadBookmarks();
 });
 
+// 검색어 변경 시 필터링
+watch(searchTerm, (newTerm) => {
+  if (!newTerm) {
+    fetchJobs();  // 검색어가 비어 있으면 모든 채용 정보를 다시 가져옴
+  } else {
+    searchJobs();  // 검색어가 있을 경우 필터링
+  }
+});
+
+// 검색어에 맞게 필터링된 채용 정보 반환
 const filteredJobs = computed(() => {
   if (!searchTerm.value) return jobs.value;
   return jobs.value.filter(job =>
@@ -178,7 +190,20 @@ const toggleBookmark = (job) => {
 const isBookmarked = (jobId) => {
   return bookmarks.value.some(item => item.jobId === jobId);
 };
+
+// 검색 메소드 추가
+const searchJobs = () => {
+  if (!searchTerm.value) {
+    fetchJobs();
+  } else {
+    jobs.value = jobs.value.filter(job =>
+      job.jobInfoTitle.includes(searchTerm.value) || job.jobCompanyName.includes(searchTerm.value)
+    );
+  }
+};
+
 </script>
+
   
 <style scoped>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
