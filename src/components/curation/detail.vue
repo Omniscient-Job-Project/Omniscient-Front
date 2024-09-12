@@ -170,87 +170,172 @@ onMounted(() => {
 
 
 <style scoped>
+/* 전체 페이지 스타일 */
 body {
-    background-color: #E6F3FF;
+  font-family: 'Roboto', 'Arial', sans-serif;
+  background-color: #f0f4f8;
+  color: #333;
+  line-height: 1.6;
 }
-
-.container {
-    border: 2px solid #000000;
-    background-color: #ffffff;
-    padding: 20px;
-    margin: 0 auto;
-    max-width: 800px;
-    box-sizing: border-box;
-    height: 100%;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+.job-detail-container {
+  max-width: 850px;
+  margin: 3rem auto;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  transition: all 0.3s ease;
 }
-
-.top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    margin-top: 10px;
+.job-detail-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
-
-.companyname {
-    font-weight: bold;
-    font-size: 18px;
-    margin-right: 10px;
+/* 헤더 섹션 */
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e0e6ed;
 }
-
-.subject {
-    font-size: 24px;
-    font-weight: bold;
-    flex-grow: 1;
+.job-title-section {
+  flex: 1;
 }
-
-.buttons {
-    display: flex;
-    align-items: center;
-    width: 30%;
+.job-title {
+  font-size: 2.2rem;
+  color: #2c3e50;
+  margin-bottom: 0.7rem;
+  font-weight: 700;
 }
-
-.scrapbutton {
-    margin-right: 20px;
-    cursor: pointer;
+.company-name {
+  font-size: 1.3rem;
+  color: #3498db;
+  margin-bottom: 0.7rem;
+  font-weight: 500;
 }
-
-.homepagelink .btn {
-    background-color: #007bff;
+.receipt-period {
+  font-size: 1rem;
+  color: #7f8c8d;
+  display: flex;
+  align-items: center;
 }
-
-.homepagelink a {
-    padding: 10px 20px;
-    border: 1px solid #000;
-    text-decoration: none;
-    color: #ffffff;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+.action-buttons {
+  display: flex;
+  gap: 1.2rem;
 }
-
-.homepagelink a:hover {
-    background-color: #0026ff;
-    color: #fff;
+.bookmark-btn, .apply-btn {
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
-.middle {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
+.bookmark-btn {
+  background-color: #ecf0f1;
+  color: #2c3e50;
 }
-
-.middle div {
-    font-size: 16px;
+.bookmark-btn:hover {
+  background-color: #d5dbdb;
+  transform: translateY(-2px);
 }
-
-.bottom {
-    padding: 10px 0;
-    font-size: 16px;
-    margin-bottom: 10px;
+.apply-btn {
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
 }
+.apply-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+/* 본문 스타일 */
+.job-content {
+  display: grid;
+  gap: 2.5rem;
+}
+.job-content h3 {
+  font-size: 1.4rem;
+  color: #2c3e50;
+  margin-bottom: 1.2rem;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 0.7rem;
+  font-weight: 600;
+}
+.job-content ul {
+  list-style-type: none;
+  padding: 0;
+}
+.job-content li {
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+/* 섹션 스타일 */
+.job-summary, .job-details, .application-info, .company-info {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+.job-summary:hover, .job-details:hover, .application-info:hover, .company-info:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+/* 아이콘 스타일 */
+.fas {
+  margin-right: 0.8rem;
+  color: #3498db;
+  font-size: 1.1rem;
+}
+/* 로딩 스타일 */
+.loading {
+  text-align: center;
+  font-size: 1.4rem;
+  color: #7f8c8d;
+  margin-top: 3rem;
+}
+.loading .fa-spinner {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .job-header {
+    flex-direction: column;
+  }
+  .action-buttons {
+    margin-top: 1.5rem;
+    width: 100%;
+  }
+  .bookmark-btn, .apply-btn {
+    flex: 1;
+  }
+  .job-content {
+    grid-template-columns: 1fr;
+  }
+  .job-detail-container {
+    margin: 1.5rem;
+    padding: 1.5rem;
+  }
+}
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.job-summary, .job-details, .application-info, .company-info {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+.job-summary { animation-delay: 0.1s; }
+.job-details { animation-delay: 0.2s; }
+.application-info { animation-delay: 0.3s; }
+.company-info { animation-delay: 0.4s; }
 </style>
