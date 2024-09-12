@@ -34,8 +34,8 @@
           <button @click="saveEdit" class="save-button">
             <i class="fas fa-save"></i> 저장
           </button>
-          <button @click="deletePost" class="delete-button">
-            <i class="fas fa-trash"></i> 삭제
+          <button @click="deactivatePost" class="deactivate-button">
+            <i class="fas fa-ban"></i> 비활성화
           </button>
           <button @click="cancelEdit" class="cancel-button">
             <i class="fas fa-times"></i> 취소
@@ -188,19 +188,21 @@ const cancelEdit = () => {
   editedPost.value = {};
 };
 
-const deletePost = () => {
+const deactivatePost = () => {
   showModal.value = true;
-  modalMessage.value = '정말로 이 게시글을 삭제하시겠습니까?';
-  modalAction.value = performDeletePost;
+  modalMessage.value = '정말로 이 게시글을 비활성화하시겠습니까?';
+  modalAction.value = performDeactivatePost;
 };
 
-const performDeletePost = async () => {
+const performDeactivatePost = async () => {
   try {
-    await axios.delete(`http://localhost:8090/api/v1/boards/${post.value.id}`);
+    await axios.put(`http://localhost:8090/api/v1/boards/delete/${post.value.id}`, null, {
+      params: { status: false }
+    });
     closeModal();
     router.push({ name: 'boardList' });
   } catch (error) {
-    console.error('게시글 삭제 중 오류가 발생했습니다:', error);
+    console.error('게시글 비활성화 중 오류가 발생했습니다:', error);
   }
 };
 
