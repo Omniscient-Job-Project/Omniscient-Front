@@ -1,120 +1,103 @@
 <template>
-    <div v-if="jobDetail" class="container">
-        <div class="top">
-            <div>
-                <h4>{{ jobDetail.companyName }}</h4>
-                <h2>{{ jobDetail.title }}</h2>
-                <h5>접수기간 : {{ jobDetail.receiptPeriod }}</h5>
-            </div>
-            <div class="buttons">
-                <!-- 스크랩 버튼 -->
-                <div class="scrapbutton" @click="toggleBookmark">
-                    <svg v-if="!isBookmarked" xmlns="http://www.w3.org/2000/svg" width="35" height="35"
-                        fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16">
-                        <path
-                            d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2" />
-                    </svg>
-                    <svg v-if="isBookmarked" xmlns="http://www.w3.org/2000/svg" width="35" height="35"
-                        fill="currentColor" class="bi bi-bookmark-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2" />
-                    </svg>
-                </div>
-                <!-- 홈페이지 지원 버튼 -->
-                <div class="homepagelink">
-                    <a class="btn btn-primary" :href="jobDetail.applyUrl" role="button" target="_blank">홈페이지 지원</a>
-                </div>
-            </div>
+    <div v-if="jobDetail" class="job-detail-container">
+      <div class="job-header">
+        <div class="job-title-section">
+          <h1 class="job-title">{{ jobDetail.title }}</h1>
+          <h2 class="company-name">{{ jobDetail.companyName }}</h2>
+          <p class="receipt-period">
+            <i class="fas fa-calendar-alt"></i> 접수기간: {{ jobDetail.receiptPeriod }}
+          </p>
         </div>
-
-        <div class="middle">
-            <div>{{ jobDetail.description }}</div>
-            <br />
-            <div>{{ jobDetail.summary }}</div>
+        <div class="action-buttons">
+          <button @click="toggleBookmark" class="bookmark-btn">
+            <i :class="['fas', isBookmarked ? 'fa-bookmark' : 'fa-bookmark-o']"></i>
+            {{ isBookmarked ? '스크랩됨' : '스크랩' }}
+          </button>
+          <a :href="jobDetail.applyUrl" target="_blank" class="apply-btn">
+            <i class="fas fa-external-link-alt"></i> 홈페이지 지원
+          </a>
         </div>
-
-        <div class="bottom">
-            <div>
-                <h3>모집 부문 및 자격요건</h3>
-            </div>
-            <div>고용형태: {{ jobDetail.employmentType }}</div>
-            <div>
-                <h3>자격요건</h3>
-            </div>
-            <div>경력: {{ jobDetail.experience }}</div>
-            <div>학력: {{ jobDetail.education }}</div>
-            <div>채용부문: {{ jobDetail.field }}</div>
-            <div></div>
-            <div>근무일: {{ jobDetail.workDays }} <br />
-                근무시간: {{ jobDetail.workHours }}
-            </div>
-            <div>급여: {{ jobDetail.salary }}</div>
-            <div>근무지역: {{ jobDetail.location }}</div>
-            <div>접수방법: {{ jobDetail.applicationMethod }}</div>
-            <div>면접방식: {{ jobDetail.interviewMethod }}</div>
-            <div>복리후생: {{ jobDetail.benefits }}</div>
-        </div>
-
-        <div class="office">
-            <div>{{ jobDetail.receptionMethod }}</div>
-            <div>회사위치: {{ jobDetail.companyLocation }}</div>
-            <div>회사번호: {{ jobDetail.companyPhone }}</div>
-            <div>회사이름: {{ jobDetail.companyName }}</div>
-            <div>담당자: {{ jobDetail.contactPerson }}</div>
-        </div>
+      </div>
+  
+      <div class="job-content">
+        <section class="job-summary">
+          <h3><i class="fas fa-info-circle"></i> 채용 내용</h3>
+          <p>{{ jobDetail.description }}</p>
+          <p>{{ jobDetail.summary }}</p>
+        </section>
+  
+        <section class="job-details">
+          <h3><i class="fas fa-list-ul"></i> 모집 부문 및 자격요건</h3>
+          <ul>
+            <li><i class="fas fa-briefcase"></i> 고용형태: {{ jobDetail.employmentType }}</li>
+            <li><i class="fas fa-user-graduate"></i> 경력: {{ jobDetail.experience }}</li>
+            <li><i class="fas fa-graduation-cap"></i> 학력: {{ jobDetail.education }}</li>
+            <li><i class="fas fa-tasks"></i> 채용부문: {{ jobDetail.field }}</li>
+            <li><i class="fas fa-calendar-week"></i> 근무일: {{ jobDetail.workDays }}</li>
+            <li><i class="fas fa-clock"></i> 근무시간: {{ jobDetail.workHours }}</li>
+            <li><i class="fas fa-money-bill-wave"></i> 급여: {{ jobDetail.salary }}</li>
+            <li><i class="fas fa-map-marker-alt"></i> 근무지역: {{ jobDetail.location }}</li>
+          </ul>
+        </section>
+  
+        <section class="application-info">
+          <h3><i class="fas fa-file-alt"></i> 지원 정보</h3>
+          <ul>
+            <li><i class="fas fa-paper-plane"></i> 접수방법: {{ jobDetail.applicationMethod }}</li>
+            <li><i class="fas fa-comments"></i> 면접방식: {{ jobDetail.interviewMethod }}</li>
+            <li><i class="fas fa-gift"></i> 복리후생: {{ jobDetail.benefits }}</li>
+          </ul>
+        </section>
+  
+        <section class="company-info">
+          <h3><i class="fas fa-building"></i> 회사 정보</h3>
+          <ul>
+            <li><i class="fas fa-map-pin"></i> 회사위치: {{ jobDetail.companyLocation }}</li>
+            <li><i class="fas fa-phone"></i> 회사번호: {{ jobDetail.companyPhone }}</li>
+            <li><i class="fas fa-user"></i> 담당자: {{ jobDetail.contactPerson }}</li>
+          </ul>
+        </section>
+      </div>
     </div>
-
-    <!-- 정보 받아오기 전까지 나오는 글 -->
-    <div v-else>로딩 중...</div>
-</template>
-
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import axios from 'axios';
-
-const route = useRoute();
-const jobId = route.params.id;
-const jobDetail = ref(null);
-
-// 북마크 상태
-const isBookmarked = ref(false);
-const toggleBookmark = () => {
+  
+    <div v-else class="loading">
+      <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+    </div>
+  </template>
+  
+  <script setup>
+  import { ref, onMounted } from 'vue';
+  import { useRoute } from 'vue-router';
+  import axios from 'axios';
+  
+  const route = useRoute();
+  const jobId = route.params.id;
+  const jobDetail = ref(null);
+  const isBookmarked = ref(false);
+  
+  const toggleBookmark = () => {
     isBookmarked.value = !isBookmarked.value;
-};
-
-const fetchJobData = async () => {
+    // TODO: 실제 북마크 로직 구현
+  };
+  
+  const fetchJobData = async () => {
     try {
-        let response;
-        // 잡아바 API 호출
-        try {
-            response = await axios.get(`http://localhost:8090/api/v1/jobaba/jobinfo/${jobId}`);
-            if (response.data.ENTRPRS_NM) {
-                // 잡아바 API일 때
-                jobDetail.value = transformJobabaData(response.data);
-                // console.log('잡아바 API 응답:', response.data);
-                return; // 성공적으로 처리되면 함수 종료
-            }
-        } catch (error) {
-            // 잡아바 API에서 오류 발생 시, 서울시 API로 넘어감
-            if (error.response && error.response.status !== 404) {
-                throw error; // 404 외의 오류는 다시 던집니다.
-            }
-        }
-
-        // 서울시 API 호출
+      let response = await axios.get(`http://localhost:8090/api/v1/jobaba/jobinfo/${jobId}`);
+      if (response.data.ENTRPRS_NM) {
+        jobDetail.value = transformJobabaData(response.data);
+      } else {
         response = await axios.get(`http://localhost:8090/api/v1/seoul/jobinfo/${jobId}`);
         if (response.data.JO_REQST_NO) {
-            // 서울시 API일 때
-            jobDetail.value = transformSeoulData(response.data);
-            //   console.log('서울시 API 응답:', response.data);
+          jobDetail.value = transformSeoulData(response.data);
         } else {
-            throw new Error('알 수 없는 API 응답 형식입니다.');
+          throw new Error('알 수 없는 API 응답 형식입니다.');
         }
+      }
     } catch (error) {
-        console.error('세부 정보를 가져오는 데 실패했습니다.', error);
+      console.error('세부 정보를 가져오는 데 실패했습니다.', error);
     }
-};
+  };
+  
 
 // 잡아바 데이터 변환
 const transformJobabaData = (data) => ({
@@ -173,87 +156,202 @@ onMounted(() => {
 
 
 <style scoped>
+/* 전체 페이지 스타일 */
 body {
-    background-color: #E6F3FF;
+  font-family: 'Roboto', 'Arial', sans-serif;
+  background-color: #f0f4f8;
+  color: #333;
+  line-height: 1.6;
 }
 
-.container {
-    border: 2px solid #000000;
-    background-color: #ffffff;
-    padding: 20px;
-    margin: 0 auto;
-    max-width: 800px;
-    box-sizing: border-box;
-    height: 100%;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+.job-detail-container {
+  max-width: 850px;
+  margin: 3rem auto;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  transition: all 0.3s ease;
 }
 
-.top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    margin-top: 10px;
+.job-detail-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
-.companyname {
-    font-weight: bold;
-    font-size: 18px;
-    margin-right: 10px;
+/* 헤더 섹션 */
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e0e6ed;
 }
 
-.subject {
-    font-size: 24px;
-    font-weight: bold;
-    flex-grow: 1;
+.job-title-section {
+  flex: 1;
 }
 
-.buttons {
-    display: flex;
-    align-items: center;
-    width: 30%;
+.job-title {
+  font-size: 2.2rem;
+  color: #2c3e50;
+  margin-bottom: 0.7rem;
+  font-weight: 700;
 }
 
-.scrapbutton {
-    margin-right: 20px;
-    cursor: pointer;
+.company-name {
+  font-size: 1.3rem;
+  color: #3498db;
+  margin-bottom: 0.7rem;
+  font-weight: 500;
 }
 
-.homepagelink .btn {
-    background-color: #007bff;
+.receipt-period {
+  font-size: 1rem;
+  color: #7f8c8d;
+  display: flex;
+  align-items: center;
 }
 
-.homepagelink a {
-    padding: 10px 20px;
-    border: 1px solid #000;
-    text-decoration: none;
-    color: #ffffff;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+.action-buttons {
+  display: flex;
+  gap: 1.2rem;
 }
 
-.homepagelink a:hover {
-    background-color: #0026ff;
-    color: #fff;
+.bookmark-btn, .apply-btn {
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.middle {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
+.bookmark-btn {
+  background-color: #ecf0f1;
+  color: #2c3e50;
 }
 
-.middle div {
-    font-size: 16px;
+.bookmark-btn:hover {
+  background-color: #d5dbdb;
+  transform: translateY(-2px);
 }
 
-.bottom {
-    padding: 10px 0;
-    font-size: 16px;
-    margin-bottom: 10px;
+.apply-btn {
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
 }
+
+.apply-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+/* 본문 스타일 */
+.job-content {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.job-content h3 {
+  font-size: 1.4rem;
+  color: #2c3e50;
+  margin-bottom: 1.2rem;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 0.7rem;
+  font-weight: 600;
+}
+
+.job-content ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.job-content li {
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+/* 섹션 스타일 */
+.job-summary, .job-details, .application-info, .company-info {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.job-summary:hover, .job-details:hover, .application-info:hover, .company-info:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 아이콘 스타일 */
+.fas {
+  margin-right: 0.8rem;
+  color: #3498db;
+  font-size: 1.1rem;
+}
+
+/* 로딩 스타일 */
+.loading {
+  text-align: center;
+  font-size: 1.4rem;
+  color: #7f8c8d;
+  margin-top: 3rem;
+}
+
+.loading .fa-spinner {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .job-header {
+    flex-direction: column;
+  }
+
+  .action-buttons {
+    margin-top: 1.5rem;
+    width: 100%;
+  }
+
+  .bookmark-btn, .apply-btn {
+    flex: 1;
+  }
+
+  .job-content {
+    grid-template-columns: 1fr;
+  }
+
+  .job-detail-container {
+    margin: 1.5rem;
+    padding: 1.5rem;
+  }
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.job-summary, .job-details, .application-info, .company-info {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.job-summary { animation-delay: 0.1s; }
+.job-details { animation-delay: 0.2s; }
+.application-info { animation-delay: 0.3s; }
+.company-info { animation-delay: 0.4s; }
 </style>
