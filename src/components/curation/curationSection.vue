@@ -3,8 +3,9 @@ import { useCurationStore } from "@/stores/rootstore";
 import { computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import Job from './jobMain.vue';
-import Detail from "./curationDetail.vue";
-// import Detail frim "./detaul.vue";
+// import Detail from "./curationDetail.vue";
+// import Detail from "./jobaba.vue";
+import Detail from "./detail.vue";
 
 const store = useCurationStore();
 const route = useRoute();
