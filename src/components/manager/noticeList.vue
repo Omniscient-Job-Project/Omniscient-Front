@@ -72,7 +72,7 @@ export default {
     async deleteNotice(noticeId) {
       try {
         // 상태를 false로 변경하는 로직 호출
-        const response = await axios.delete(`http://localhost:8090/api/v1/notice/${noticeId}`);
+        const response = await axios.put(`http://localhost:8090/api/v1/notice/delete/${noticeId}`);
         console.log('삭제 응답:', response);
         await this.fetchNotices(); // 목록 새로고침
       } catch (error) {
@@ -86,7 +86,7 @@ export default {
 
     async viewDetail(noticeId) {
       try {
-        const response = await axios.get(`/api/v1/notice/${noticeId}`);
+        const response = await axios.get(`http://localhost:8090/api/v1/notice/${noticeId}`);
         this.selectedNotice = response.data;
       } catch (error) {
         console.error('공지 상세 정보를 가져오는 중 오류가 발생했습니다!', error);

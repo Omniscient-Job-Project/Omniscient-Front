@@ -49,7 +49,7 @@ const editFaq = (id) => {
 
 const deleteFaq = async (id) => {
   try {
-    await axios.delete(`http://localhost:8090/api/v1/faqs/${id}`);
+    await axios.put(`http://localhost:8090/api/v1/faqs/delete/${id}`);
     fetchFaqs(); // Refresh the list
   } catch (error) {
     console.error('Error deleting FAQ:', error);
