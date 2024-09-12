@@ -1,85 +1,82 @@
 <template>
-    <div v-if="jobDetail" class="container">
-        <div class="top">
-            <div>
-                <h4>{{ jobDetail.companyName }}</h4>
-                <h2>{{ jobDetail.title }}</h2>
-                <h5>접수기간 : {{ jobDetail.receiptPeriod }}</h5>
-            </div>
-            <div class="buttons">
-                <!-- 스크랩 버튼 -->
-                <div class="scrapbutton" @click="toggleBookmark">
-                    <svg v-if="!isBookmarked" xmlns="http://www.w3.org/2000/svg" width="35" height="35"
-                        fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16">
-                        <path
-                            d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2" />
-                    </svg>
-                    <svg v-if="isBookmarked" xmlns="http://www.w3.org/2000/svg" width="35" height="35"
-                        fill="currentColor" class="bi bi-bookmark-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2" />
-                    </svg>
-                </div>
-                <!-- 홈페이지 지원 버튼 -->
-                <div class="homepagelink">
-                    <a class="btn btn-primary" :href="jobDetail.applyUrl" role="button" target="_blank">홈페이지 지원</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="middle">
-            <div>{{ jobDetail.description }}</div>
-            <br />
-            <div>{{ jobDetail.summary }}</div>
-        </div>
-
-        <div class="bottom">
-            <div>
-                <h3>모집 부문 및 자격요건</h3>
-            </div>
-            <div>고용형태: {{ jobDetail.employmentType }}</div>
-            <div>
-                <h3>자격요건</h3>
-            </div>
-            <div>경력: {{ jobDetail.experience }}</div>
-            <div>학력: {{ jobDetail.education }}</div>
-            <div>채용부문: {{ jobDetail.field }}</div>
-            <div></div>
-            <div>근무일: {{ jobDetail.workDays }} <br />
-                근무시간: {{ jobDetail.workHours }}
-            </div>
-            <div>급여: {{ jobDetail.salary }}</div>
-            <div>근무지역: {{ jobDetail.location }}</div>
-            <div>접수방법: {{ jobDetail.applicationMethod }}</div>
-            <div>면접방식: {{ jobDetail.interviewMethod }}</div>
-            <div>복리후생: {{ jobDetail.benefits }}</div>
-        </div>
-
-        <div class="office">
-            <div>{{ jobDetail.receptionMethod }}</div>
-            <div>회사위치: {{ jobDetail.companyLocation }}</div>
-            <div>회사번호: {{ jobDetail.companyPhone }}</div>
-            <div>회사이름: {{ jobDetail.companyName }}</div>
-            <div>담당자: {{ jobDetail.contactPerson }}</div>
-        </div>
+  <div v-if="jobDetail" class="job-detail-container">
+    <div class="job-header">
+      <div class="job-title-section">
+        <h1 class="job-title">{{ jobDetail.title || '제목 없음' }}</h1>
+        <h2 class="company-name">{{ jobDetail.companyName || '회사명 없음' }}</h2>
+        <p class="receipt-period">
+          <i class="fas fa-calendar-alt"></i> 접수기간: {{ jobDetail.receiptPeriod || '정보 없음' }}
+        </p>
+      </div>
+      <div class="action-buttons">
+        <button @click="toggleBookmark" class="bookmark-btn">
+          <i :class="['fas', isBookmarked ? 'fa-bookmark' : 'fa-bookmark-o']"></i>
+          {{ isBookmarked ? '스크랩됨' : '스크랩' }}
+        </button>
+        <a :href="jobDetail.applyUrl || '#'" target="_blank" class="apply-btn">
+          <i class="fas fa-external-link-alt"></i> 홈페이지 지원
+        </a>
+      </div>
     </div>
 
-    <!-- 정보 받아오기 전까지 나오는 글 -->
-    <div v-else>로딩 중...</div>
+    <div class="job-content">
+      <section class="job-summary">
+        <h3><i class="fas fa-info-circle"></i> 채용 내용</h3>
+        <p>{{ jobDetail.description || '정보 없음' }}</p>
+        <p>{{ jobDetail.summary || '정보 없음' }}</p>
+      </section>
+
+      <section class="job-details">
+        <h3><i class="fas fa-list-ul"></i> 모집 부문 및 자격요건</h3>
+        <ul>
+          <li><i class="fas fa-briefcase"></i> 고용형태: {{ jobDetail.employmentType || '정보 없음' }}</li>
+          <li><i class="fas fa-user-graduate"></i> 경력: {{ jobDetail.experience || '정보 없음' }}</li>
+          <li><i class="fas fa-graduation-cap"></i> 학력: {{ jobDetail.education || '정보 없음' }}</li>
+          <li><i class="fas fa-tasks"></i> 채용부문: {{ jobDetail.field || '정보 없음' }}</li>
+          <li><i class="fas fa-calendar-week"></i> 근무일: {{ jobDetail.workDays || '정보 없음' }}</li>
+          <li><i class="fas fa-clock"></i> 근무시간: {{ jobDetail.workHours || '정보 없음' }}</li>
+          <li><i class="fas fa-money-bill-wave"></i> 급여: {{ jobDetail.salary || '정보 없음' }}</li>
+          <li><i class="fas fa-map-marker-alt"></i> 근무지역: {{ jobDetail.location || '정보 없음' }}</li>
+        </ul>
+      </section>
+
+      <section class="application-info">
+        <h3><i class="fas fa-file-alt"></i> 지원 정보</h3>
+        <ul>
+          <li><i class="fas fa-paper-plane"></i> 접수방법: {{ jobDetail.applicationMethod || '정보 없음' }}</li>
+          <li><i class="fas fa-comments"></i> 면접방식: {{ jobDetail.interviewMethod || '정보 없음' }}</li>
+          <li><i class="fas fa-gift"></i> 복리후생: {{ jobDetail.benefits || '정보 없음' }}</li>
+        </ul>
+      </section>
+
+      <section class="company-info">
+        <h3><i class="fas fa-building"></i> 회사 정보</h3>
+        <ul>
+          <li><i class="fas fa-map-pin"></i> 회사위치: {{ jobDetail.companyLocation || '정보 없음' }}</li>
+          <li><i class="fas fa-phone"></i> 회사번호: {{ jobDetail.companyPhone || '정보 없음' }}</li>
+          <li><i class="fas fa-user"></i> 담당자: {{ jobDetail.contactPerson || '정보 없음' }}</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <div v-else class="loading">
+    <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+  </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import axios from 'axios';
-
-const route = useRoute();
-const jobId = route.params.id;
-const jobDetail = ref(null);
-
-// 북마크 상태
-const isBookmarked = ref(false);
-const toggleBookmark = () => {
+  
+  <script setup>
+  import { ref, onMounted } from 'vue';
+  import { useRoute } from 'vue-router';
+  import axios from 'axios';
+  
+  const route = useRoute();
+  const jobId = route.params.id;
+  const jobDetail = ref(null);
+  const isBookmarked = ref(false);
+  
+  const toggleBookmark = () => {
     isBookmarked.value = !isBookmarked.value;
 };
 
@@ -118,27 +115,27 @@ const fetchJobData = async () => {
 
 // 잡아바 데이터 변환
 const transformJobabaData = (data) => ({
-    companyName: data.ENTRPRS_NM,
-    title: data.PBANC_CONT,
-    receiptPeriod: `${data.RCPT_BGNG_DE} ~ ${data.RCPT_END_DE}`,
-    description: data.PBANC_CONT,
-    summary: data.BSNS_SUMRY_CN,
-    employmentType: data.PBANC_FORM_DIV,
-    experience: data.CAREER_DIV,
-    education: data.ACDMCR_DIV,
-    field: data.RECRUT_FIELD_NM,
-    workDays: data.HOLIDAY_NM,
-    workHours: `${data.WORK_TM_NM}, ${data.WORK_TIME_NM}`,
-    salary: data.SALARY_COND,
-    location: data.WORK_REGION_CONT,
-    applicationMethod: `${data.PRESENTN_PAPERS_NM}, ${data.RCEPT_MTH_NM}`,
-    interviewMethod: data.MODEL_MTH_NM,
-    benefits: `${data.JO_FEINSR_SBSCRB_NM} , ${data.RET_GRANTS_NM}`,
-    receptionMethod: data.RCEPT_MTH_IEM_NM,
-    companyLocation: data.WORK_REGION_CONT,
-    companyPhone: data.MNGR_PHON_NO,
-    applyUrl: data.URL,  // URL 필드가 있다면
-    contactPerson: data.MNGR_NM
+    companyName: data.ENTRPRS_NM || '정보없음',
+    title: data.PBANC_CONT || '정보없음',
+    receiptPeriod: `${data.RCPT_BGNG_DE || '정보없음'} ~ ${data.RCPT_END_DE || ''}`,
+    description: data.PBANC_CONT || '정보없음',
+    summary: data.BSNS_SUMRY_CN || '정보없음',
+    employmentType: data.PBANC_FORM_DIV || '정보없음',
+    experience: data.CAREER_DIV || '정보없음',
+    education: data.ACDMCR_DIV || '정보없음',
+    field: data.RECRUT_FIELD_NM || '정보없음',
+    workDays: data.HOLIDAY_NM || '정보없음',
+    workHours: `${data.WORK_TM_NM || '정보없음'}, ${data.WORK_TIME_NM || '정보없음'}`,
+    salary: data.SALARY_COND || '정보없음',
+    location: data.WORK_REGION_CONT || '정보없음',
+    applicationMethod: `${data.PRESENTN_PAPERS_NM || '정보없음'}, ${data.RCEPT_MTH_NM || ''}`,
+    interviewMethod: data.MODEL_MTH_NM || '정보없음',
+    benefits: `${data.JO_FEINSR_SBSCRB_NM || '정보없음'} , ${data.RET_GRANTS_NM || ''}`,
+    receptionMethod: data.RCEPT_MTH_IEM_NM || '정보없음',
+    companyLocation: data.WORK_REGION_CONT || '정보없음',
+    companyPhone: data.MNGR_PHON_NO || '정보없음',
+    applyUrl: data.URL || '정보없음',
+    contactPerson: data.MNGR_NM || '정보없음'
 });
 
 // 서울시 데이터 변환
