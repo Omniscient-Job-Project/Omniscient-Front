@@ -52,8 +52,8 @@
             <button @click="editResume(resume)" class="edit-btn">
               <i class="fas fa-edit"></i> 수정
             </button>
-            <button @click="showDeactivateModal(resume.id)" class="deactivate-btn">
-              <i class="fas fa-ban"></i> 비활성화
+            <button @click="showDeleteModal(resume.id)" class="delete-btn">
+              <i class="fas fa-trash-alt"></i> 삭제
             </button>
           </div>
         </div>
@@ -128,6 +128,16 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import { useResumeState } from './resumeState'
+import { useResumeActions } from './resumeActions'
+import { useResumeForm } from './resumeForm'
+
+const { resumes, showForm, isEditing, showModal, modalMessage } = useResumeState()
+const { toggleResume, editResume, showDeleteModal, closeModal, confirmAction, showAddForm, cancelForm } = useResumeActions()
+const { formData, formSections, addArrayItem, removeArrayItem, toggleSection, showConfirmModal } = useResumeForm()
+</script>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
@@ -226,7 +236,7 @@ const formSections = reactive([
 // 비동기 작업을 위한 함수들
 const loadResumes = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/v1/mypage/resumes')
+    const response = await axios.get('http://localhost:8090/api/v1/mypage/resumes/${id}')
     resumes.value = response.data.map(resume => ({ ...resume, isOpen: false }))
   } catch (error) {
     console.error('이력서 목록을 불러오는데 실패했습니다:', error.response?.data || error.message)
@@ -275,7 +285,7 @@ const editResume = (resume) => {
 }
 
 const showDeactivateModal = (id) => {
-  modalMessage.value = '정말로 이 이력서를 비활성화하시겠습니까?'
+  modalMessage.value = '정말로 이 이력서를 삭제하시겠습니까?'
   modalAction.value = 'deactivate'
   editingResumeId.value = id
   showModal.value = true
@@ -283,12 +293,12 @@ const showDeactivateModal = (id) => {
 
 const deactivateResume = async (id) => {
   try {
-    await axios.put(`http://localhost:8090/api/v1/mypage/resumes/${id}/deactivate`)
+    await axios.put(`http://localhost:8090/api/v1/resumes/${id}/deactivate`)
     resumes.value = resumes.value.filter(r => r.id !== id)
-    alert('이력서가 성공적으로 비활성화되었습니다.')
+    alert('이력서가 성공적으로 삭제되었습니다.')
   } catch (error) {
-    console.error('이력서 비활성화에 실패했습니다:', error.response?.data || error.message)
-    alert('이력서 비활성화에 실패했습니다. 잠시 후 다시 시도해주세요.')
+    console.error('이력서 삭제에 실패했습니다:', error.response?.data || error.message)
+    alert('이력서 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.')
   }
 }
 
@@ -338,11 +348,11 @@ const saveResume = async () => {
     let response
     
     if (isEditing.value) {
-      response = await axios.put(`http://localhost:8090/api/v1/mypage/resumes/${editingResumeId.value}`, jsonData, {
+      response = await axios.put(`http://localhost:8090/api/v1/resumes/${editingResumeId.value}`, jsonData, {
         headers: { 'Content-Type': 'application/json' }
       })
     } else {
-      response = await axios.post('http://localhost:8090/api/v1/mypage/resumes', jsonData, {
+      response = await axios.post('http://localhost:8090/api/v1/resumes', jsonData, {
         headers: { 'Content-Type': 'application/json' }
       })
     }
@@ -612,6 +622,7 @@ onMounted(loadResumes)
   max-width: 400px;
   width: 90%;
   text-align: center;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .modal-content h3 {
@@ -671,32 +682,7 @@ onMounted(loadResumes)
   to { opacity: 1; transform: translateY(0); }
 }
 
-.modal-content {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@media (max-width: 1024px) {
-  .profile-content {
-    flex-direction: column;
-  }
-
-  .profile-left, .profile-right {
-    width: 100%;
-  }
-
-  .basic-info {
-    height: auto;
-  }
-
-  .additional-info, .certificates {
-    flex: 1;
-  }
-
-  .button-container {
-    text-align: center;
-  }
-}
-
+/* 반응형 스타일 */
 @media (max-width: 1024px) {
   .profile-content {
     flex-direction: column;

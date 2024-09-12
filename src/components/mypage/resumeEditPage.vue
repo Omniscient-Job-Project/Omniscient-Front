@@ -106,7 +106,7 @@ const submitResume = async () => {
       ...resumeData,
       skills: resumeData.skills.split(',').map(skill => skill.trim())
     };
-    const response = await axios.post('http://localhost:8090/api/v1/mypage/resume', formattedData);
+    const response = await axios.post('http://localhost:8090/api/v1/mypage/resumes', formattedData);
     console.log('Resume submitted successfully:', response.data);
     alert('이력서가 성공적으로 등록되었습니다.');
     // 여기에 성공 후 처리 로직 (예: 페이지 리다이렉트) 추가
