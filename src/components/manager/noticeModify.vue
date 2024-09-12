@@ -82,7 +82,7 @@ export default {
         };
 
         try {
-          const response = await axios.put(`http://localhost:8090/api/v1/notice/${this.noticeId}`, updatedNotice, {
+          const response = await axios.put(`http://localhost:8090/api/v1/notice/update/${this.noticeId}`, updatedNotice, {
             headers: {
               'Content-Type': 'application/json'
             }
