@@ -1,159 +1,84 @@
 <script setup>
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 
-  import '@/assets/css/footer.css';
-  import Header from '@/components/header/header.vue';
-  import Footer from '@/components/footer/footer.vue';
+const faqs = ref([]);
+const selectedFaqId = ref(null); // To track the currently selected FAQ
+
+const fetchFaqs = async () => {
+  try {
+    const response = await axios.get('http://localhost:8090/api/v1/faqs');
+    faqs.value = response.data;
+  } catch (error) {
+    console.error('Error fetching FAQs:', error);
+  }
+};
+
+// Computed property to get the top 6 FAQs
+const displayedFaqs = computed(() => faqs.value.slice(0, 6));
+
+// Toggle the selected FAQ
+const toggleAnswer = (id) => {
+  selectedFaqId.value = selectedFaqId.value === id ? null : id;
+};
+
+onMounted(fetchFaqs);
 </script>
 
 <template>
-    <Header/>
-    <body>
-        
-   
-   <div class="container">
-     <!-- 사이드바 -->
-     <div class="sidebar">
-      <ul>
-        <li v-if="currentPage === 'noticeMain'">
-          <a href="/noticeMain">공지사항</a>
-        </li>
-        <li v-else-if="currentPage === 'noticeFAQ'">
-          <a href="/noticeFAQ">FAQ</a>
-        </li>
-        <li v-else>
-          <a href="/noticeMain">공지사항</a>
-          <a href="/noticeFAQ">FAQ</a>
-        </li>
-      </ul>
-     </div>
+  <div class="main-content">
+    <div class="notice-board">
+      <h2>자주 묻는 질문 (FAQ)</h2>
 
-     <!-- 메인 콘텐츠 -->
-     <div class="main-content">
-       <div class="notice-board">
-         <h2>자주 묻는 질문 (FAQ)</h2>
-         
-         <table>
-           <thead>
-             <tr>
-               <th>번호</th>
-               <th>제목</th>
-               <th>등록일</th>
-               <th>조회수</th>
-              
-             </tr>
-           </thead>
-           <tbody>
-             <tr>
-               <td>1</td>
-               <td>사이트에서 제공하는 지원 서비스는 무엇이 있나요?</td>
-               <td>2024.08.08</td>
-               <td>2</td>
-              
-             </tr>
-             <tr>
-               <td>2</td>
-               <td>지원서를 제출한 후 어떻게 확인하나요?</td>
-               <td>2024.08.08</td>
-               <td>3</td>
-            
-             </tr>
-             <tr>
-               <td>3</td>
-               <td>면접 일정을 어떻게 확인하나요?</td>
-               <td>2024.08.08</td>
-               <td>4</td>
-            
-             </tr>
-
-             <tr>
-               <td>4</td>
-               <td>지원 상태에 대한 문의는 어떻게 하나요?</td>
-               <td>2024.08.08</td>
-               <td>4</td>
-            
-             </tr>
-
-             
-           </tbody>
-         </table>
-       </div>
-     </div>
-   </div>
-
-  
- 
- 
-</body>
-
-<Footer />
+      <table>
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>조회수</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="(faq, index) in displayedFaqs" :key="faq.id">
+            <tr>
+              <td>{{ index + 1 }}</td>
+              <td @click="toggleAnswer(faq.id)" class="clickable-title">
+                {{ faq.question }}
+              </td>
+              <td>{{ faq.views }}</td>
+            </tr>
+            <!-- Display the answer when an FAQ is selected -->
+            <tr v-if="selectedFaqId === faq.id">
+              <td colspan="3" class="answer">
+                {{ faq.answer }}
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </template>
 
-
 <style scoped>
-body{  background-color: #E6F3FF;
-}
-
 .container {
   display: flex;
-  /* margin-top: 100px; */
-  margin: 0 auto 0 auto;
-  max-width: 1200px; /* 컨테이너의 최대 너비 설정 */
+  margin: 0 auto;
+  max-width: 1200px;
   height: 70vh;
-  border: 3px solid transparent; 
-  /* 배경색을 통해 투명 테두리 효과를 더 명확히 보이게 할 수 있습니다. */
-  background-color: white; /* 배경색을 추가해 투명성을 확인할 수 있습니다. */
- 
-  border-radius: 10px; /* 테두리 둥글게 설정 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 효과 추가 */
-  
-}
-
-.sidebar {
-   
-  width: 130px; /* 사이드바 너비 */
-  background-color: #f4f4f4; /* 배경색 */
-  padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar ul li {
-  margin: 15px 0;
-  transition: background-color 0.3s, border-radius 0.3s, box-shadow 0.3s;
-  line-height: 3.5; 
-}
-
-.sidebar ul li a {
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-  display: block;
-  padding: 10px;
-  border-radius: 5px; /* 둥근 모서리 */
-  transition: color 0.3s;
-}
-
-.sidebar ul li a:hover {
-  background-color: #bcdef7; /* 호버 시 배경색 변경 */
-  color: white; /* 호버 시 텍스트 색상 변경 */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 호버 시 그림자 추가 */
-  border-radius: 10px; /* 호버 시 둥근 모서리 확대 */
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .main-content {
-  flex: 1; /* 남은 공간을 차지하도록 설정 */
+  flex: 1;
   padding: 40px;
-  margin-left: 20px; /* 사이드바와의 간격 설정 */
-  background-color: white; /* 배경색 설정 */
-  max-width: 1000px; /* 최대 너비 설정 */
-  margin-top: 10px; /* 상단 여백 추가 */
+  margin-left: 20px;
+  background-color: white;
+  max-width: 1000px;
+  margin-top: 10px;
 }
-
 
 .notice-board {
   font-family: Arial, sans-serif;
@@ -170,12 +95,38 @@ th, td {
   text-align: center;
   border: 1px solid #ddd;
   padding: 8px;
-  
 }
 
 th {
-    text-align: center;
   background-color: #f2f2f2;
+}
+
+/* 번호 칸의 너비를 조정 */
+th:first-child, td:first-child {
+  width: 60px; /* 번호 칸의 너비 */
+}
+
+/* 조회수 칸의 너비를 조정 */
+th:last-child, td:last-child {
+  width: 100px; /* 조회수 칸의 너비 */
+}
+
+/* 클릭 가능한 제목 스타일 */
+.clickable-title {
+  cursor: pointer;
+  color: #3498db;
+  text-decoration: underline;
+}
+
+.clickable-title:hover {
+  color: #2980b9;
+}
+
+/* 답변 스타일 */
+.answer {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-top: 1px solid #ddd;
 }
 
 tbody tr {
@@ -183,50 +134,8 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background-color: #e3f2fd; /* 호버 시 배경색 변경 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 호버 시 그림자 추가 */
-  transform: scale(1.02); /* 호버 시 약간 확대 */
-}
-thead th {
-  background-color: #6996c9; /* 헤더 배경색 */
-  color: white; /* 헤더 텍스트 색상 */
-  padding: 12px;
-  text-align: left;
-  border-bottom: 2px solid #4992df; /* 헤더 아래쪽 테두리 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 추가 */
-}
-
-tbody td {
-  padding: 12px;
-  border-bottom: 1px solid #ddd; /* 데이터 셀 아래쪽 테두리 */
-}
-
-tbody tr:nth-child(even) {
-  background-color: #f9f9f9; /* 짝수 행 배경색 */
-}
-
-tbody tr:hover {
-  background-color: #e3f2fd; /* 호버 시 배경색 변경 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 호버 시 그림자 추가 */
-  transform: scale(1.02); /* 호버 시 약간 확대 */
-}
-.pagination {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.search-button {
-  padding: 8px 16px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-}
-
-.search-button:hover {
-  background-color: #0056b3; /* 호버 시 색상 변경 */
-  transform: scale(1.05); /* 호버 시 버튼 확대 */
+  background-color: #e3f2fd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
 }
 </style>

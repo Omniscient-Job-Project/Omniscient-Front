@@ -12,7 +12,8 @@ const Mypage = () => import("../components/mypage/mypage.vue");
 const Login = () => import("../views/loginView.vue");
 const Signup = () => import("../views/signUp.vue");
 const ProfilePage = () => import("../components/mypage/profilePage.vue");
-const Notice = () => import("../views/noticeView.vue");
+const NoticeMainV = () => import("../views/noticeMainV.vue");
+const NoticeMain = () => import("../components/notice/noticeMain.vue");
 const NoticeFAQ = () => import("../components/notice/noticeFAQ.vue");
 const NoticeDetail = () => import("../components/notice/noticeDetail.vue");
 const Manager = () => import("../views/managerMainV.vue");
@@ -21,11 +22,10 @@ const ManagerFAQ = () => import("../views/managerFaq.vue");
 const ManagerNotice = () => import("../views/managerNotice.vue");
 const ManagerUser = () => import("../views/managerUser.vue");
 const AdminUser = () => import("../components/manager/adminMain.vue");
-const NoticePost = () => import("../components/manager/noticePost.vue");
 const ManagerFAQPost = () => import("../components/manager/faqPost.vue");
 const ManagerFAQModify = () => import("../components/manager/faqModify.vue");
-
-// 추가된 마이페이지 관련 컴포넌트
+const ManagerNoticeModify = () => import("../components/manager/noticeModify.vue");
+const ManagerNoticePost = () => import("../components/manager/noticePost.vue");
 const MyHome = () => import("../components/mypage/myhome.vue");
 const ResumeManagementPage = () => import("../components/mypage/resumeManagementPage.vue");
 const ApplicationsPageComponent = () => import("../components/mypage/applicationsPageComponent.vue");
@@ -117,24 +117,33 @@ const router = createRouter({
     },
     {
       path: '/notice',
-      component: Notice
-    },
-    {
-      path: '/noticeFAQ',
-      name: 'NoticeFAQ',
-      component: NoticeFAQ, 
-    },
-    {
-      path: '/notice/:id', 
-      name: 'noticeDetail',
-      component: NoticeDetail,
-      props: true,
+      component: NoticeMainV,
+      redirect: '/notice/noticeMain', 
+      children: [
+        {
+          path: 'noticeMain',
+          name: 'noticeMain',
+          component: NoticeMain
+        },
+        {
+          path: 'noticeFAQ',
+          name: 'noticeFAQ',
+          component: NoticeFAQ, 
+        },
+        {
+          path: 'notice/:id',
+          name: 'noticeDetail',
+          component: NoticeDetail,
+          props: true,
+        }
+      ]
     },
     {
       path: '/manager',
       name: 'manager',
       component: Manager,
-      children:[
+      redirect: '/manager/main',
+      children: [
         {
           path: 'main',
           component: ManagerMain
@@ -144,23 +153,27 @@ const router = createRouter({
           component: ManagerUser
         },
         {
-          path: 'admin/adminMain',
+          path: 'adminMain', 
           component: AdminUser
         },
         {
-          path: 'notice/noticeList',
+          path: 'noticeList', 
           component: ManagerNotice
         },
         {
-          path: 'notice/noticePost',
-          component: NoticePost
+          path: 'noticePost', 
+          component: ManagerNoticePost
         },
         {
-          path: 'faq/faqList',
+          path: 'noticeModify',
+          component: ManagerNoticeModify
+        },
+        {
+          path: 'faqList', 
           component: ManagerFAQ
         },
         {
-          path: 'faq/faqPost',
+          path: 'faqPost', 
           component: ManagerFAQPost
         },
         {
