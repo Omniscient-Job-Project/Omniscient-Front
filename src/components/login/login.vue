@@ -73,9 +73,13 @@ const handleSubmit = async () => {
 
     // 로그인 성공 시 처리
     if (response.status === 200) {
-      alert(response.data); // 로그인 성공 메시지
-      localStorage.setItem('token', response.data.token); // 토큰 저장 (예: 서버에서 토큰 반환 시)
-      emit('login-success'); // 부모 컴포넌트에 로그인 성공 이벤트 발생
+      alert('로그인 성공!'); // 로그인 성공 메시지
+      localStorage.setItem('token', response.data.accessToken); // JWT 토큰 저장
+      localStorage.setItem('refreshToken', response.data.refreshToken); // Refresh 토큰 저장
+      
+      // Axios 기본 헤더에 Authorization 추가
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`;
+      
       router.push('/'); // 홈 페이지로 이동
     }
   } catch (error) {
@@ -87,6 +91,55 @@ const handleSubmit = async () => {
     }
   }
 };
+
+// 토큰 갱신 함수
+const refreshAccessToken = async () => {
+  try {
+    const response = await axios.post('http://localhost:8090/api/v1/token/refresh', {
+      refreshToken: localStorage.getItem('refreshToken'),
+    });
+    localStorage.setItem('token', response.data.accessToken);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`;
+  } catch (error) {
+    console.error('토큰 갱신 실패:', error);
+    logout(); // 로그아웃 처리
+  }
+};
+
+// 로그아웃 처리
+const logout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+  delete axios.defaults.headers.common['Authorization'];
+  router.push('/login'); // 로그인 페이지로 이동
+};
+
+// Axios 요청 인터셉터 설정
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
+
+// Axios 응답 인터셉터 설정
+axios.interceptors.response.use(response => {
+  return response;
+}, async error => {
+  const originalRequest = error.config;
+
+  // 401 Unauthorized 에러 발생 시
+  if (error.response.status === 401 && !originalRequest._retry) {
+    originalRequest._retry = true; // 무한 루프 방지
+    await refreshAccessToken();
+    return axios(originalRequest); // 원래 요청 재시도
+  }
+
+  return Promise.reject(error);
+});
 
 // 컴포넌트가 마운트될 때 호출되는 함수
 onMounted(() => {
