@@ -16,31 +16,61 @@
                 <p>시험일정</p>
             </div>
         </div>
-
-      <!-- 검색창 -->
-        <div class="search-box" @click="toggleFilter">
-            <div class="input-wrapper">
-                <input 
-                type="text" 
-                class="search-input-box" 
-                placeholder="자격증 정보를 검색해보세요." 
-                v-model="searchTerm" 
-                @focus="handleInputFocus" 
-                @blur="handleInputBlur" 
-                @keydown="handleKeyDown" 
-                />
-                <img 
-                src="@/assets/img/search-icon.svg"
-                class="search-icon" 
-                @click="handleSearch"
-                alt="검색 아이콘"
-                />
-            </div>
-        </div>
   
-      <!-- 자격증 정보 카드 -->
-      <div class="recruitment-cards">
-        <h2 class="section-title">자격증 정보</h2>
+
+    <!-- 자격증 정보 카드 -->
+    <div class="recruitment-cards">
+      <div class="info-search-container">
+      <h2 class="section-title">자격증 정보</h2>
+      <div class="info-search-container">
+        <div class="search-box" @click="ToggleFilter">
+          <div class="input-wrapper">
+            <input
+              type="text"
+              class="search-input-box"
+              placeholder="분야를 입력해주세요."
+              v-model="searchTerm"
+              @focus="handleInputFocus"
+              @blur="handleInputBlur" 
+              @keydown="handleKeyDown" 
+            >
+            <img 
+              src="@/assets/img/search-icon.svg"
+              class="search-icon" 
+              @click="handleSearch"
+              alt="검색 아이콘"
+            />
+          </div>
+        </div>
+
+         <!-- 필터링 섹션 -->
+         <div class="filter-section">
+          <label for="categoryFilter">카테고리:</label>
+          <select v-model="selectedCategory" id="categoryFilter">
+            <option value="">전체</option>
+            <option value="10">기술사</option>
+            <option value="20">기능장</option>
+            <option value="30">기사</option>
+            <option value="31">산업기사</option>
+            <option value="32">1급</option>
+            <option value="33">2급</option>
+            <option value="40">기능사</option>
+
+          </select>
+        </div>
+        <div class="filter-section">
+        </div>
+        <button @click="applyFilters">필터 적용</button>
+
+
+
+
+      </div>
+      </div>
+        
+
+
+        
         <div class="row">
           <div v-for="gradecertificate in paginatedCertificates" :key="gradecertificate.grdNm" class="col-md-3">
             <div class="card">
@@ -69,10 +99,10 @@
                 <i class="fas fa-chart-pie" style="color: #FF5722;"></i> <!-- 주황색: 총 자격증 취득 수 -->
                 총 자격증 취득 수: {{ gradecertificate.qualAcquCnt }}
                 </p>
-                <p class="card-text">
-                <i class="fas fa-medal" style="color: #FFC107;"></i> <!-- 금색: 등급 -->
+                <!-- <p class="card-text">
+                <i class="fas fa-medal" style="color: #FFC107;"></i>
                 등급: {{ gradecertificate.qualAcquRank }}
-                </p>
+                </p> -->
                 <p class="card-text">
                 <i class="fas fa-calendar-alt" style="color: #009688;"></i> <!-- 청록색: 통계 연도 -->
                 통계 연도: {{ gradecertificate.statisYy }}
@@ -85,7 +115,7 @@
             </div>
           </div>
         </div>
-      </div>
+    </div>
   
       <!-- 페이지네이션 -->
       <nav aria-label="Page navigation">
@@ -109,15 +139,36 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted, watch } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import axios from 'axios';
+  import { getChoseong } from 'es-hangul';
+  import { useRouter } from 'vue-router';
   
+  // 상태 관리, 라우터
+  const router = useRouter();
   const searchTerm = ref('');
   const gradeCertificates = ref([]);
+  const selectedCategory = ref('');
+  
+  const filteredCertificates = computed(() => {
+    if (!searchTerm.value) return gradeCertificates.value;
+    const searchChoseong = getChoseong(searchTerm.value);
+    return gradeCertificates.value.filter(certificate => {
+      const certificateChoseong = getChoseong(certificate.jmNm + certificate.instiNm);
+      return certificateChoseong.includes(searchChoseong);
+    });
+  });
+  
   const currentPage = ref(1);
   const itemsPerPage = 16;
+  const totalPages = computed(() => Math.ceil(filteredCertificates.value.length / itemsPerPage));
+  const paginatedCertificates = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return filteredCertificates.value.slice(start, end);
+  });
   
-  // 자격증 데이터 가져오기 함수
+  // API 호출 함수
   const fetchGradeCertificates = async () => {
     try {
       const response = await axios.get('http://localhost:8090/api/v1/gradejob');
@@ -141,35 +192,53 @@
     fetchGradeCertificates();
   });
   
-  // 검색어에 맞게 필터링된 자격증 정보 반환
-  const filteredCertificates = computed(() => {
-    if (!searchTerm.value) return gradeCertificates.value;
-    return gradeCertificates.value.filter(certificate =>
-      certificate.jmNm.includes(searchTerm.value) || certificate.instiNm.includes(searchTerm.value)
-    );
-  });
+  // 검색 메소드
+  const handleSearch = () => {
+    if (!searchTerm.value) {
+      fetchGradeCertificates();
+    } else {
+      router.push({ name: 'certificateSearch', query: { searchTerm: searchTerm.value } });
+    }
+  };
   
-  const totalPages = computed(() => Math.ceil(filteredCertificates.value.length / itemsPerPage));
-  const paginatedCertificates = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return filteredCertificates.value.slice(start, end);
-  });
-  
+  // 페이지 변경 함수
   const changePage = (page) => {
     if (page < 1 || page > totalPages.value) return;
     currentPage.value = page;
   };
   
-  // 검색 메소드 추가
-  const searchCertificates = () => {
-    if (!searchTerm.value) {
-      fetchGradeCertificates();
-    } else {
-      gradeCertificates.value = gradeCertificates.value.filter(certificate =>
-        certificate.jmNm.includes(searchTerm.value) || certificate.instiNm.includes(searchTerm.value)
-      );
+  // 이벤트 핸들러
+  const handleInputFocus = () => {
+    document.addEventListener('keydown', handleKeyDown);
+  };
+  
+  const handleInputBlur = () => {
+    document.removeEventListener('keydown', handleKeyDown);
+  };
+  
+  const handleKeyDown = (e) => {
+    if (!filteredCertificates.value.length) return;
+  
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        currentPage.value = Math.min(currentPage.value + 1, totalPages.value);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        currentPage.value = Math.max(currentPage.value - 1, 1);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        handleSearch();
+        break;
     }
+  };
+  
+  // 필터 적용 함수
+  const applyFilters = () => {
+    // 여기서 필터 적용 로직을 구현할 수 있습니다
+    console.log('선택된 카테고리:', selectedCategory.value);
   };
   </script>
   
@@ -199,18 +268,60 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border-radius: 20px;
   }
+
+  .info-search-container {
+    display: flex; /* 가로로 나열 */
+    justify-content: space-between;
+    align-items: center; /* 요소들 수직 가운데 정렬 */
+    gap: 1rem; /* 요소들 사이 간격 */
+  }
   
   .section-title {
+    flex: 1;
     font-size: 1.5rem;
     color: #2c3e50;
     margin-bottom: 1rem;
-    width: 100%;
+    width: 50%;
     text-align: left;
     padding-left: 10px;
     border-left: 5px solid #0166FF;
+    display: flex;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd; /* 검색창 테두리 색상 */
+    border-radius: 8px; /* 검색창 테두리 둥글기 */
+    background-color: #fff; /* 검색창 배경색 */
+    padding: 5px 10px; /* 검색창 패딩 */
+  }
+
+  .input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .search-input-box {
+    width: calc(100% - 2rem); /* 아이콘과의 여백을 고려하여 너비 조정 */
+    border: none;
+    outline: none;
+    padding: 5px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .search-icon {
+    width: 24px; /* 아이콘 크기 */
+    height: 24px; /* 아이콘 크기 */
+    margin-left: 5px; /* 아이콘과 입력 박스 사이의 여백 */
+    cursor: pointer;
   }
   
-  .select-container, .curation-index, .search-bar {
+  .select-container, .curation-index{
     width: 100%;
     background-color: #ffffff;
     border: none;
@@ -221,7 +332,7 @@
     transition: all 0.3s ease;
   }
   
-  .select-container:hover, .curation-index:hover, .search-bar:hover {
+  .select-container:hover, .curation-index:hover{
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   }
   
@@ -233,21 +344,6 @@
   
   .input-group {
     margin-bottom: 1rem;
-  }
-  
-  .form-control {
-    width: 100%;
-    height: 45px;
-    padding: 10px 15px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-  
-  .form-control:focus {
-    border-color: #0166FF;
-    box-shadow: 0 0 0 2px rgba(1, 102, 255, 0.2);
   }
   
   .button-container {
@@ -305,50 +401,7 @@
     color: #555;
   }
   
-  .search-bar .card-input {
-    display: flex;
-    align-items: center;
-  }
-  
-  .search-bar input {
-    flex-grow: 1;
-    margin-right: 10px;
-    height: 45px;
-    padding: 10px 15px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px 0 0 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-  
-  .search-bar input:focus {
-    border-color: #0166FF;
-    box-shadow: 0 0 0 2px rgba(1, 102, 255, 0.2);
-  }
-  
-  .search-button {
-    height: 68px;
-    padding: 0 20px;
-    border: none;
-    border-radius: 0 8px 8px 0;
-    background-color: #0166FF;
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-  }
-  
-  .search-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .search-button i {
-    margin-right: 8px;
-  }
-  
+
   .recruitment-cards {
     width: 100%;
   }
@@ -482,16 +535,5 @@
   @media (max-width: 768px) {
     .curation-main-container { width: 100%; padding: 1rem; }
     .col-md-3 { width: 100%; }
-    .search-bar .card-input { flex-direction: column; }
-    .search-bar input {
-      width: 100%;
-      margin-right: 0;
-      margin-bottom: 10px;
-      border-radius: 8px;
-    }
-    .search-button {
-      width: 100%;
-      border-radius: 8px;
-    }
   }
   </style>
