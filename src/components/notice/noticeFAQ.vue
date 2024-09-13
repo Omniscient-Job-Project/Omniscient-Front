@@ -24,7 +24,7 @@ const toggleAnswer = (id) => {
 
 onMounted(fetchFaqs);
 </script>
-
+<!-- 수정 -->
 <template>
   <div class="main-content">
     <div class="notice-board">
