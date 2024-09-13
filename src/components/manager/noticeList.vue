@@ -14,21 +14,21 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="notification in noticeList" :key="notification.noticeId">
-          <td>{{ notifice.noticeId }}</td>
+        <tr v-for="notice in noticeList" :key="notice.noticeId">
+          <td>{{ notice.displayId }}</td> <!-- 변경된 번호 표시 -->
           <td>
-            <a href="javascript:void(0);" @click="viewDetail(notification.noticeId)">
-              {{ notifice.noticeTitle }}
+            <a href="javascript:void(0);" @click="viewDetail(notice.noticeId)">
+              {{ notice.noticeTitle }}
             </a>
           </td>
-          <td>{{ formatDate(notifice.noticeCreateAt) }}</td>
+          <td>{{ formatDate(notice.noticeCreateAt) }}</td>
           <td>
-            <button @click="editNotice(notifice.noticeId)" class="btn btn-custom btn-sm">
+            <button @click="editNotice(notice.noticeId)" class="btn btn-custom btn-sm">
               수정
             </button>
           </td>
           <td>
-            <button @click="deleteNotice(notifice.noticeId)" class="btn btn-custom btn-sm">
+            <button @click="deleteNotice(notice.noticeId)" class="btn btn-custom btn-sm">
               삭제
             </button>
           </td>
@@ -45,30 +45,39 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 
 export default {
   data() {
     return {
-      noticeList: [],
-      selectedNotice: null
+      noticeList: [], // 공지사항 목록
+      selectedNotice: null // 선택된 공지사항의 상세 정보
     };
   },
   mounted() {
-    this.fetchNotices();
+    this.fetchNotices(); // 컴포넌트가 마운트될 때 공지사항 목록을 불러옴
   },
   methods: {
+    // 공지사항 목록을 가져오는 메서드
     async fetchNotices() {
       try {
         const response = await axios.get(`http://localhost:8090/api/v1/notice`);
-        // 상태가 true인 공지사항만 표시
-        this.noticeList = response.data.filter(notice => notice.noticeStatus !== false);
+        // 상태가 true인 공지사항만 필터링 후, 번호 재정렬
+        this.noticeList = response.data
+          .filter(notice => notice.noticeStatus !== false) // 상태가 false인 공지사항 제거
+          .map((notice, index) => ({
+            ...notice,
+            displayId: index + 1 // 번호를 1부터 순차적으로 매김
+          }))
+          .sort((a, b) => b.noticeId - a.noticeId); // 내림차순으로 정렬
       } catch (error) {
         console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다!', error);
       }
     },
 
+    // 공지사항을 삭제하는 메서드
     async deleteNotice(noticeId) {
       try {
         // 상태를 false로 변경하는 로직 호출
@@ -80,10 +89,12 @@ export default {
       }
     },
 
+    // 공지사항 수정 페이지로 이동하는 메서드
     editNotice(noticeId) {
       this.$router.push({ path: '/manager/noticeModify', query: { id: noticeId } });
     },
 
+    // 공지사항 상세 정보를 불러오는 메서드
     async viewDetail(noticeId) {
       try {
         const response = await axios.get(`http://localhost:8090/api/v1/notice/${noticeId}`);
@@ -93,6 +104,7 @@ export default {
       }
     },
 
+    // 날짜를 포맷팅하는 메서드
     formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString();
@@ -100,6 +112,7 @@ export default {
   }
 };
 </script>
+
 
 
 <style scoped>

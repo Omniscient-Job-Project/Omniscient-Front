@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const faqs = ref([]);
 const selectedFaqId = ref(null); // To track the currently selected FAQ
+const incrementing = ref(false); // Track if a view increment is in progress
 
 const fetchFaqs = async () => {
   try {
@@ -18,13 +19,42 @@ const fetchFaqs = async () => {
 const displayedFaqs = computed(() => faqs.value.slice(0, 6));
 
 // Toggle the selected FAQ
-const toggleAnswer = (id) => {
-  selectedFaqId.value = selectedFaqId.value === id ? null : id;
+const toggleAnswer = async (id) => {
+  if (selectedFaqId.value === id) {
+    // If the same FAQ is clicked again, close it
+    selectedFaqId.value = null;
+  } else {
+    // If a different FAQ is clicked, open it and increment view count
+    selectedFaqId.value = id;
+    await incrementViewCount(id); // Increment the view count when the answer is opened
+  }
+};
+
+const incrementViewCount = async (id) => {
+  console.log(`Incrementing views for faqId: ${id}`);
+  try {
+    // Check if an update is already in progress
+    if (incrementing.value) return;
+    incrementing.value = true;
+    
+    // Update the view count on the server
+    await axios.put(`http://localhost:8090/api/v1/faqs/views/${id}`);
+
+    // Update the local faq's view count
+    const faq = faqs.value.find(faq => faq.id === id);
+    if (faq) {
+      faq.faqViews += 1;
+    }
+  } catch (error) {
+    console.error('조회수를 업데이트하는 중 오류가 발생했습니다!', error);
+  } finally {
+    incrementing.value = false; // Reset the status after processing
+  }
 };
 
 onMounted(fetchFaqs);
 </script>
-<!-- 수정 -->
+
 <template>
   <div class="main-content">
     <div class="notice-board">
@@ -45,7 +75,7 @@ onMounted(fetchFaqs);
               <td @click="toggleAnswer(faq.id)" class="clickable-title">
                 {{ faq.question }}
               </td>
-              <td>{{ faq.views }}</td>
+              <td>{{ faq.faqViews }}</td>
             </tr>
             <!-- Display the answer when an FAQ is selected -->
             <tr v-if="selectedFaqId === faq.id">

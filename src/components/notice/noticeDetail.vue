@@ -2,8 +2,6 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
-import Header from '@/components/header/header.vue';
-import Footer from '@/components/footer/footer.vue';
 
 const notice = ref(null);
 const route = useRoute();
@@ -18,50 +16,50 @@ const fetchNoticeDetail = async () => {
   }
 };
 
-onMounted(fetchNoticeDetail);
+const incrementViewCount = async () => {
+  try {
+    await axios.put(`http://localhost:8090/api/v1/notice/views/${noticeId}`);
+    if (notice.value) {
+      notice.value.noticeViews += 1;
+    }
+  } catch (error) {
+    console.error('조회수를 업데이트하는 중 오류가 발생했습니다!', error);
+  }
+};
+
+onMounted(() => {
+  fetchNoticeDetail();
+  incrementViewCount(); // Increment view count when detail page loads
+});
 </script>
 
 <template>
   <div>
-      <div class="main-content" v-if="notice">
-        <div class="notice-detail">
-          <h2>{{ notice.noticeTitle }}</h2>
-          <div class="notice-meta">
-            <span class="notice-date">
-              <i class="far fa-calendar-alt"></i> {{ new Date(notice.noticeCreateAt).toLocaleDateString() }}
-            </span>
-            <span class="notice-views">
-              <i class="far fa-eye"></i> 조회수: {{ notice.noticeViews }}
-            </span>
+    <div class="main-content" v-if="notice">
+      <div class="notice-detail">
+        <h2>{{ notice.noticeTitle }}</h2>
+        <div class="notice-meta">
+          <span class="notice-date">
+            <i class="far fa-calendar-alt"></i> {{ new Date(notice.noticeCreateAt).toLocaleDateString() }}
+          </span>
+          <span class="notice-views">
+            <i class="far fa-eye"></i> 조회수: {{ notice.noticeViews }}
+          </span>
+        </div>
+        <div class="notice-body">
+          <div class="notice-content">
+            <p>{{ notice.noticeContent }}</p>
           </div>
-          <div class="notice-body">
-            <div class="notice-content">
-              <p>{{ notice.noticeContent }}</p>
-            </div>
-            <div class="notice-attachments" v-if="notice.attachments && notice.attachments.length">
-              <h4>첨부 파일</h4>
-              <ul>
-                <li v-for="attachment in notice.attachments" :key="attachment.id">
-                  <a :href="attachment.url" download>
-                    <i class="fas fa-paperclip"></i> {{ attachment.name }}
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div class="back-to-list">
-              <router-link to="/notice/noticeMain" class="btn-back">
-                <i class="fas fa-arrow-left"></i> 목록으로 돌아가기
-              </router-link>
-            </div>
+          <div class="back-to-list">
+            <router-link to="/notice/noticeMain" class="btn-back">
+              <i class="fas fa-arrow-left"></i> 목록으로 돌아가기
+            </router-link>
           </div>
         </div>
       </div>
+    </div>
   </div>
 </template>
-
-<style scoped>
-/* CSS 생략 */
-</style>
 
 
 <style scoped>

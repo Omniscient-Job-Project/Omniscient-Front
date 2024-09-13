@@ -7,7 +7,14 @@ const notices = ref([]);
 const fetchNotices = async () => {
   try {
     const response = await axios.get('http://localhost:8090/api/v1/notice');
-    notices.value = response.data.filter(notice => notice.noticeStatus !== false);
+    // 상태가 false가 아닌 공지사항만 필터링하고 번호 재정렬
+    notices.value = response.data
+      .filter(notice => notice.noticeStatus !== false)
+      .map((notice, index) => ({
+        ...notice,
+        displayId: index + 1 // 번호를 1부터 순차적으로 부여
+      }))
+      .sort((a, b) => b.noticeId - a.noticeId); // 내림차순 정렬
   } catch (error) {
     console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다!', error);
   }
@@ -18,10 +25,6 @@ onMounted(fetchNotices);
 
 <template>
   <div class="container">
-    <!-- 사이드바 -->
-    <Sidebar />
-    
-    <!-- 메인 콘텐츠 -->
     <div class="main-content">
       <div class="notice-board">
         <h2>공지사항</h2>
@@ -36,7 +39,7 @@ onMounted(fetchNotices);
           </thead>
           <tbody>
             <tr v-for="notice in notices" :key="notice.noticeId">
-              <td>{{ notice.noticeId }}</td>
+              <td>{{ notice.displayId }}</td> <!-- 새로 부여된 번호를 표시 -->
               <td>
                 <router-link :to="{ name: 'noticeDetail', params: { id: notice.noticeId } }">
                   {{ notice.noticeTitle }}
@@ -51,7 +54,6 @@ onMounted(fetchNotices);
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .container {
