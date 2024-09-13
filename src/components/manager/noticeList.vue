@@ -15,20 +15,20 @@
       </thead>
       <tbody>
         <tr v-for="notification in noticeList" :key="notification.noticeId">
-          <td>{{ notification.noticeId }}</td>
+          <td>{{ notifice.noticeId }}</td>
           <td>
             <a href="javascript:void(0);" @click="viewDetail(notification.noticeId)">
-              {{ notification.noticeTitle }}
+              {{ notifice.noticeTitle }}
             </a>
           </td>
-          <td>{{ formatDate(notification.noticeCreateAt) }}</td>
+          <td>{{ formatDate(notifice.noticeCreateAt) }}</td>
           <td>
-            <button @click="editNotice(notification.noticeId)" class="btn btn-custom btn-sm">
+            <button @click="editNotice(notifice.noticeId)" class="btn btn-custom btn-sm">
               수정
             </button>
           </td>
           <td>
-            <button @click="deleteNotice(notification.noticeId)" class="btn btn-custom btn-sm">
+            <button @click="deleteNotice(notifice.noticeId)" class="btn btn-custom btn-sm">
               삭제
             </button>
           </td>

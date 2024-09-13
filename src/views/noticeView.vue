@@ -6,9 +6,13 @@ import NoticeMain from '@/components/notice/noticeMain.vue';
 </script>
 
 <template>
-    <Header />
-    <NoticeMain />
-    <Footer />
+   <template>
+    <Sidebar />
+    <div class="section">
+      <Section />
+    </div>
+</template>
+  
 </template>
 
 <style>
