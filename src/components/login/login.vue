@@ -57,11 +57,13 @@
 import { ref, onMounted, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useAuthStore } from '@/stores/auth'; // auth 스토어 임포트
 
 const emit = defineEmits();
 const userId = ref(''); // 사용자 아이디
 const password = ref(''); // 패스워드
 const router = useRouter(); // 라우터 인스턴스 가져오기
+const authStore = useAuthStore(); // Pinia auth 스토어 사용
 
 // 로그인 요청 처리
 const handleSubmit = async () => {
@@ -73,12 +75,20 @@ const handleSubmit = async () => {
 
     // 로그인 성공 시 처리
     if (response.status === 200) {
+
       alert('로그인 성공!'); // 로그인 성공 메시지
       localStorage.setItem('token', response.data.accessToken); // JWT 토큰 저장
       localStorage.setItem('refreshToken', response.data.refreshToken); // Refresh 토큰 저장
       
       // Axios 기본 헤더에 Authorization 추가
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`;
+
+        // Pinia 스토어의 로그인 상태 갱신
+      authStore.login(); // 로그인 상태 업데이트
+
+       // 로그인 상태 확인
+       console.log('로그인 상태 업데이트 후:', authStore.isLoggedIn); // 여기 추가
+
       
       router.push('/'); // 홈 페이지로 이동
     }
@@ -143,7 +153,9 @@ axios.interceptors.response.use(response => {
 
 // 컴포넌트가 마운트될 때 호출되는 함수
 onMounted(() => {
-  alert('Welcome to 전직시! 로그인 해주세요.'); // 마운트 시 환영 메시지 표시
+  if (!authStore.isLoggedIn) {
+    alert('Welcome to 전직시! 로그인 해주세요.'); // 로그인하지 않은 경우 환영 메시지 표시
+  }
 });
 </script>
 
