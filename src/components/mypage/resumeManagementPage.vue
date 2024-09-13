@@ -52,9 +52,9 @@
             <button @click="editResume(resume)" class="edit-btn">
               <i class="fas fa-edit"></i> 수정
             </button>
-            <button @click="showDeactivateModal(resume.id)" class="deactivate-btn">
-              <i class="fas fa-ban"></i> 비활성화
-            </button>
+            <button @click="showDeactivateModal(resume.id)" class="action-button delete-btn">
+    <i class="fas fa-trash-alt"></i> 삭제
+  </button>
           </div>
         </div>
       </div>
@@ -230,7 +230,6 @@ const loadResumes = async () => {
     resumes.value = response.data.map(resume => ({ ...resume, isOpen: false }))
   } catch (error) {
     console.error('이력서 목록을 불러오는데 실패했습니다:', error.response?.data || error.message)
-    alert('이력서 목록을 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.')
   }
 }
 
@@ -275,7 +274,7 @@ const editResume = (resume) => {
 }
 
 const showDeactivateModal = (id) => {
-  modalMessage.value = '정말로 이 이력서를 비활성화하시겠습니까?'
+  modalMessage.value = '정말로 이 이력서를 삭제하시겠습니까?'
   modalAction.value = 'deactivate'
   editingResumeId.value = id
   showModal.value = true
@@ -285,10 +284,8 @@ const deactivateResume = async (id) => {
   try {
     await axios.put(`http://localhost:8090/api/v1/mypage/resumes/${id}/deactivate`)
     resumes.value = resumes.value.filter(r => r.id !== id)
-    alert('이력서가 성공적으로 비활성화되었습니다.')
   } catch (error) {
-    console.error('이력서 비활성화에 실패했습니다:', error.response?.data || error.message)
-    alert('이력서 비활성화에 실패했습니다. 잠시 후 다시 시도해주세요.')
+    console.error('이력서 삭제에 실패했습니다:', error.response?.data || error.message)
   }
 }
 
@@ -364,7 +361,6 @@ const saveResume = async () => {
     }
   } catch (error) {
     console.error('이력서 저장에 실패했습니다:', error.response?.data || error.message)
-    alert(`이력서 저장에 실패했습니다: ${error.response?.data?.message || error.message}`)
   }
 }
 
@@ -393,6 +389,27 @@ onMounted(loadResumes)
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css');
+
+.action-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.action-button i {
+  margin-right: 8px;
+}
+
+
 
 .resume-management {
   width: 100%;
@@ -558,13 +575,16 @@ onMounted(loadResumes)
 }
 
 .delete-btn {
-  background-color: #e74c3c;
+  background-color: #ff4757;
   color: white;
 }
 
 .delete-btn:hover {
-  background-color: #c0392b;
+  background-color: #ff6b6b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255,71,87,0.3);
 }
+
 
 .add-btn, .submit-btn {
   background-color: #3498db;
@@ -720,6 +740,12 @@ onMounted(loadResumes)
 }
 
 @media (max-width: 768px) {
+
+  .action-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
   .profile-section {
     padding: 20px;
   }

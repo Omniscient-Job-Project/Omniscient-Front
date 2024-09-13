@@ -95,9 +95,6 @@
             <button type="button" @click="toggleEditMode" v-else class="edit-button">
               <i class="fas fa-edit"></i> 수정
             </button>
-            <button type="button" @click="showDeactivateModal" class="deactivate-button">
-              <i class="fas fa-user-times"></i> 프로필 비활성화
-            </button>
           </div>
         </div>
       </div>
