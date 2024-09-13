@@ -10,12 +10,6 @@
             <span><i class="fas fa-calendar-alt"></i> {{ post.date }}</span>
           </div>
           <div class="post-actions">
-            <div class="likes-container">
-              <span class="likes-count"><i class="fas fa-heart"></i> {{ post.likes }}</span>
-              <button @click="likePost" class="like-button">
-                좋아요
-              </button>
-            </div>
             <div class="edit-container">
               <button @click="toggleEditMode" class="edit-button">
                 <i class="fas fa-edit"></i> 수정
@@ -35,8 +29,8 @@
             <i class="fas fa-save"></i> 저장
           </button>
           <button @click="deactivatePost" class="action-button delete-button">
-        <i class="fas fa-trash"></i> 삭제
-      </button>
+            <i class="fas fa-trash"></i> 삭제
+          </button>
           <button @click="cancelEdit" class="cancel-button">
             <i class="fas fa-times"></i> 취소
           </button>
@@ -52,7 +46,7 @@
       <div class="comments-section">
         <h3><i class="fas fa-comments"></i> 댓글</h3>
         <div class="comment-form">
-          <textarea v-model="newComment" placeholder="댓글을 입력하세요..."></textarea>
+          <textarea v-model="newComment.content" placeholder="댓글을 입력하세요..."></textarea>
           <button @click="addComment" class="submit-comment">
             댓글 작성
           </button>
@@ -61,12 +55,20 @@
           <div v-for="comment in post.comments" :key="comment.id" class="comment">
             <div class="comment-header">
               <span class="comment-author"><i class="fas fa-user-circle"></i> {{ comment.author }}</span>
-              <span class="comment-date"><i class="fas fa-clock"></i> {{ comment.date }}</span>
+              <span class="comment-date"><i class="fas fa-clock"></i> {{ comment.createdAt }}</span>
             </div>
-            <div class="comment-content">{{ comment.content }}</div>
+            <div v-if="!comment.isEditing" class="comment-content">{{ comment.content }}</div>
+            <div v-else class="comment-edit-form">
+              <textarea v-model="comment.editContent"></textarea>
+              <button @click="updateComment(comment)" class="save-button">저장</button>
+              <button @click="cancelEditComment(comment)" class="cancel-button">취소</button>
+            </div>
             <div class="comment-actions">
-              <button @click="likeComment(comment)" class="like-comment-button">
-                <i class="fas fa-heart"></i> {{ comment.likes }}
+              <button v-if="!comment.isEditing" @click="editComment(comment)" class="edit-comment-button">
+                <i class="fas fa-edit"></i> 수정
+              </button>
+              <button @click="deactivateComment(comment)" class="delete-comment-button">
+                <i class="fas fa-trash"></i> 삭제
               </button>
             </div>
           </div>
@@ -103,7 +105,7 @@ import Footer from '../footer/footer.vue';
 const route = useRoute();
 const router = useRouter();
 const post = ref(null);
-const newComment = ref('');
+const newComment = ref({ content: '', author: '현재 로그인한 사용자' });
 const isEditing = ref(false);
 const editedPost = ref({});
 const showModal = ref(false);
@@ -118,45 +120,23 @@ const fetchPost = async () => {
   try {
     const response = await axios.get(`http://localhost:8090/api/v1/boards/${route.params.id}`);
     post.value = response.data;
+    await fetchComments();
   } catch (error) {
     console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
   }
 };
 
-const likePost = async () => {
+const fetchComments = async () => {
   try {
-    await axios.post(`http://localhost:8090/api/v1/boards/${post.value.id}/like`);
-    post.value.likes++;
+    const response = await axios.get(`http://localhost:8090/api/v1/boards/comments/${post.value.id}`);
+    post.value.comments = response.data;
   } catch (error) {
-    console.error('좋아요 처리 중 오류가 발생했습니다:', error);
+    console.error('댓글을 가져오는 중 오류가 발생했습니다:', error);
   }
 };
 
 const goBack = () => {
   router.back();
-};
-
-const addComment = async () => {
-  if (newComment.value.trim()) {
-    try {
-      const response = await axios.post(`http://localhost:8090/api/v1/boards/${post.value.id}/comments`, {
-        content: newComment.value
-      });
-      post.value.comments.unshift(response.data);
-      newComment.value = '';
-    } catch (error) {
-      console.error('댓글 추가 중 오류가 발생했습니다:', error);
-    }
-  }
-};
-
-const likeComment = async (comment) => {
-  try {
-    await axios.post(`http://localhost:8090/api/v1/boards/${post.value.id}/comments/${comment.id}/like`);
-    comment.likes++;
-  } catch (error) {
-    console.error('댓글 좋아요 처리 중 오류가 발생했습니다:', error);
-  }
 };
 
 const toggleEditMode = () => {
@@ -180,6 +160,7 @@ const performSaveEdit = async () => {
     closeModal();
   } catch (error) {
     console.error('게시글 수정 중 오류가 발생했습니다:', error);
+    alert(error.response?.data || '게시글 수정 중 오류가 발생했습니다.');
   }
 };
 
@@ -202,7 +183,8 @@ const performDeactivatePost = async () => {
     closeModal();
     router.push({ name: 'boardList' });
   } catch (error) {
-    console.error('게시글 삭제중 오류가 발생했습니다:', error);
+    console.error('게시글 삭제 중 오류가 발생했습니다:', error);
+    alert(error.response?.data || '게시글 삭제 중 오류가 발생했습니다.');
   }
 };
 
@@ -217,11 +199,95 @@ const confirmModal = () => {
     modalAction.value();
   }
 };
+
+const addComment = async () => {
+  if (newComment.value.content.trim()) {
+    try {
+      const response = await axios.post(`http://localhost:8090/api/v1/boards/comments/${post.value.id}`, newComment.value);
+      post.value.comments.unshift(response.data);
+      newComment.value.content = '';
+    } catch (error) {
+      console.error('댓글 추가 중 오류가 발생했습니다:', error);
+      alert(error.response?.data || '댓글 추가 중 오류가 발생했습니다.');
+    }
+  }
+};
+
+const editComment = (comment) => {
+  comment.isEditing = true;
+  comment.editContent = comment.content;
+};
+
+const cancelEditComment = (comment) => {
+  comment.isEditing = false;
+  comment.editContent = '';
+};
+
+const updateComment = async (comment) => {
+  try {
+    const response = await axios.put(`http://localhost:8090/api/v1/boards/comments/${post.value.id}/${comment.id}`, {
+      content: comment.editContent,
+      author: comment.author
+    });
+    const index = post.value.comments.findIndex(c => c.id === comment.id);
+    if (index !== -1) {
+      post.value.comments[index] = response.data;
+    }
+    comment.isEditing = false;
+  } catch (error) {
+    console.error('댓글 수정 중 오류가 발생했습니다:', error);
+    alert(error.response?.data || '댓글 수정 중 오류가 발생했습니다.');
+  }
+};
+
+const deactivateComment = async (comment) => {
+  if (confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+    try {
+      await axios.put(`http://localhost:8090/api/v1/boards/comments/${post.value.id}/deactivate/${comment.id}`);
+      const index = post.value.comments.findIndex(c => c.id === comment.id);
+      if (index !== -1) {
+        post.value.comments.splice(index, 1);
+      }
+    } catch (error) {
+      console.error('댓글 삭제 중 오류가 발생했습니다:', error);
+      alert(error.response?.data || '댓글 삭제 중 오류가 발생했습니다.');
+    }
+  }
+};
+
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+.comment-edit-form {
+  margin-top: 10px;
+}
+
+.comment-edit-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.edit-comment-button,
+.delete-comment-button {
+  background-color: transparent;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.edit-comment-button:hover,
+.delete-comment-button:hover {
+  color: #1565c0;
+}
 
 .action-button {
   padding: 10px 20px;
