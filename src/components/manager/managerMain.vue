@@ -124,21 +124,25 @@ watch(selectedRange, async () => {
 }
 
 .bg-purple {
-  background-color: #6f42c1;
+  background-color: #AFF6C3;
 }
 
 .card-body {
   overflow: auto;
+  background-color: #AFF6C3;
+
 }
 
 .card-body canvas {
   height: 400px !important; /* 차트의 고정 높이 줄이기 */
+    background-color: #AFF6C3;
+
 }
 
 .fixed-title {
   position: sticky;
   top: 0;
-  background-color: white;
+  background-color: #AFF6C3;
   z-index: 1;
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -156,7 +160,8 @@ watch(selectedRange, async () => {
 }
 
 .container {
-  margin-top: 60px; /* 헤더의 높이만큼 여백 추가 */
+  background-color: #AFF6C3;
+
 }
 
 .row {

@@ -1,6 +1,5 @@
 <template>
   <div class="section-align">
-    <Sidebar />
     <div class="section">
       <Section />
     </div>
