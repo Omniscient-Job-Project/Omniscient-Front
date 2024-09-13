@@ -31,14 +31,14 @@ import ManagerMain from "@/components/manager/managerMain.vue";
   flex: 1;
 }
 
+.sidebar {
+  width: 250px; /* 사이드바 너비 */
+  background-color: #f5f5f5;
+}
+
 .main-content {
   flex: 1;
   padding: 20px;
-  background-color: #f8f9fa;
-  margin-left: 250px; /* 사이드바 너비 */
-}
-
-footer {
-  margin-top: auto;
+  background-color: #fff;
 }
 </style>

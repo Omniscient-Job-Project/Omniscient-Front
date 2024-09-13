@@ -86,32 +86,19 @@ function showConfirmation() {
 
 <style scoped>
 .sidebar-wrapper {
-  background-color: #AFF6C3 !important;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-  position: fixed;
+  background-color: white !important;
+  position: flex;
   top: 80px; /* 헤더 높이에 맞춰 조정 */
   bottom: 0; /* 푸터까지의 거리 조정 */
-  left: 0;
-  width: 250px;
   height: calc(100vh - 60px - 50px); /* 헤더와 푸터 사이의 높이 */
-  overflow: hidden; /* 스크롤바 제거 */
   z-index: 1; /* 헤더보다 낮은 값으로 설정 */
-  transition: width 0.3s; /* 너비 변화에 부드러운 전환 효과 추가 */
 }
-
-
-
-.sidebar-con {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
+s
 
 .sidebar-title {
   font-family: "LINESeedKR-Bd";
   font-size: 28px;
-  color: #AFF6C3;
+  color: white;
   margin-top: 30px;
 }
 
@@ -123,6 +110,8 @@ function showConfirmation() {
   margin-bottom: 5px;
   text-align: center;
   cursor: pointer;
+  background-color: white !important;
+
 }
 
 .menu-group {
@@ -130,7 +119,7 @@ function showConfirmation() {
 }
 
 .menu-group-header {
-  background-color: #c7dbcc;
+  background-color: #AFF6C3;
   color: rgb(5, 5, 5);
   border: none;
   font-size: 16px;
@@ -142,7 +131,7 @@ function showConfirmation() {
 
 .menu-item {
   display: block;
-  background-color: #AFF6C3;
+  background-color: white;
   color: rgb(7, 7, 7);
   text-decoration: none;
   padding: 10px;
@@ -158,16 +147,14 @@ function showConfirmation() {
 
 .submenu .list-group-item {
   border: none !important;
-  padding-left: 30px;
+  padding-left: 60px;
+  padding-right: 60px;
 }
 
-.list-group-item {
-  border: none !important;
-}
+
 
 .divider {
   border: none;
-  border-top: 1px solid #ddd;
 }
 
 .sidebar-text,
