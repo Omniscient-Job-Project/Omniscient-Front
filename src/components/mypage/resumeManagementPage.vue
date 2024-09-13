@@ -15,35 +15,42 @@
             <div class="resume-section">
               <h3>개인 정보</h3>
               <p><strong>이름:</strong> {{ resume.name }}</p>
-              <p><strong>이메일:</strong> {{ resume.email }}</p>
-              <p><strong>전화번호:</strong> {{ resume.phone }}</p>
+              <p v-if="resume.email"><strong>이메일:</strong> {{ resume.email }}</p>
+              <p v-if="resume.phone"><strong>전화번호:</strong> {{ resume.phone }}</p>
             </div>
-            <div class="resume-section">
+            <div v-if="resume.education && resume.education.length" class="resume-section">
               <h3>학력</h3>
               <div v-for="(edu, index) in resume.education" :key="index" class="resume-item">
-                <p><strong>{{ edu.school }}</strong> - {{ edu.major }}</p>
-                <p>{{ edu.degree }} ({{ edu.graduationYear }})</p>
+                <p v-if="edu.school"><strong>{{ edu.school }}</strong></p>
+                <p v-if="edu.major">{{ edu.major }}</p>
+                <p v-if="edu.degree || edu.graduationYear">
+                  {{ edu.degree }} <span v-if="edu.graduationYear">({{ edu.graduationYear }})</span>
+                </p>
               </div>
             </div>
-            <div class="resume-section">
+            <div v-if="resume.experience && resume.experience.length" class="resume-section">
               <h3>경력</h3>
               <div v-for="(exp, index) in resume.experience" :key="index" class="resume-item">
-                <p><strong>{{ exp.company }}</strong> - {{ exp.position }}</p>
-                <p>{{ exp.startDate }} - {{ exp.endDate || '현재' }}</p>
-                <p>{{ exp.description }}</p>
+                <p v-if="exp.company"><strong>{{ exp.company }}</strong></p>
+                <p v-if="exp.position">{{ exp.position }}</p>
+                <p v-if="exp.startDate || exp.endDate">
+                  {{ exp.startDate }} - {{ exp.endDate || '현재' }}
+                </p>
+                <p v-if="exp.description">{{ exp.description }}</p>
               </div>
             </div>
-            <div class="resume-section">
+            <div v-if="resume.skills" class="resume-section">
               <h3>기술 스택</h3>
               <p>{{ resume.skills }}</p>
             </div>
-            <div class="resume-section">
+            <div v-if="resume.certificates && resume.certificates.length" class="resume-section">
               <h3>자격증</h3>
               <div v-for="(cert, index) in resume.certificates" :key="index" class="resume-item">
-                <p><strong>{{ cert.name }}</strong> ({{ cert.date }})</p>
+                <p v-if="cert.name"><strong>{{ cert.name }}</strong></p>
+                <p v-if="cert.date">({{ cert.date }})</p>
               </div>
             </div>
-            <div class="resume-section">
+            <div v-if="resume.introduction" class="resume-section">
               <h3>자기소개서</h3>
               <p>{{ resume.introduction }}</p>
             </div>
@@ -53,8 +60,8 @@
               <i class="fas fa-edit"></i> 수정
             </button>
             <button @click="showDeactivateModal(resume.id)" class="action-button delete-btn">
-    <i class="fas fa-trash-alt"></i> 삭제
-  </button>
+              <i class="fas fa-trash-alt"></i> 삭제
+            </button>
           </div>
         </div>
       </div>
@@ -96,8 +103,7 @@
                 <input :type="field.type" 
                        :id="`${field.name}${itemIndex}`" 
                        :name="`${field.name}${itemIndex}`"
-                       v-model="item[field.name]" 
-                       :required="field.required">
+                       v-model="item[field.name]">
               </div>
               <button type="button" @click="removeArrayItem(section.name, itemIndex)" class="remove-btn">항목 삭제</button>
             </div>
@@ -163,8 +169,8 @@ const formSections = reactive([
     fields: [
       { name: 'title', label: '이력서 제목', type: 'text', required: true },
       { name: 'name', label: '이름', type: 'text', required: true },
-      { name: 'email', label: '이메일', type: 'email', required: true },
-      { name: 'phone', label: '전화번호', type: 'tel', required: true }
+      { name: 'email', label: '이메일', type: 'email', required: false },
+      { name: 'phone', label: '전화번호', type: 'tel', required: false }
     ]
   },
   {
@@ -174,10 +180,10 @@ const formSections = reactive([
     isOpen: false,
     addButtonText: '학력 추가',
     fields: [
-      { name: 'school', label: '학교', type: 'text', required: true },
-      { name: 'major', label: '전공', type: 'text', required: true },
-      { name: 'degree', label: '학위', type: 'text', required: true },
-      { name: 'graduationYear', label: '졸업년도', type: 'number', required: true }
+      { name: 'school', label: '학교', type: 'text', required: false },
+      { name: 'major', label: '전공', type: 'text', required: false },
+      { name: 'degree', label: '학위', type: 'text', required: false },
+      { name: 'graduationYear', label: '졸업년도', type: 'number', required: false }
     ]
   },
   {
@@ -187,11 +193,11 @@ const formSections = reactive([
     isOpen: false,
     addButtonText: '경력 추가',
     fields: [
-      { name: 'company', label: '회사', type: 'text', required: true },
-      { name: 'position', label: '직위', type: 'text', required: true },
-      { name: 'startDate', label: '시작일', type: 'date', required: true },
+      { name: 'company', label: '회사', type: 'text', required: false },
+      { name: 'position', label: '직위', type: 'text', required: false },
+      { name: 'startDate', label: '시작일', type: 'date', required: false },
       { name: 'endDate', label: '종료일', type: 'date', required: false },
-      { name: 'description', label: '업무 설명', type: 'textarea', required: true }
+      { name: 'description', label: '업무 설명', type: 'textarea', required: false }
     ]
   },
   {
@@ -209,8 +215,8 @@ const formSections = reactive([
     isOpen: false,
     addButtonText: '자격증 추가',
     fields: [
-      { name: 'name', label: '자격증명', type: 'text', required: true },
-      { name: 'date', label: '취득일', type: 'date', required: true }
+      { name: 'name', label: '자격증명', type: 'text', required: false },
+      { name: 'date', label: '취득일', type: 'date', required: false }
     ]
   },
   {
@@ -218,7 +224,7 @@ const formSections = reactive([
     type: 'single',
     isOpen: false,
     fields: [
-      { name: 'introduction', label: '자기소개', type: 'textarea', required: true }
+      { name: 'introduction', label: '자기소개', type: 'textarea', required: false }
     ]
   }
 ])
@@ -290,20 +296,8 @@ const deactivateResume = async (id) => {
 }
 
 const validateForm = () => {
-  const form = document.querySelector('form')
-  const requiredInputs = form.querySelectorAll('input[required], textarea[required]')
-  
-  let isValid = true
-  requiredInputs.forEach(input => {
-    if (!input.value.trim()) {
-      input.setCustomValidity('이 필드를 작성해주세요.')
-      isValid = false
-    } else {
-      input.setCustomValidity('')
-    }
-  })
-
-  return isValid
+  const requiredFields = ['title', 'name']
+  return requiredFields.every(field => formData[field] && formData[field].trim() !== '')
 }
 
 const showConfirmModal = () => {
@@ -312,7 +306,7 @@ const showConfirmModal = () => {
     modalAction.value = isEditing.value ? 'edit' : 'add'
     showModal.value = true
   } else {
-    alert('모든 필수 필드를 작성해주세요.')
+    console.log('필수 필드를 모두 작성해주세요.')
   }
 }
 
