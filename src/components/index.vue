@@ -6,7 +6,9 @@
       <p class="hero-subtitle">수천 개의 채용 정보에서 당신에게 맞는 직업을 찾아보세요</p>
       <div class="search-bar">
         <input type="text" v-model="searchTerm" placeholder="직무, 회사, 키워드 검색" class="search-input" @input="searchJobs">
-        <button @click="searchJobs" class="search-button">검색</button>
+        <button @click="searchJobs" class="search-button">
+          <i class="fas fa-search"></i> 검색
+        </button>
       </div>
     </section>
 
@@ -39,9 +41,25 @@
       </div>
       <!-- 페이지네이션 -->
       <div class="pagination">
-        <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">이전</button>
-        <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn">다음</button>
+        <button @click="goToPage(1)" :disabled="currentPage === 1" class="page-btn">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+        <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">
+          <i class="fas fa-angle-left"></i>
+        </button>
+        <div class="page-numbers">
+          <button v-for="pageNumber in displayedPageNumbers" :key="pageNumber"
+                  @click="goToPage(pageNumber)"
+                  :class="['page-number', { active: currentPage === pageNumber }]">
+            {{ pageNumber }}
+          </button>
+        </div>
+        <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn">
+          <i class="fas fa-angle-right"></i>
+        </button>
+        <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="page-btn">
+          <i class="fas fa-angle-double-right"></i>
+        </button>
       </div>
     </section>
   </div>
@@ -94,7 +112,6 @@ const fetchJobs = async () => {
     }));
 
     jobs.value = [...jobsFromJobaba, ...jobsFromSeoul];
-    filteredJobs.value = jobs.value;
   } catch (error) {
     console.error('채용 정보를 가져오는 데 실패했습니다.', error);
   }
@@ -103,16 +120,33 @@ const fetchJobs = async () => {
 const filteredJobs = computed(() => {
   if (!searchTerm.value) return jobs.value;
   return jobs.value.filter(job =>
-    job.jobInfoTitle.includes(searchTerm.value) ||
-    job.jobCompanyName.includes(searchTerm.value)
+    job.jobInfoTitle.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+    job.jobCompanyName.toLowerCase().includes(searchTerm.value.toLowerCase())
   );
 });
+
+const totalPages = computed(() => Math.ceil(filteredJobs.value.length / itemsPerPage));
 
 const paginatedJobs = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   return filteredJobs.value.slice(start, end);
-  return filteredJobs.value.slice(start, end);
+});
+
+const displayedPageNumbers = computed(() => {
+  const range = 2; // 이 값을 조정하여 표시되는 페이지 번호의 개수를 변경할 수 있습니다
+  let start = Math.max(currentPage.value - range, 1);
+  let end = Math.min(currentPage.value + range, totalPages.value);
+
+  // 시작 페이지나 끝 페이지에 가까울 때 더 많은 페이지 번호를 표시하도록 조정
+  if (start <= 3) {
+    end = Math.min(5, totalPages.value);
+  }
+  if (end >= totalPages.value - 2) {
+    start = Math.max(1, totalPages.value - 4);
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 });
 
 const goToDetail = (jobId) => {
@@ -132,18 +166,11 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) currentPage.value++;
 };
 
+const goToPage = (page) => {
+  currentPage.value = page;
+};
+
 const searchJobs = () => {
-  if (searchTerm.value.trim() === '') {
-    filteredJobs.value = jobs.value;
-  } else {
-    const searchLower = searchTerm.value.toLowerCase();
-    filteredJobs.value = jobs.value.filter(job => 
-      job.jobInfoTitle.toLowerCase().includes(searchLower) ||
-      job.jobCompanyName.toLowerCase().includes(searchLower) ||
-      job.jobLocation.toLowerCase().includes(searchLower) ||
-      job.jobCareerCondition.toLowerCase().includes(searchLower)
-    );
-  }
   currentPage.value = 1; // 검색 후 첫 페이지로 리셋
 };
 
@@ -344,24 +371,48 @@ onMounted(() => {
   align-items: center;
   margin-top: 40px;
 }
-
 .page-btn {
-  padding: 8px 16px;
+  padding: 10px 15px;
   background-color: #0166FF;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  margin: 0 5px;
 }
 
 .page-btn:hover:not(:disabled) {
   background-color: #014fd3;
+  transform: translateY(-2px);
 }
 
 .page-btn:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  margin: 0 10px;
+}
+
+.page-number {
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: transparent;
+  border: 1px solid #0166FF;
+  color: #0166FF;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.page-number.active,
+.page-number:hover {
+  background-color: #0166FF;
+  color: white;
 }
 
 .page-info {
@@ -514,10 +565,17 @@ onMounted(() => {
 }
 
 /* 애니메이션 효과 */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 
 .hero, .job-card, .category-item, .stat-item {
   animation: fadeIn 1s ease-out;
@@ -565,6 +623,14 @@ onMounted(() => {
 
   .stat-number {
     color: #33a1fd;
+  }
+
+  .page-numbers {
+    display: none;
+  }
+
+  .pagination {
+    justify-content: space-between;
   }
 }
 </style>

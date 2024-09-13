@@ -15,8 +15,8 @@
           <button @click="editCertificate(cert)" class="edit-btn">
             <i class="fas fa-edit"></i> 수정
           </button>
-          <button @click="showDeactivateModal(cert.id)" class="deactivate-btn">
-            <i class="fas fa-ban"></i> 비활성화
+          <button @click="showDeactivateModal(cert.id)" class="delete-btn">
+            <i class="fas fa-ban"></i> 삭제
           </button>
         </div>
       </div>
@@ -204,7 +204,7 @@ const showConfirmModal = () => {
 
 const showDeactivateModal = (id) => {
   modalType.value = 'deactivate';
-  modalMessage.value = '정말로 이 자격증을 비활성화하시겠습니까?';
+  modalMessage.value = '정말로 이 자격증을 삭제하시겠습니까?';
   deactivatingCertId.value = id;
   showModal.value = true;
 };

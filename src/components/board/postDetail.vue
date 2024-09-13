@@ -34,9 +34,9 @@
           <button @click="saveEdit" class="save-button">
             <i class="fas fa-save"></i> 저장
           </button>
-          <button @click="deactivatePost" class="deactivate-button">
-            <i class="fas fa-ban"></i> 비활성화
-          </button>
+          <button @click="deactivatePost" class="action-button delete-button">
+        <i class="fas fa-trash"></i> 삭제
+      </button>
           <button @click="cancelEdit" class="cancel-button">
             <i class="fas fa-times"></i> 취소
           </button>
@@ -168,7 +168,7 @@ const toggleEditMode = () => {
 
 const saveEdit = () => {
   showModal.value = true;
-  modalMessage.value = '게시글을 수정하시겠습니까?';
+  modalMessage.value = '게시글을 저장하시겠습니까?';
   modalAction.value = performSaveEdit;
 };
 
@@ -190,7 +190,7 @@ const cancelEdit = () => {
 
 const deactivatePost = () => {
   showModal.value = true;
-  modalMessage.value = '정말로 이 게시글을 비활성화하시겠습니까?';
+  modalMessage.value = '정말로 이 게시글을 삭제하시겠습니까?';
   modalAction.value = performDeactivatePost;
 };
 
@@ -202,7 +202,7 @@ const performDeactivatePost = async () => {
     closeModal();
     router.push({ name: 'boardList' });
   } catch (error) {
-    console.error('게시글 비활성화 중 오류가 발생했습니다:', error);
+    console.error('게시글 삭제중 오류가 발생했습니다:', error);
   }
 };
 
@@ -222,6 +222,26 @@ const confirmModal = () => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+.action-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+} 
+
+.action-button i {
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
 
 .page-container {
   display: flex;
@@ -313,17 +333,14 @@ h2 {
   background-color: #4CAF50;
   color: white;
 }
-
 .save-button {
-  background-color: #2196F3;
+  background-color: #4CAF50;
   color: white;
 }
-
 .delete-button {
   background-color: #f44336;
   color: white;
 }
-
 .cancel-button {
   background-color: #757575;
   color: white;
@@ -338,6 +355,14 @@ h2 {
 .like-button:hover, .submit-comment:hover, .edit-button:hover, .save-button:hover, .delete-button:hover, .cancel-button:hover {
   opacity: 0.9;
   transform: translateY(-2px);
+}
+
+.delete-button:hover {
+  background-color: #d32f2f;
+}
+
+.save-button:hover {
+  background-color: #45a049;
 }
 
 .back-button:hover {
@@ -495,14 +520,17 @@ h2 {
 }
 
 .cancel-button {
-  background-color: #f44336;
+  background-color: #757575;
   color: white;
 }
 
 .cancel-button:hover {
-  background-color: #d32f2f;
+  background-color: #616161;
+}
+
+.action-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .modal-content {
