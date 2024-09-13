@@ -113,7 +113,7 @@ const fetchJobData = async () => {
     let response;
     // 잡아바 API 호출
     try {
-      response = await axios.get(`http://192.168.0.150:8090/api/v1/jobaba/jobinfo/${jobId}`);
+      response = await axios.get(`https://192.168.0.150:8090/api/v1/jobaba/jobinfo/${jobId}`);
       if (response.data.ENTRPRS_NM) {
         jobDetail.value = transformJobabaData(response.data);
         return;
@@ -125,7 +125,7 @@ const fetchJobData = async () => {
     }
 
     // 서울시 API 호출
-    response = await axios.get(`http://192.168.0.150:8090/api/v1/seoul/jobinfo/${jobId}`);
+    response = await axios.get(`https://192.168.0.150:8090/api/v1/seoul/jobinfo/${jobId}`);
     if (response.data.JO_REQST_NO) {
       jobDetail.value = transformSeoulData(response.data);
     } else {
