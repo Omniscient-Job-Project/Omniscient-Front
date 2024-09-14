@@ -31,6 +31,7 @@ const ResumeManagementPage = () => import("../components/mypage/resumeManagement
 const ApplicationsPageComponent = () => import("../components/mypage/applicationsPageComponent.vue");
 const ScrapPage = () => import("../components/mypage/scrapPage.vue");
 const CertificatesPage = () => import("../components/mypage/certificatesPage.vue");
+const Error = () => import("../views/errorView.vue");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -183,6 +184,11 @@ const router = createRouter({
           props: true
         }
       ]
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'Error',
+      component: Error
     },
   ]
 });
