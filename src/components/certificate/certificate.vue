@@ -44,77 +44,76 @@
             </div>
           </div>
 
-          <!-- 필터링 섹션 -->
           <div class="filter-section">
-            <label for="categoryFilter">카테고리:</label>
-            <select v-model="selectedCategory" id="categoryFilter">
-              <option value="">전체</option>
-              <option value="10">기술사</option>
-              <option value="20">기능장</option>
-              <option value="30">기사</option>
-              <option value="31">산업기사</option>
-              <option value="32">1급</option>
-              <option value="33">2급</option>
-              <option value="40">기능사</option>
-            </select>
-          </div>
+  <label for="gradeFilter">등급:</label>
+  <select v-model="selectedGrade" id="gradeFilter">
+    <option value="">전체</option>
+    <option value="기술사">기술사</option>
+    <option value="기능장">기능장</option>
+    <option value="기사">기사</option>
+    <option value="산업기사">산업기사</option>
+    <option value="1급">1급</option>
+    <option value="2급">2급</option>
+    <option value="기능사">기능사</option>
+  </select>
+</div>
 
           <button @click="applyFilters">필터 적용</button>
         </div>
       </div>
 
       <div class="row">
-        <div
-          v-for="gradecertificate in paginatedCertificates"
-          :key="gradecertificate.grdNm"
-          class="col-md-3"
-        >
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <i class="fas fa-certificate" style="color: #4caf50"></i>
-                <!-- 녹색: 자격증 -->
-                {{ gradecertificate.jmNm }}
-              </h5>
-              <p class="card-text">
-                <i class="fas fa-building" style="color: #2196f3"></i>
-                <!-- 파란색: 기관 -->
-                기관: {{ gradecertificate.instiNm }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-trophy" style="color: #ff9800"></i>
-                <!-- 주황색: 등급 -->
-                등급: {{ gradecertificate.grdNm }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-chart-line" style="color: #673ab7"></i>
-                <!-- 보라색: 취득률 -->
-                자격증 취득률: {{ gradecertificate.preyyAcquQualIncRate }}%
-              </p>
-              <p class="card-text">
-                <i class="fas fa-chart-bar" style="color: #3f51b5"></i>
-                <!-- 파란색: 전년도 자격증 취득 수 -->
-                전년도 자격증 취득 수: {{ gradecertificate.preyyQualAcquCnt }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-chart-pie" style="color: #ff5722"></i>
-                <!-- 주황색: 총 자격증 취득 수 -->
-                총 자격증 취득 수: {{ gradecertificate.qualAcquCnt }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-calendar-alt" style="color: #009688"></i>
-                <!-- 청록색: 통계 연도 -->
-                통계 연도: {{ gradecertificate.statisYy }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-calendar-check" style="color: #8bc34a"></i>
-                <!-- 연두색: 합계 연도 -->
-                합계 연도: {{ gradecertificate.sumYy }}
-              </p>
-            </div>
-          </div>
-        </div>
+  <div
+    v-for="gradecertificate in paginatedCertificates"
+    :key="gradecertificate.id"
+    class="col-md-3"
+  >
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="fas fa-certificate" style="color: #4caf50"></i>
+          <!-- 녹색: 자격증 -->
+          {{ gradecertificate.jmNm }}
+        </h5>
+        <p class="card-text">
+          <i class="fas fa-building" style="color: #2196f3"></i>
+          <!-- 파란색: 기관 -->
+          기관: {{ gradecertificate.instiNm }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-trophy" style="color: #ff9800"></i>
+          <!-- 주황색: 등급 -->
+          등급: {{ gradecertificate.grdNm }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-chart-line" style="color: #673ab7"></i>
+          <!-- 보라색: 취득률 -->
+          자격증 취득률: {{ gradecertificate.preyyAcquQualIncRate }}%
+        </p>
+        <p class="card-text">
+          <i class="fas fa-chart-bar" style="color: #3f51b5"></i>
+          <!-- 파란색: 전년도 자격증 취득 수 -->
+          전년도 자격증 취득 수: {{ gradecertificate.preyyQualAcquCnt }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-chart-pie" style="color: #ff5722"></i>
+          <!-- 주황색: 총 자격증 취득 수 -->
+          총 자격증 취득 수: {{ gradecertificate.qualAcquCnt }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-calendar-alt" style="color: #009688"></i>
+          <!-- 청록색: 통계 연도 -->
+          통계 연도: {{ gradecertificate.statisYy }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-calendar-check" style="color: #8bc34a"></i>
+          <!-- 연두색: 합계 연도 -->
+          합계 연도: {{ gradecertificate.sumYy }}
+        </p>
       </div>
+    </div>
+  </div>
+</div>
     </div>
 
     <!-- 페이지네이션 -->
@@ -161,7 +160,7 @@ import { getChoseong } from "es-hangul";
 const searchTerm = ref("");
 const gradeCertificates = ref([]);
 const selectedCategory = ref("");
-const selectedGrade = ref(""); // 추가: 선택된 등급
+const selectedGrade = ref(""); // 선택된 등급
 
 const filteredCertificates = computed(() => {
   let filtered = gradeCertificates.value;
@@ -206,8 +205,10 @@ const paginatedCertificates = computed(() => {
   return filteredCertificates.value.slice(start, end);
 });
 
+// 필터링된 grdCds를 기반으로 자격증 데이터를 가져오는 함수
 const fetchGradeCertificates = async () => {
-    const grdCds = ["10", "20", "30", "31", "32", "33", "40"];
+    // 필터링된 grdCd 배열 생성
+    const grdCds = selectedCategory.value ? [selectedCategory.value] : ["10", "20", "30", "31", "32", "33", "40"];
     
     // 개별 API 호출을 위한 비동기 함수
     const fetchCertificatesByGrade = async (grdCd) => {
@@ -241,7 +242,6 @@ const fetchGradeCertificates = async () => {
     gradeCertificates.value = allCertificates.flat();
 };
 
-
 const applyFilters = () => {
   currentPage.value = 1; // 필터 적용 시 페이지를 1로 초기화
   fetchGradeCertificates(); // 필터링된 데이터를 가져오기 위해 API 호출
@@ -257,8 +257,8 @@ const changePage = (pageNumber) => {
 onMounted(() => {
   fetchGradeCertificates();
 });
-
 </script>
+
 
 <style scoped>
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
