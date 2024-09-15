@@ -2,15 +2,15 @@
   <div class="main-container">
     <!-- 히어로 섹션 -->
     <section class="hero">
-      <h2 class="hero-title">당신의 꿈을 위한 첫걸음</h2>
-      <p class="hero-subtitle">수천 개의 채용 정보에서 당신에게 맞는 직업을 찾아보세요</p>
-      <div class="search-bar">
-        <input type="text" v-model="searchTerm" placeholder="직무, 회사, 키워드 검색" class="search-input" @input="searchJobs">
-        <button @click="searchJobs" class="search-button">
-          <i class="fas fa-search"></i> 검색
-        </button>
-      </div>
-    </section>
+    <h2 class="hero-title">당신의 꿈을 위한 첫걸음</h2>
+    <p class="hero-subtitle">수천 개의 채용 정보에서 당신에게 맞는 직업을 찾아보세요</p>
+    <div class="search-bar">
+      <input type="text" v-model="searchTerm" placeholder="직무, 회사, 키워드 검색" class="search-input" @input="searchJobs">
+      <button @click="searchJobs" class="search-button">
+        <i class="fas fa-search"></i> 검색
+      </button>
+    </div>
+  </section>
 
     <!-- 주요 카테고리 섹션 -->
     <section class="categories">
@@ -227,51 +227,66 @@ onMounted(() => {
 
 .hero {
   text-align: center;
-  padding: 60px 0;
-  background: linear-gradient(135deg, #0166FF 0%, #33a1fd 100%);
-  color: white;
-  border-radius: 10px;
-  margin: 20px 0;
+  padding: 80px 40px;
+  background: linear-gradient(135deg, #f0f4f8 0%, #d9e6f2 100%);
+  color: #2c3e50;
+  border-radius: 15px;
+  margin: 40px 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
+
 .hero-title {
-  font-size: 36px;
-  margin-bottom: 10px;
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #34495e;
 }
 
 .hero-subtitle {
-  font-size: 18px;
-  margin-bottom: 30px;
+  font-size: 20px;
+  margin-bottom: 40px;
+  color: #5d6d7e;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .search-bar {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 15px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .search-input {
-  width: 50%;
-  padding: 10px;
+  flex-grow: 1;
+  padding: 15px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 30px;
   font-size: 16px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .search-button {
-  padding: 10px 20px;
-  background-color: #ffc107;
+  padding: 15px 30px;
+  background-color: #3498db;
   border: none;
-  border-radius: 5px;
-  color: #212529;
-  font-weight: 500;
+  border-radius: 30px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .search-button:hover {
-  background-color: #ffca2c;
+  background-color: #2980b9;
+  transform: translateY(-2px);
 }
+
 
 .section-title {
   font-size: 24px;
@@ -500,6 +515,28 @@ onMounted(() => {
 
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 60px 20px;
+  }
+
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+  }
+
+  .search-bar {
+    flex-direction: column;
+  }
+
+  .search-input, .search-button {
+    width: 100%;
   }
 }
 
