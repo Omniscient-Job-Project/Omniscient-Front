@@ -45,20 +45,18 @@
           </div>
 
           <div class="filter-section">
-  <label for="gradeFilter">등급:</label>
-  <select v-model="selectedGrade" id="gradeFilter">
-    <option value="">전체</option>
-    <option value="기술사">기술사</option>
-    <option value="기능장">기능장</option>
-    <option value="기사">기사</option>
-    <option value="산업기사">산업기사</option>
-    <option value="1급">1급</option>
-    <option value="2급">2급</option>
-    <option value="기능사">기능사</option>
-  </select>
-</div>
-
-          <button @click="applyFilters">필터 적용</button>
+            <label for="gradeFilter">등급:</label>
+            <select v-model="selectedGrade" id="gradeFilter">
+              <option value="">전체</option>
+              <option value="기술사">기술사</option>
+              <option value="기능장">기능장</option>
+              <option value="기사">기사</option>
+              <option value="산업기사">산업기사</option>
+              <option value="1급">1급</option>
+              <option value="2급">2급</option>
+              <option value="기능사">기능사</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -286,10 +284,17 @@ body {
 }
 
 .info-search-container {
-  display: flex; /* 가로로 나열 */
-  justify-content: space-between;
-  align-items: center; /* 요소들 수직 가운데 정렬 */
-  gap: 1rem; /* 요소들 사이 간격 */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f9f9f9; /* 밝은 배경 */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
 }
 
 .section-title {
@@ -305,15 +310,23 @@ body {
   align-items: center;
 }
 .search-box {
-  flex: 1;
-  width: 50%;
   display: flex;
   align-items: center;
-  border: 1px solid #ddd; /* 검색창 테두리 색상 */
-  border-radius: 8px; /* 검색창 테두리 둥글기 */
-  background-color: #fff; /* 검색창 배경색 */
-  padding: 5px 10px; /* 검색창 패딩 */
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
 }
+
+.search-box:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-input-box::placeholder {
+  color: #999;
+} 
 
 .input-wrapper {
   display: flex;
@@ -322,19 +335,44 @@ body {
 }
 
 .search-input-box {
-  width: calc(100% - 2rem); /* 아이콘과의 여백을 고려하여 너비 조정 */
+  flex-grow: 1;
+  padding: 8px 12px;
   border: none;
   outline: none;
-  padding: 5px;
-  font-size: 1rem;
-  border-radius: 8px;
+  font-size: 16px;
 }
 
 .search-icon {
-  width: 24px; /* 아이콘 크기 */
-  height: 24px; /* 아이콘 크기 */
-  margin-left: 5px; /* 아이콘과 입력 박스 사이의 여백 */
+  width: 24px;
+  height: 24px;
   cursor: pointer;
+}
+
+
+/* 필터링 섹션 스타일 */
+.filter-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-section label {
+  font-size: 16px;
+  color: #555;
+}
+
+.filter-section select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.3s ease;
+}
+
+.filter-section select:focus {
+  border-color: #333;
 }
 
 .select-container,
