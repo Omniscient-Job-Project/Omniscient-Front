@@ -39,10 +39,10 @@
             <input type="email" id="email" v-model="email" placeholder="email@example.com">
           </div>
 
-          <div class="info-box">
+          <!-- <div class="info-box">
             <i class="fas fa-info-circle"></i>
             <small class="info-text">취업에 관련된 정보를 받을 때 편리해요</small>
-          </div>
+          </div> -->
 
           <button type="submit" class="btn-signup">회원가입</button>
         </form>
@@ -115,7 +115,7 @@ const handleSubmit = async () => {
   display: flex;
   width: 90%; /* 너비를 90%로 변경 */
   max-width: 1400px; /* 최대 너비를 1400px로 변경 */
-  height: 80vh; /* 높이를 80vh로 설정 */
+  height: 90vh; /* 높이를 80vh로 설정 */
 }
 
 /* 회원가입 폼 스타일 */
@@ -186,8 +186,9 @@ small {
 }
 
 .btn-signup {
-  width: 94%;
-  padding: 0.75rem;
+  width: 93%;
+  padding: 0.65rem;
+  margin-top: 0.95rem;
   background-color: #0000ff;
   color: white;
   border: none;

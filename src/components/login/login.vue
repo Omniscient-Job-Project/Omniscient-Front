@@ -37,9 +37,9 @@
           </form>
         </div>
         <div class="options">
-          <RouterLink to="/signUp" class="link">회원가입</RouterLink> |
-          <p class="link" @click="findId">아이디 찾기</p> /
-          <p class="link" @click="findPassword">비밀번호 찾기</p>
+          <RouterLink to="/signUp" class="link">회원가입</RouterLink> 
+          <p class="link" @click="openFindAccountModal">아이디/비밀번호 찾기</p>
+          <FindAccountModal ref="findAccountModalRef" />
         </div>
       </div>
 
@@ -51,6 +51,9 @@
       </div>
     </div>
   </div>
+
+  
+
 </template>
 
 <script setup>
@@ -58,12 +61,16 @@ import { ref, onMounted, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth'; // auth 스토어 임포트
+import FindAccountModal from './findAccount.vue'; // 모달 컴포넌트 import
+
 
 const emit = defineEmits();
 const userId = ref(''); // 사용자 아이디
 const password = ref(''); // 패스워드
 const router = useRouter(); // 라우터 인스턴스 가져오기
 const authStore = useAuthStore(); // Pinia auth 스토어 사용
+
+
 
 // 로그인 요청 처리
 const handleSubmit = async () => {
@@ -159,6 +166,16 @@ onMounted(() => {
     alert('Welcome to 전직시! 로그인 해주세요.'); // 로그인하지 않은 경우 환영 메시지 표시
   }
 });
+
+
+const findAccountModalRef = ref(null); // ref 정의
+
+const openFindAccountModal = () => {
+  if (findAccountModalRef.value) {
+    findAccountModalRef.value.openModal(); // 모달 열기
+  }
+};
+
 </script>
 
 <style>
