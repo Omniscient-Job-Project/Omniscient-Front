@@ -32,7 +32,8 @@ const ApplicationsPageComponent = () => import("../components/mypage/application
 const ScrapPage = () => import("../components/mypage/scrapPage.vue");
 const CertificatesPage = () => import("../components/mypage/certificatesPage.vue");
 const Error = () => import("../views/errorView.vue");
-
+const Terms = () => import("../views/termsView.vue");
+ 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -182,7 +183,8 @@ const router = createRouter({
           name: 'ManagerFaqModify',
           component: ManagerFAQModify,
           props: true
-        }
+        },
+
       ]
     },
     {
@@ -190,6 +192,11 @@ const router = createRouter({
       name: 'Error',
       component: Error
     },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: Terms
+    }
   ]
 });
 
