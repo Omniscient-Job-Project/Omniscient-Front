@@ -36,7 +36,8 @@ const router = useRouter();
 
 const fetchFaqs = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/v1/faqs');
+    // const response = await axios.get('http://localhost:8090/api/v1/faqs');
+    const response = await axios.get('https://192.168.0.150:8090/api/v1/faqs');
     faqs.value = response.data;
   } catch (error) {
     console.error('Error fetching FAQs:', error);
@@ -49,7 +50,8 @@ const editFaq = (id) => {
 
 const deleteFaq = async (id) => {
   try {
-    await axios.put(`http://localhost:8090/api/v1/faqs/delete/${id}`);
+    // await axios.put(`http://localhost:8090/api/v1/faqs/delete/${id}`);
+    await axios.put(`https://192.168.0.150:8090/api/v1/faqs/delete/${id}`);
     fetchFaqs(); // Refresh the list
   } catch (error) {
     console.error('Error deleting FAQ:', error);

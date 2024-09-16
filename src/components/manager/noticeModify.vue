@@ -58,7 +58,8 @@ export default {
     async fetchNotice() {
       if (this.noticeId) {
         try {
-          const response = await axios.get(`http://localhost:8090/api/v1/notice/${this.noticeId}`);
+          // const response = await axios.get(`http://localhost:8090/api/v1/notice/${this.noticeId}`);
+          const response = await axios.get(`https://192.168.0.150:8090/api/v1/notice/${this.noticeId}`);
           const notice = response.data;
           if (notice) {
             this.noticeTitle = notice.noticeTitle;
@@ -82,7 +83,8 @@ export default {
         };
 
         try {
-          const response = await axios.put(`http://localhost:8090/api/v1/notice/update/${this.noticeId}`, updatedNotice, {
+          // const response = await axios.put(`http://localhost:8090/api/v1/notice/update/${this.noticeId}`, updatedNotice, {
+          const response = await axios.put(`https://192.168.0.150:8090/api/v1/notice/update/${this.noticeId}`, updatedNotice, {
             headers: {
               'Content-Type': 'application/json'
             }

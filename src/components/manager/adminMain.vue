@@ -48,7 +48,8 @@ const selectedRole = ref(null);
 
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('/api/v1/user');
+    // const response = await axios.get('/api/v1/user');
+    const response = await axios.get('https://192.168.0.150:8090/api/v1/user');
     users.value = response.data;
   } catch (error) {
     console.error('회원 목록을 가져오는 중 오류가 발생했습니다!', error);
@@ -58,7 +59,8 @@ const fetchUsers = async () => {
 const submitChanges = async () => {
   try {
     for (const user of users.value) {
-      await axios.put('/api/v1/user', user);
+      // await axios.put('/api/v1/user', user);
+      await axios.put('https://192.168.0.150:8090/api/v1/user', user);
       console.log(`사용자 ${user.userId} 업데이트 성공`);
     }
   } catch (error) {

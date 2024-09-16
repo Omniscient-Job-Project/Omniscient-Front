@@ -6,7 +6,8 @@ const notices = ref([]);
 
 const fetchNotices = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/v1/notice');
+    // const response = await axios.get('http://localhost:8090/api/v1/notice');
+    const response = await axios.get('https://192.168.0.150:8090/api/v1/notice');
     // 상태가 false가 아닌 공지사항만 필터링하고 번호 재정렬
     notices.value = response.data
       .filter(notice => notice.noticeStatus !== false)

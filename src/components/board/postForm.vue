@@ -70,7 +70,8 @@ const closeModal = () => {
 
 const submitPost = async () => {
   try {
-    const response = await axios.post('http://localhost:8090/api/v1/boards', newPost.value);
+    // const response = await axios.post('http://localhost:8090/api/v1/boards', newPost.value);
+    const response = await axios.post('https://192.168.0.150:8090/api/v1/boards', newPost.value);
     console.log('게시글이 성공적으로 등록되었습니다:', response.data);
     closeModal();
     // 게시글 추가 후 게시판 목록으로 이동
