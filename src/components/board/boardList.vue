@@ -77,7 +77,8 @@ const currentPage = ref(1);
 // API에서 게시글 데이터를 가져오는 함수
 const fetchPosts = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/v1/boards');
+    // const response = await axios.get('http://localhost:8090/api/v1/boards');
+    const response = await axios.get('https://192.168.0.150:8090/api/v1/boards');
     posts.value = response.data;
   } catch (error) {
     console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);

@@ -214,7 +214,9 @@ const fetchGradeCertificates = async () => {
             // grdCd 값을 로그에 출력
             console.log(`Fetching certificates for grdCd: ${grdCd}`);
 
-            const response = await axios.get(`http://localhost:8090/api/v1/gradejob?grdCd=${grdCd}`);
+            // const response = await axios.get(`http://localhost:8090/api/v1/gradejob?grdCd=${grdCd}`);
+            const response = await axios.get(`https://192.168.0.150:8090/api/v1/gradejob?grdCd=${grdCd}`);
+
             if (response.data && response.data.response && response.data.response.body) {
                 const items = response.data.response.body.items.item;
                 if (Array.isArray(items)) {
@@ -606,4 +608,6 @@ body {
     width: 100%;
   }
 }
+
 </style>
+

@@ -63,7 +63,8 @@ export default {
     // 공지사항 목록을 가져오는 메서드
     async fetchNotices() {
       try {
-        const response = await axios.get(`http://localhost:8090/api/v1/notice`);
+        // const response = await axios.get(`http://localhost:8090/api/v1/notice`);
+        const response = await axios.get(`https://192.168.0.150:8090/api/v1/notice`);
         // 상태가 true인 공지사항만 필터링 후, 번호 재정렬
         this.noticeList = response.data
           .filter(notice => notice.noticeStatus !== false) // 상태가 false인 공지사항 제거
@@ -81,7 +82,8 @@ export default {
     async deleteNotice(noticeId) {
       try {
         // 상태를 false로 변경하는 로직 호출
-        const response = await axios.put(`http://localhost:8090/api/v1/notice/delete/${noticeId}`);
+        // const response = await axios.put(`http://localhost:8090/api/v1/notice/delete/${noticeId}`);
+        const response = await axios.put(`https://192.168.0.150:8090/api/v1/notice/delete/${noticeId}`);
         console.log('삭제 응답:', response);
         await this.fetchNotices(); // 목록 새로고침
       } catch (error) {
@@ -97,7 +99,8 @@ export default {
     // 공지사항 상세 정보를 불러오는 메서드
     async viewDetail(noticeId) {
       try {
-        const response = await axios.get(`http://localhost:8090/api/v1/notice/${noticeId}`);
+        // const response = await axios.get(`http://localhost:8090/api/v1/notice/${noticeId}`);
+        const response = await axios.get(`https://192.168.0.150:8090/api/v1/notice/${noticeId}`);
         this.selectedNotice = response.data;
       } catch (error) {
         console.error('공지 상세 정보를 가져오는 중 오류가 발생했습니다!', error);

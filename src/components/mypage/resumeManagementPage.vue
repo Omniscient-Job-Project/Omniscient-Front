@@ -232,7 +232,8 @@ const formSections = reactive([
 // 비동기 작업을 위한 함수들
 const loadResumes = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/v1/mypage/resumes')
+    // const response = await axios.get('http://localhost:8090/api/v1/mypage/resumes')
+    const response = await axios.get('https://192.168.0.150:8090/api/v1/mypage/resumes')
     resumes.value = response.data.map(resume => ({ ...resume, isOpen: false }))
   } catch (error) {
     console.error('이력서 목록을 불러오는데 실패했습니다:', error.response?.data || error.message)
@@ -288,7 +289,8 @@ const showDeactivateModal = (id) => {
 
 const deactivateResume = async (id) => {
   try {
-    await axios.put(`http://localhost:8090/api/v1/mypage/resumes/${id}/deactivate`)
+    // await axios.put(`http://localhost:8090/api/v1/mypage/resumes/${id}/deactivate`)
+    await axios.put(`https://192.168.0.150:8090/api/v1/mypage/resumes/${id}/deactivate`)
     resumes.value = resumes.value.filter(r => r.id !== id)
   } catch (error) {
     console.error('이력서 삭제에 실패했습니다:', error.response?.data || error.message)
@@ -329,11 +331,13 @@ const saveResume = async () => {
     let response
     
     if (isEditing.value) {
-      response = await axios.put(`http://localhost:8090/api/v1/mypage/resumes/${editingResumeId.value}`, jsonData, {
+      // response = await axios.put(`http://localhost:8090/api/v1/mypage/resumes/${editingResumeId.value}`, jsonData, {
+      response = await axios.put(`https://192.168.0.150:8090/api/v1/mypage/resumes/${editingResumeId.value}`, jsonData, {
         headers: { 'Content-Type': 'application/json' }
       })
     } else {
-      response = await axios.post('http://localhost:8090/api/v1/mypage/resumes', jsonData, {
+      // response = await axios.post('http://localhost:8090/api/v1/mypage/resumes', jsonData, {
+      response = await axios.post('https://192.168.0.150:8090/api/v1/mypage/resumes', jsonData, {
         headers: { 'Content-Type': 'application/json' }
       })
     }

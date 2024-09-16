@@ -118,7 +118,8 @@ onMounted(async () => {
 
 const fetchPost = async () => {
   try {
-    const response = await axios.get(`http://localhost:8090/api/v1/boards/${route.params.id}`);
+    // const response = await axios.get(`http://localhost:8090/api/v1/boards/${route.params.id}`);
+    const response = await axios.get(`https://192.168.0.150:8090/api/v1/boards/${route.params.id}`);
     post.value = response.data;
     await fetchComments();
   } catch (error) {
@@ -128,7 +129,8 @@ const fetchPost = async () => {
 
 const fetchComments = async () => {
   try {
-    const response = await axios.get(`http://localhost:8090/api/v1/boards/comments/${post.value.id}`);
+    // const response = await axios.get(`http://localhost:8090/api/v1/boards/comments/${post.value.id}`);
+    const response = await axios.get(`https://192.168.0.150:8090/api/v1/boards/comments/${post.value.id}`);
     post.value.comments = response.data;
   } catch (error) {
     console.error('댓글을 가져오는 중 오류가 발생했습니다:', error);
@@ -154,7 +156,8 @@ const saveEdit = () => {
 
 const performSaveEdit = async () => {
   try {
-    const response = await axios.put(`http://localhost:8090/api/v1/boards/${post.value.id}`, editedPost.value);
+    // const response = await axios.put(`http://localhost:8090/api/v1/boards/${post.value.id}`, editedPost.value);
+    const response = await axios.put(`https://192.168.0.150:8090/api/v1/boards/${post.value.id}`, editedPost.value);
     post.value = response.data;
     isEditing.value = false;
     closeModal();
@@ -177,7 +180,8 @@ const deactivatePost = () => {
 
 const performDeactivatePost = async () => {
   try {
-    await axios.put(`http://localhost:8090/api/v1/boards/delete/${post.value.id}`, null, {
+    // await axios.put(`http://localhost:8090/api/v1/boards/delete/${post.value.id}`, null, {
+    await axios.put(`https://192.168.0.150:8090/api/v1/boards/delete/${post.value.id}`, null, {
       params: { status: false }
     });
     closeModal();
@@ -203,7 +207,8 @@ const confirmModal = () => {
 const addComment = async () => {
   if (newComment.value.content.trim()) {
     try {
-      const response = await axios.post(`http://localhost:8090/api/v1/boards/comments/${post.value.id}`, newComment.value);
+      // const response = await axios.post(`http://localhost:8090/api/v1/boards/comments/${post.value.id}`, newComment.value);
+      const response = await axios.post(`https://192.168.0.150:8090/api/v1/boards/comments/${post.value.id}`, newComment.value);
       post.value.comments.unshift(response.data);
       newComment.value.content = '';
     } catch (error) {
@@ -225,7 +230,8 @@ const cancelEditComment = (comment) => {
 
 const updateComment = async (comment) => {
   try {
-    const response = await axios.put(`http://localhost:8090/api/v1/boards/comments/${post.value.id}/${comment.id}`, {
+    // const response = await axios.put(`http://localhost:8090/api/v1/boards/comments/${post.value.id}/${comment.id}`, {
+    const response = await axios.put(`http://192.168.0.150:8090/api/v1/boards/comments/${post.value.id}/${comment.id}`, {
       content: comment.editContent,
       author: comment.author
     });
@@ -243,7 +249,8 @@ const updateComment = async (comment) => {
 const deactivateComment = async (comment) => {
   if (confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
     try {
-      await axios.put(`http://localhost:8090/api/v1/boards/comments/${post.value.id}/deactivate/${comment.id}`);
+      // await axios.put(`http://localhost:8090/api/v1/boards/comments/${post.value.id}/deactivate/${comment.id}`);
+      await axios.put(`http://192.168.0.150:8090/api/v1/boards/comments/${post.value.id}/deactivate/${comment.id}`);
       const index = post.value.comments.findIndex(c => c.id === comment.id);
       if (index !== -1) {
         post.value.comments.splice(index, 1);
