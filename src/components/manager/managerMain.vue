@@ -86,6 +86,7 @@ import { updateChart } from '@/assets/js/updateChart';
 import { fetchUserCount } from '@/assets/js/fetchUserCount';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const todayVisitorCount = ref(0);
 const visitorCount = ref([]);
 const visitorCountMonth = ref([]);
@@ -99,7 +100,7 @@ const visitorStore = useVisitorStore();
 const fetchUsers = async () => {
   try {
     // const response = await axios.get('/api/v1/user');
-    const response = await axios.get('https://192.168.0.150:8090/api/v1/user');
+    const response = await axios.get(`${API_URL}/api/v1/user`);
     users.value = response.data;
   } catch (error) {
     console.error('Error fetching user list:', error);

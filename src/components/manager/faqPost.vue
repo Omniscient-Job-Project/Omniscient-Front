@@ -24,14 +24,14 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const newFaq = ref({ question: '', answer: '' });
 const router = useRouter();
 
 const createFaq = async () => {
   try {
     // API 요청 URL 확인
-    // const response = await axios.post('http://localhost:8090/api/v1/faqs', newFaq.value);
-    const response = await axios.post('https://192.168.0.150:8090/api/v1/faqs', newFaq.value);
+    const response = await axios.post(`${API_URL}/api/v1/faqs`, newFaq.value);
     console.log('FAQ created:', response.data);
     // 리스트 페이지로 리다이렉트
     router.push('/manager/faqList');

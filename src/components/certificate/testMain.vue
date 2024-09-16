@@ -78,6 +78,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
 const certificate = ref('');
 const searchTerm = ref('');
@@ -103,8 +104,7 @@ watch(bookmarks, saveBookmarks, { deep: true });
 // 자격증 데이터 가져오기 함수
 const fetchTestCertificates = async () => {
 try {
-  // const response = await axios.get('http://localhost:8090/api/v1/testjob');
-  const response = await axios.get('https://192.168.0.150:8090/api/v1/testjob');
+  const response = await axios.get(`${API_URL}/api/v1/testjob`);
   console.log('API 응답:', response.data); // 응답 데이터를 로깅하여 구조 확인
   const items = response.data.response.body.items.item;
   if (Array.isArray(items)) {

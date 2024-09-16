@@ -3,14 +3,14 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const notice = ref(null);
 const route = useRoute();
 const noticeId = route.params.id;
 
 const fetchNoticeDetail = async () => {
   try {
-    // const response = await axios.get(`http://localhost:8090/api/v1/notice/${noticeId}`);
-    const response = await axios.get(`https://192.168.0.150:8090/api/v1/notice/${noticeId}`);
+    const response = await axios.get(`${API_URL}/api/v1/notice/${noticeId}`);
     notice.value = response.data;
   } catch (error) {
     console.error('공지사항을 가져오는 중 오류가 발생했습니다.', error);
@@ -19,8 +19,7 @@ const fetchNoticeDetail = async () => {
 
 const incrementViewCount = async () => {
   try {
-    // await axios.put(`http://localhost:8090/api/v1/notice/views/${noticeId}`);
-    await axios.put(`https://192.168.0.150:8090/api/v1/notice/views/${noticeId}`);
+    await axios.put(`${API_URL}/api/v1/notice/views/${noticeId}`);
     if (notice.value) {
       notice.value.noticeViews += 1;
     }

@@ -52,6 +52,7 @@ import axios from 'axios';
 import Header from '../header/header.vue';
 import Footer from '../footer/footer.vue';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
 const showModal = ref(false);
 const newPost = ref({
@@ -70,8 +71,7 @@ const closeModal = () => {
 
 const submitPost = async () => {
   try {
-    // const response = await axios.post('http://localhost:8090/api/v1/boards', newPost.value);
-    const response = await axios.post('https://192.168.0.150:8090/api/v1/boards', newPost.value);
+    const response = await axios.post(`${API_URL}/api/v1/boards`, newPost.value);
     console.log('게시글이 성공적으로 등록되었습니다:', response.data);
     closeModal();
     // 게시글 추가 후 게시판 목록으로 이동

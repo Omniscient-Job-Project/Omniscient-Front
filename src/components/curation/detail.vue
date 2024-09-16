@@ -74,6 +74,7 @@ const route = useRoute();
 const jobId = route.params.id;
 const jobDetail = ref(null);
 const isBookmarked = ref(false);
+const API_URL = import.meta.env.VITE_API_URL;
 
 const toggleBookmark = () => {
   isBookmarked.value = !isBookmarked.value;
@@ -113,8 +114,7 @@ const fetchJobData = async () => {
     let response;
     // 잡아바 API 호출
     try {
-      // response = await axios.get(`http://localhost:8090/api/v1/jobaba/jobinfo/${jobId}`);
-      response = await axios.get(`https://192.168.0.150:8090/api/v1/jobaba/jobinfo/${jobId}`);
+      response = await axios.get(`${API_URL}/api/v1/jobaba/jobinfo/${jobId}`);
       if (response.data.ENTRPRS_NM) {
         jobDetail.value = transformJobabaData(response.data);
         return;
@@ -126,8 +126,7 @@ const fetchJobData = async () => {
     }
 
     // 서울시 API 호출
-    // response = await axios.get(`https://localhost:8090/api/v1/seoul/jobinfo/${jobId}`);
-    response = await axios.get(`https://192.168.0.150:8090/api/v1/seoul/jobinfo/${jobId}`);
+    response = await axios.get(`${API_URL}/api/v1/seoul/jobinfo/${jobId}`);
     if (response.data.JO_REQST_NO) {
       jobDetail.value = transformSeoulData(response.data);
     } else {

@@ -62,6 +62,7 @@
 import { ref } from 'vue'
 import axios from 'axios'  // Axios 임포트
 
+const API_URL = import.meta.env.VITE_API_URL;
 const userId = ref('')
 const password = ref('')
 const username = ref('')
@@ -72,8 +73,7 @@ const email = ref('')
 
 const handleSubmit = async () => {
   try {
-    // const response = await axios.post('http://localhost:8090/api/v1/signup/post', {
-    const response = await axios.post('https://192.168.0.150:8090/api/v1/signup/post', {
+    const response = await axios.post(`${API_URL}/api/v1/signup/post`, {
       userId: userId.value,
       username: username.value,
       password: password.value,

@@ -58,7 +58,9 @@ import { ref, onMounted, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth'; // auth 스토어 임포트
+import FindAccountModal from './findAccount.vue'; // 모달 컴포넌트 import
 
+const API_URL = import.meta.env.VITE_API_URL;
 const emit = defineEmits();
 const userId = ref(''); // 사용자 아이디
 const password = ref(''); // 패스워드
@@ -68,8 +70,7 @@ const authStore = useAuthStore(); // Pinia auth 스토어 사용
 // 로그인 요청 처리
 const handleSubmit = async () => {
   try {
-    // const response = await axios.post('http://localhost:8090/api/v1/login/post', {
-    const response = await axios.post('https://192.168.0.150:8090/api/v1/login/post', {
+    const response = await axios.post(`${API_URL}/api/v1/login/post`, {
       userId: userId.value,
       password: password.value,
     });
@@ -106,8 +107,7 @@ const handleSubmit = async () => {
 // 토큰 갱신 함수
 const refreshAccessToken = async () => {
   try {
-    // const response = await axios.post('http://localhost:8090/api/v1/token/refresh', {
-    const response = await axios.post('https://192.168.0.150:8090/api/v1/token/refresh', {
+    const response = await axios.post(`${API_URL}/api/v1/token/refresh`, {
       refreshToken: localStorage.getItem('refreshToken'),
     });
     localStorage.setItem('token', response.data.accessToken);

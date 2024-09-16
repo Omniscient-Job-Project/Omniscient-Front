@@ -2,14 +2,14 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const faqs = ref([]);
 const selectedFaqId = ref(null); // To track the currently selected FAQ
 const incrementing = ref(false); // Track if a view increment is in progress
 
 const fetchFaqs = async () => {
   try {
-    // const response = await axios.get('http://localhost:8090/api/v1/faqs');
-    const response = await axios.get('https://192.168.0.150:8090/api/v1/faqs');
+    const response = await axios.get(`${API_URL}/api/v1/faqs`);
     faqs.value = response.data;
   } catch (error) {
     console.error('Error fetching FAQs:', error);
@@ -39,8 +39,7 @@ const incrementViewCount = async (id) => {
     incrementing.value = true;
     
     // Update the view count on the server
-    // await axios.put(`http://localhost:8090/api/v1/faqs/views/${id}`);
-    await axios.put(`https://192.168.0.150:8090/api/v1/faqs/views/${id}`);
+    await axios.put(`${API_URL}/api/v1/faqs/views/${id}`);
 
     // Update the local faq's view count
     const faq = faqs.value.find(faq => faq.id === id);
