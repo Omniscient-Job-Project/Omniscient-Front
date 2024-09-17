@@ -155,6 +155,7 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import { getChoseong } from "es-hangul";
 
+const API_URL = import.meta.env.VITE_API_URL;
 const searchTerm = ref("");
 const gradeCertificates = ref([]);
 const selectedCategory = ref("");
@@ -214,9 +215,7 @@ const fetchGradeCertificates = async () => {
             // grdCd 값을 로그에 출력
             console.log(`Fetching certificates for grdCd: ${grdCd}`);
 
-            // const response = await axios.get(`http://localhost:8090/api/v1/gradejob?grdCd=${grdCd}`);
-            const response = await axios.get(`https://192.168.0.150:8090/api/v1/gradejob?grdCd=${grdCd}`);
-
+            const response = await axios.get(`${API_URL}/api/v1/gradejob?grdCd=${grdCd}`);
             if (response.data && response.data.response && response.data.response.body) {
                 const items = response.data.response.body.items.item;
                 if (Array.isArray(items)) {

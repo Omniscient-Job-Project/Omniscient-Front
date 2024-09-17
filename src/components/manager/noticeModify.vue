@@ -35,6 +35,8 @@
 <script>
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default {
   data() {
     return {
@@ -58,8 +60,7 @@ export default {
     async fetchNotice() {
       if (this.noticeId) {
         try {
-          // const response = await axios.get(`http://localhost:8090/api/v1/notice/${this.noticeId}`);
-          const response = await axios.get(`https://192.168.0.150:8090/api/v1/notice/${this.noticeId}`);
+          const response = await axios.get(`${API_URL}/api/v1/notice/${this.noticeId}`);
           const notice = response.data;
           if (notice) {
             this.noticeTitle = notice.noticeTitle;
@@ -83,8 +84,7 @@ export default {
         };
 
         try {
-          // const response = await axios.put(`http://localhost:8090/api/v1/notice/update/${this.noticeId}`, updatedNotice, {
-          const response = await axios.put(`https://192.168.0.150:8090/api/v1/notice/update/${this.noticeId}`, updatedNotice, {
+          const response = await axios.put(`${API_URL}/api/v1/notice/update/${this.noticeId}`, updatedNotice, {
             headers: {
               'Content-Type': 'application/json'
             }

@@ -70,6 +70,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
 const jobs = ref([]);
 
@@ -88,8 +89,8 @@ const categories = [
 
 const fetchJobs = async () => {
   try {
-    const response1 = await axios.get('http://localhost:8090/api/v1/jobaba/jobinfo', { withCredentials: true });
-    const response2 = await axios.get('http://localhost:8090/api/v1/seoul/jobinfo', { withCredentials: true });
+    const response1 = await axios.get(`${API_URL}/api/v1/jobaba/jobinfo`, { withCredentials: true });
+    const response2 = await axios.get(`${API_URL}/api/v1/seoul/jobinfo`, { withCredentials: true });
     
     const jobsFromJobaba = response1.data.GGJOBABARECRUSTM.row.map(job => ({
       jobId: job.ENTRPRS_NM,

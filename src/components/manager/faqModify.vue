@@ -21,6 +21,7 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRoute, useRouter } from 'vue-router';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const route = useRoute();
 const router = useRouter();
 
@@ -28,8 +29,7 @@ const faq = ref({ question: '', answer: '' });
 
 const fetchFaq = async () => {
   try {
-    // const response = await axios.get(`http://localhost:8090/api/v1/faqs/${route.params.id}`);
-    const response = await axios.get(`https://192.168.0.150:8090/api/v1/faqs/${route.params.id}`);
+    const response = await axios.get(`${API_URL}/api/v1/faqs/${route.params.id}`);
     faq.value = response.data;
   } catch (error) {
     console.error('Error fetching FAQ:', error);
@@ -38,8 +38,7 @@ const fetchFaq = async () => {
 
 const updateFaq = async () => {
   try {
-    // const response = await axios.put(`http://localhost:8090/api/v1/faqs/update/${route.params.id}`, faq.value);
-    const response = await axios.put(`https://192.168.0.150:8090/api/v1/faqs/update/${route.params.id}`, faq.value);
+    const response = await axios.put(`${API_URL}/api/v1/faqs/update/${route.params.id}`, faq.value);
     console.log('FAQ updated:', response.data);
     router.push('/manager/faqList'); // 경로 확인
   } catch (error) {

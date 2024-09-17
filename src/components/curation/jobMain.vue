@@ -82,6 +82,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
 const searchTerm = ref('');
 const jobs = ref([]);
@@ -109,8 +110,7 @@ watch(bookmarks, saveBookmarks, { deep: true });
 const fetchJobs = async () => {
   try {
     // 경기도잡아바 API 호출
-    // const response1 = await axios.get('https://localhost:8090/api/v1/jobaba/jobinfo', { withCredentials: true });
-    const response1 = await axios.get('https://192.168.0.150:8090/api/v1/jobaba/jobinfo', { withCredentials: true });
+    const response1 = await axios.get(`${API_URL}/api/v1/jobaba/jobinfo`, { withCredentials: true });
     const jobData1 = response1.data.GGJOBABARECRUSTM.row;
     const jobsFromJobaba = jobData1.map(job => ({
       jobId: job.ENTRPRS_NM,  // 프론트엔드에서 사용하는 속성 이름을 백엔드 JSON 구조에 맞게 수정
@@ -122,8 +122,7 @@ const fetchJobs = async () => {
     }));
 
     // 서울시 채용 API 호출
-    const response2 = await axios.get('https//192.168.0.150:8090/api/v1/seoul/jobinfo', { withCredentials: true });
-    // const response2 = await axios.get('http//localhost:8090/api/v1/seoul/jobinfo', { withCredentials: true });
+    const response2 = await axios.get(`${API_URL}/api/v1/seoul/jobinfo`, { withCredentials: true });
     const jobData2 = response2.data.GetJobInfo.row;
     const jobsFromSeoul = jobData2.map(job => ({
       jobId: job.JO_REQST_NO,

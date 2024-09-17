@@ -75,7 +75,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
-// const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8090/api/v1/certificates';
+// const API_URL = import.meta.env.VITE_API_URL || 'http:localhost:8090/api/v1/certificates';
 const API_URL = import.meta.env.VITE_API_URL || 'https://192.168.0.150:8090/api/v1/certificates';
 console.log('API_URL:', API_URL);
 
