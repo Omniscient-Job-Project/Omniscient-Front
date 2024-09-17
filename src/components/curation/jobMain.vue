@@ -16,12 +16,13 @@
     </div>
 
     <!-- 큐레이션 -->
-    <div class="curation-index">
+    <!-- <div class="curation-index">
       <div class="curation-item"><i class="fas fa-home"></i><p>홈</p></div>
       <div class="curation-item"><i class="fas fa-certificate"></i><p>자격증</p></div>
       <div class="curation-item"><i class="fas fa-subway"></i><p>지하철</p></div>
       <div class="curation-item"><i class="fas fa-ellipsis-h"></i><p>등등</p></div>
-    </div>
+    </div> -->
+    <CurationIndex />
 
   
   <!-- 검색창 -->
@@ -81,6 +82,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import CurationIndex from '@/components/curation/curationIndex.vue';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
