@@ -2,22 +2,21 @@
   <div class="curation-main-container">
     <!-- 큐레이션 -->
     <div class="curation-index">
-      <div class="curation-item">
+      <router-link to="/certificates" class="curation-item">
         <i class="fas fa-certificate" style="color: #4caf50"></i>
-        <!-- 녹색: 자격증 -->
         <p>자격증</p>
-      </div>
-      <div class="curation-item">
+      </router-link>
+      <router-link to="/certificate" class="curation-item">
         <i class="fas fa-star" style="color: #ffc107"></i>
-        <!-- 금색: 상위종목 -->
         <p>상위종목</p>
-      </div>
-      <div class="curation-item">
+      </router-link>
+      <router-link to="/testJobs" class="curation-item">
         <i class="fas fa-calendar-alt" style="color: #2196f3"></i>
-        <!-- 파란색: 시험일정 -->
         <p>시험일정</p>
-      </div>
+      </router-link>
     </div>
+
+
 
     <!-- 자격증 정보 카드 -->
     <div class="recruitment-cards">
@@ -60,94 +59,104 @@
         </div>
       </div>
 
+
+
       <div class="row">
-  <div
-    v-for="gradecertificate in paginatedCertificates"
-    :key="gradecertificate.id"
-    class="col-md-3"
-  >
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">
-          <i class="fas fa-certificate" style="color: #4caf50"></i>
-          <!-- 녹색: 자격증 -->
-          {{ gradecertificate.jmNm }}
-        </h5>
-        <p class="card-text">
-          <i class="fas fa-building" style="color: #2196f3"></i>
-          <!-- 파란색: 기관 -->
-          기관: {{ gradecertificate.instiNm }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-trophy" style="color: #ff9800"></i>
-          <!-- 주황색: 등급 -->
-          등급: {{ gradecertificate.grdNm }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-chart-line" style="color: #673ab7"></i>
-          <!-- 보라색: 취득률 -->
-          자격증 취득률: {{ gradecertificate.preyyAcquQualIncRate }}%
-        </p>
-        <p class="card-text">
-          <i class="fas fa-chart-bar" style="color: #3f51b5"></i>
-          <!-- 파란색: 전년도 자격증 취득 수 -->
-          전년도 자격증 취득 수: {{ gradecertificate.preyyQualAcquCnt }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-chart-pie" style="color: #ff5722"></i>
-          <!-- 주황색: 총 자격증 취득 수 -->
-          총 자격증 취득 수: {{ gradecertificate.qualAcquCnt }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-calendar-alt" style="color: #009688"></i>
-          <!-- 청록색: 통계 연도 -->
-          통계 연도: {{ gradecertificate.statisYy }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-calendar-check" style="color: #8bc34a"></i>
-          <!-- 연두색: 합계 연도 -->
-          합계 연도: {{ gradecertificate.sumYy }}
-        </p>
+        <div
+          v-for="gradecertificate in paginatedCertificates"
+          :key="gradecertificate.id"
+          class="col-md-3"
+        >
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">
+                <i class="fas fa-certificate" style="color: #4caf50"></i>
+                <!-- 녹색: 자격증 -->
+                {{ gradecertificate.jmNm }}
+              </h5>
+              <p class="card-text">
+                <i class="fas fa-building" style="color: #2196f3"></i>
+                <!-- 파란색: 기관 -->
+                기관: {{ gradecertificate.instiNm }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-trophy" style="color: #ff9800"></i>
+                <!-- 주황색: 등급 -->
+                등급: {{ gradecertificate.grdNm }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-chart-line" style="color: #673ab7"></i>
+                <!-- 보라색: 취득률 -->
+                자격증 취득률: {{ gradecertificate.preyyAcquQualIncRate }}%
+              </p>
+              <p class="card-text">
+                <i class="fas fa-chart-bar" style="color: #3f51b5"></i>
+                <!-- 파란색: 전년도 자격증 취득 수 -->
+                전년도 자격증 취득 수: {{ gradecertificate.preyyQualAcquCnt }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-chart-pie" style="color: #ff5722"></i>
+                <!-- 주황색: 총 자격증 취득 수 -->
+                총 자격증 취득 수: {{ gradecertificate.qualAcquCnt }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-calendar-alt" style="color: #009688"></i>
+                <!-- 청록색: 통계 연도 -->
+                통계 연도: {{ gradecertificate.statisYy }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-calendar-check" style="color: #8bc34a"></i>
+                <!-- 연두색: 합계 연도 -->
+                합계 연도: {{ gradecertificate.sumYy }}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-    </div>
+
 
     <!-- 페이지네이션 -->
     <nav aria-label="Page navigation">
-  <ul class="pagination">
-    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-      <a
-        class="page-link"
-        href="#"
-        aria-label="Previous"
-        @click.prevent="changePage(currentPage - 1)"
-      >
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
-    <li
-      v-for="page in totalPages"
-      :key="page"
-      class="page-item"
-      :class="{ active: page === currentPage }"
-    >
-      <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-    </li>
-    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-      <a
-        class="page-link"
-        href="#"
-        aria-label="Next"
-        @click.prevent="changePage(currentPage + 1)"
-      >
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-  </ul>
-</nav>
+      <ul class="pagination">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <a
+            class="page-link"
+            href="#"
+            aria-label="Previous"
+            @click.prevent="changePage(currentPage - 1)"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li
+          v-for="page in totalPages"
+          :key="page"
+          class="page-item"
+          :class="{ active: page === currentPage }"
+        >
+          <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <a
+            class="page-link"
+            href="#"
+            aria-label="Next"
+            @click.prevent="changePage(currentPage + 1)"
+          >
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+
+
   </div>
+
+  
+
+
 </template>
 
 <script setup>
@@ -155,11 +164,12 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import { getChoseong } from "es-hangul";
 
-const API_URL = import.meta.env.VITE_API_URL;
 const searchTerm = ref("");
 const gradeCertificates = ref([]);
 const selectedCategory = ref("");
 const selectedGrade = ref(""); // 선택된 등급
+const testJobs = ref([]);
+const showTestJobs = ref(false);
 
 const filteredCertificates = computed(() => {
   let filtered = gradeCertificates.value;
@@ -212,10 +222,7 @@ const fetchGradeCertificates = async () => {
     // 개별 API 호출을 위한 비동기 함수
     const fetchCertificatesByGrade = async (grdCd) => {
         try {
-            // grdCd 값을 로그에 출력
-            console.log(`Fetching certificates for grdCd: ${grdCd}`);
-
-            const response = await axios.get(`${API_URL}/api/v1/gradejob?grdCd=${grdCd}`);
+            const response = await axios.get(`http://localhost:8090/api/v1/gradejob?grdCd=${grdCd}`);
             if (response.data && response.data.response && response.data.response.body) {
                 const items = response.data.response.body.items.item;
                 if (Array.isArray(items)) {
@@ -241,10 +248,37 @@ const fetchGradeCertificates = async () => {
     gradeCertificates.value = allCertificates.flat();
 };
 
-const applyFilters = () => {
-  currentPage.value = 1; // 필터 적용 시 페이지를 1로 초기화
-  fetchGradeCertificates(); // 필터링된 데이터를 가져오기 위해 API 호출
+
+// 시험 일정 데이터 호출
+const fetchTestJobs = async () => {
+  try {
+    const response = await axios.get("http://localhost:8090/api/v1/testjob");
+
+    // 응답 데이터 구조 확인
+    console.log("전체 응답 데이터:", response.data);
+
+    // 응답 데이터에서 items 추출
+    const items = response.data.response.body.items.item;
+
+    // items가 배열인지 확인
+    if (Array.isArray(items)) {
+      testJobs.value = items;
+      showTestJobs.value = true; // 시험 일정 표시
+    } else {
+      console.error("예상된 배열이 아닙니다:", items);
+      showTestJobs.value = false; // 오류 발생 시 표시 안 함
+    }
+
+    console.log("시험 일정 데이터:", testJobs.value);
+  } catch (error) {
+    console.error("시험 일정 정보를 가져오는 중 오류 발생:", error);
+    showTestJobs.value = false; // 오류 발생 시 표시 안 함
+  }
 };
+
+
+
+
 
 const changePage = (pageNumber) => {
   if (pageNumber >= 1 && pageNumber <= totalPages.value) {
@@ -255,6 +289,7 @@ const changePage = (pageNumber) => {
 // 페이지 로드 시 자격증 정보 가져오기
 onMounted(() => {
   fetchGradeCertificates();
+  fetchTestJobs();
 });
 </script>
 
@@ -440,6 +475,8 @@ body {
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-decoration: none; /* 링크의 밑줄 제거 */
+  color: inherit; /* 텍스트 색상 상속 */
 }
 
 .curation-item:hover {
@@ -456,6 +493,11 @@ body {
   margin: 0;
   font-size: 0.9rem;
   color: #555;
+  margin: 0; /* p 태그의 기본 여백 제거 */
+}
+
+.curation-item:hover {
+  text-decoration: none; /* 호버 상태에서도 밑줄 제거 */
 }
 
 .recruitment-cards {
@@ -607,6 +649,4 @@ body {
     width: 100%;
   }
 }
-
 </style>
-
