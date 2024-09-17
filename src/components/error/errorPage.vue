@@ -1,7 +1,7 @@
 <template>
     <div class="not-found">
       <div class="logo-container">
-        <img src="@/assets/logo.svg" alt="Logo" class="logo" />
+        <img src="../../assets/img/logo/omniscientLogo.png" alt="전독시" class="logo" />
       </div>
       <h1>원하시는 페이지를 찾을 수 없습니다.</h1>
       <p>
