@@ -29,7 +29,7 @@
           </section>
           <section class="terms-section">
             <h2 class="section-title">7. 문의</h2>
-            <p>약관에 대한 문의는 <a href="mailto:support@example.com">무한열차</a>으로 연락해 주세요.</p>
+            <p>약관에 대한 문의는 <a href="https://github.com/Omniscient-Job-Project">전직시</a>으로 연락해 주세요.</p>
           </section>
         </div>
       </transition>
