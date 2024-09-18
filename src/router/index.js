@@ -7,6 +7,7 @@ const BoardList = () => import("../components/board/boardList.vue");
 const PostDetail = () => import("../components/board/postDetail.vue");
 const PostForm = () => import("../components/board/postForm.vue");
 const Certificate = () => import("../views/certificateView.vue");
+const TestJobs = () => import("../views/testJobsView.vue");
 const CertificateSearch = () => import("../components/certificate/certificateSearch.vue");
 const Mypage = () => import("../components/mypage/mypage.vue");
 const Login = () => import("../views/loginView.vue");
@@ -108,6 +109,11 @@ const router = createRouter({
       path: '/certificate',
       name: 'certificate',
       component: Certificate
+    },
+    {
+      path: "/testJobs",
+      name: "testJobs",
+      component: TestJobs
     },
     {
       path: '/login',

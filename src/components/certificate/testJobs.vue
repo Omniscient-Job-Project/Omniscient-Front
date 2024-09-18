@@ -1,25 +1,20 @@
 <template>
     <div class="curation-main-container">
-      <!-- 큐레이션 -->
-      <div class="curation-index">
-        <div class="curation-main-container">
-      <!-- 큐레이션 -->
-      <div class="curation-index">
-        <router-link to="/certificates" class="curation-item">
-          <i class="fas fa-certificate" style="color: #4caf50"></i>
-          <p>자격증</p>
-        </router-link>
-        <router-link to="/certificate" class="curation-item">
-          <i class="fas fa-star" style="color: #ffc107"></i>
-          <p>상위종목</p>
-        </router-link>
-        <router-link to="/testJobs" class="curation-item">
-          <i class="fas fa-calendar-alt" style="color: #2196f3"></i>
-          <p>시험일정</p>
-        </router-link>
-      </div>
+        <!-- 큐레이션 -->
+        <div class="curation-index">
+          <router-link to="/certificates" class="curation-item">
+            <i class="fas fa-certificate" style="color: #4caf50"></i>
+            <p>자격증</p>
+          </router-link>
+          <router-link to="/certificate" class="curation-item">
+            <i class="fas fa-star" style="color: #ffc107"></i>
+            <p>상위종목</p>
+          </router-link>
+          <router-link to="/testJobs" class="curation-item">
+            <i class="fas fa-calendar-alt" style="color: #2196f3"></i>
+            <p>시험일정</p>
+          </router-link>
         </div>
-      </div>
   
   
       <!-- 자격증 정보 카드 -->
@@ -65,7 +60,6 @@
 
         <!-- 시험 일정 데이터 표시 -->
         <div v-if="showTestJobs" class="test-job-list">
-          <h2>시험 일정</h2>
           <ul>
             <li v-for="job in testJobs" :key="job.implSeq">
               <div>
@@ -155,6 +149,7 @@
   const testJobs = ref([]);
   const showTestJobs = ref(false);
   
+  // 자격증 필터링 로직
   const filteredCertificates = computed(() => {
     let filtered = gradeCertificates.value;
   
@@ -169,22 +164,15 @@
       });
     }
   
-    // 카테고리 필터
-    if (selectedCategory.value) {
-      filtered = filtered.filter(
-        (certificate) => certificate.grdCd === selectedCategory.value
-      );
-    }
-  
-    // 추가 필터: 선택된 등급
-    if (selectedGrade.value) {
-      filtered = filtered.filter(
-        (certificate) => certificate.grdNm === selectedGrade.value
-      );
-    }
-  
     return filtered;
   });
+  
+  // 시험 일정 필터링 및 페이지네이션 로직
+  const currentTestJobsPage = ref(1);
+  const itemsPerTestJobsPage = 10;
+  const totalTestJobsPages = computed(() =>
+    Math.ceil(testJobs.value.length / itemsPerTestJobsPage)
+  );
   
   const currentPage = ref(1);
   const itemsPerPage = 16;
@@ -192,272 +180,399 @@
     Math.ceil(filteredCertificates.value.length / itemsPerPage)
   );
   
-  const paginatedCertificates = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return filteredCertificates.value.slice(start, end);
-  });
-  
-  const paginatedTestJobs = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return testJobs.value.slice(start, end);
-  });
-  
-  // 필터링된 grdCds를 기반으로 자격증 데이터를 가져오는 함수
-  const fetchGradeCertificates = async () => {
-    // 필터링된 grdCd 배열 생성
-    const grdCds = selectedCategory.value ? [selectedCategory.value] : ["10", "20", "30", "31", "32", "33", "40"];
-    
-    // 개별 API 호출을 위한 비동기 함수
-    const fetchCertificatesByGrade = async (grdCd) => {
-      try {
-        const response = await axios.get(`http://localhost:8090/api/v1/gradejob?grdCd=${grdCd}`);
-        if (response.data && response.data.response && response.data.response.body) {
-          const items = response.data.response.body.items.item;
-          if (Array.isArray(items)) {
-            return items;
-          } else {
-            console.error(`아이템 배열이 예상되었으나, ${grdCd}에 대해 다음이 반환되었습니다:`, items);
-            return [];
-          }
-        } else {
-          console.error(`응답 데이터 구조가 예상과 일치하지 않습니다: ${grdCd}`, response.data);
-          return [];
-        }
-      } catch (error) {
-        console.error(`자격증 정보를 가져오는 중 오류 발생 (${grdCd}):`, error);
-        return [];
-      }
-    };
-  
-    // 모든 grdCd 값에 대해 비동기 호출을 수행
-    const allCertificates = await Promise.all(grdCds.map(fetchCertificatesByGrade));
-  
-    // 모든 결과를 하나의 배열로 결합
-    gradeCertificates.value = allCertificates.flat();
-  };
-  
   // 시험 일정 데이터 호출
   const fetchTestJobs = async () => {
     try {
       const response = await axios.get("http://localhost:8090/api/v1/testjob");
   
-      // 응답 데이터 구조 확인
-      console.log("전체 응답 데이터:", response.data);
-  
-      // 응답 데이터에서 items 추출
       const items = response.data.response.body.items.item;
-  
-      // items가 배열인지 확인
       if (Array.isArray(items)) {
         testJobs.value = items;
-        showTestJobs.value = true; // 시험 일정 표시
+        showTestJobs.value = true;
       } else {
         console.error("예상된 배열이 아닙니다:", items);
-        showTestJobs.value = false; // 오류 발생 시 표시 안 함
+        showTestJobs.value = false;
       }
-  
-      console.log("시험 일정 데이터:", testJobs.value);
     } catch (error) {
       console.error("시험 일정 정보를 가져오는 중 오류 발생:", error);
-      showTestJobs.value = false; // 오류 발생 시 표시 안 함
+      showTestJobs.value = false;
     }
   };
   
-  // 페이지 번호 변경 함수
+  // 페이지 변경 함수 (자격증 및 시험 일정)
   const changePage = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages.value) {
       currentPage.value = pageNumber;
     }
   };
   
-  // 페이지 로드 시 자격증 정보와 시험 일정 가져오기
+  const changeTestJobsPage = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalTestJobsPages.value) {
+      currentTestJobsPage.value = pageNumber;
+    }
+  };
+  
+  // 페이지 로드 시 자격증 및 시험 일정 정보 가져오기
   onMounted(() => {
-    fetchGradeCertificates();
     fetchTestJobs();
   });
   </script>
   
   
   
+  
   <style scoped>
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+  @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+  
+  body {
+    background-color: #e6f3ff;
+    color: #333;
+    font-family: "Arial", sans-serif;
+  }
+  
+  .curation-main-container {
+    margin: 2rem auto;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    box-sizing: border-box;
+    width: 95%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+  }
+  
+  .info-search-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background-color: #f9f9f9; /* 밝은 배경 */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .section-title {
+    flex: 1;
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    width: 50%;
+    text-align: left;
+    padding-left: 10px;
+    border-left: 5px solid #0166ff;
+    display: flex;
+    align-items: center;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .search-box:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-input-box::placeholder {
+    color: #999;
+  } 
+  
+  .input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .search-input-box {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+  }
+  
+  .search-icon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+  }
+  
+  
+  /* 필터링 섹션 스타일 */
+  .filter-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .filter-section label {
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .filter-section select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #fff;
+    color: #333;
+    transition: border-color 0.3s ease;
+  }
+  
+  .filter-section select:focus {
+    border-color: #333;
+  }
+  
+  .select-container,
+  .curation-index {
+    width: 100%;
+    background-color: #ffffff;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+  }
+  
+  .select-container:hover,
+  .curation-index:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .select p {
+    margin-top: 10px;
+    text-align: center;
+    color: #555;
+  }
+  
+  .input-group {
+    margin-bottom: 1rem;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .btn-primary {
+    background-color: #0166ff;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+  }
+  
+  .curation-index {
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem;
+  }
+  
+  .curation-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none; /* 링크의 밑줄 제거 */
+    color: inherit; /* 텍스트 색상 상속 */
+  }
+  
+  .curation-item:hover {
+    transform: translateY(-3px);
+  }
+  
+  .curation-item i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #0166ff;
+  }
+  
+  .curation-item p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .recruitment-cards {
+    width: 100%;
+  }
+  
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -15px;
+  }
+  
+  .col-md-3 {
+    width: 25%;
+    padding: 15px;
+    box-sizing: border-box;
+  }
+  
+  .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+    position: relative;
+  }
+  
+  .bookmark-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    z-index: 10;
+  }
+  
+  .bookmark-icon i {
+    color: #b0c4de;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+  }
+  
+  .bookmark-icon i:hover {
+    transform: scale(1.1);
+  }
+  
+  .bookmark-icon i.bookmarked {
+    color: #ffd700;
+  }
+  
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+  
+  .card-text {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: #34495e;
+    display: flex;
+    align-items: center;
+  }
+  
+  .card-text i {
+    margin-right: 0.5rem;
+    width: 20px;
+    text-align: center;
+  }
+  
+  .card-text.company i {
+    color: #3498db;
+  }
+  .card-text.location i {
+    color: #e74c3c;
+  }
+  .card-text.career i {
+    color: #2ecc71;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+  }
+  
+  .page-item {
+    margin: 0 5px;
+  }
+  
+  .page-link {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid #0166ff;
+    color: #0166ff;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .page-link:hover {
+    background-color: #0166ff;
+    color: white;
+  }
+  
+  .page-item.active .page-link {
+    background-color: #0166ff;
+    color: white;
+  }
+  
+  .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+  }
+  
+  @media (max-width: 1200px) {
+    .col-md-3 {
+      width: 33.33%;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .col-md-3 {
+      width: 50%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .curation-main-container {
+      width: 100%;
+      padding: 1rem;
+    }
+    .col-md-3 {
+      width: 100%;
+    }
+  }
 
-body {
-  background-color: #e6f3ff;
-  color: #333;
-  font-family: "Arial", sans-serif;
-}
-
-/* 큐레이션 컨테이너 */
-.curation-main-container {
-  margin: 2rem auto;
-  background-color: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  padding: 2rem;
-  box-sizing: border-box;
-  width: 95%;
-  max-width: 1400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
-}
-
-/* 큐레이션 인덱스 */
-.curation-index {
-  display: flex;
-  justify-content: space-around;
-  padding: 1rem;
-  width: 100%;
-  background-color: #ffffff;
-  border: none;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  border-radius: 15px;
-  transition: all 0.3s ease;
-}
-
-.curation-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none; /* 링크의 밑줄 제거 */
-  color: inherit; /* 텍스트 색상 상속 */
-}
-
-.curation-item:hover {
-  transform: translateY(-3px);
-  text-decoration: none; /* 호버 상태에서도 밑줄 제거 */
-}
-
-.curation-item i {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.curation-item p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #555;
-  margin: 0; /* p 태그의 기본 여백 제거 */
-}
-
-/* 자격증 정보 카드 */
-.recruitment-cards {
-  width: 100%;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.3s ease;
-}
-
-.search-box:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.search-input-box::placeholder {
-  color: #999;
-}
-
-.input-wrapper {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.search-input-box {
-  flex-grow: 1;
-  padding: 8px 12px;
-  border: none;
-  outline: none;
-  font-size: 16px;
-}
-
-.search-icon {
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-}
-
-/* 필터링 섹션 */
-.filter-section {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.filter-section label {
-  font-size: 16px;
-  color: #555;
-}
-
-.filter-section select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-  background-color: #fff;
-  color: #333;
-  transition: border-color 0.3s ease;
-}
-
-.filter-section select:focus {
-  border-color: #333;
-}
-
-/* 페이지네이션 */
-.pagination {
-  display: flex;
-  justify-content: center;
-  list-style: none;
-  padding: 0;
-  margin-top: 2rem;
-}
-
-.page-item {
-  margin: 0 5px;
-}
-
-.page-link {
-  display: block;
-  padding: 8px 12px;
-  border: 1px solid #0166ff;
-  color: #0166ff;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.page-link:hover {
-  background-color: #0166ff;
-  color: white;
-}
-
-.page-item.active .page-link {
-  background-color: #0166ff;
-  color: white;
-}
-
-.page-item.disabled .page-link {
-  color: #6c757d;
-  pointer-events: none;
-  background-color: #fff;
-  border-color: #dee2e6;
-}
-
-/* 시험 일정 데이터 표시 */
+  /* 시험 일정 데이터 표시 스타일 */
 .test-job-list {
   padding: 20px;
 }
@@ -501,28 +616,13 @@ body {
 }
 
 /* 반응형 디자인 */
-@media (max-width: 1200px) {
-  .col-md-3 {
-    width: 33.33%;
-  }
-}
-
-@media (max-width: 992px) {
-  .col-md-3 {
-    width: 50%;
-  }
-}
-
 @media (max-width: 768px) {
-  .curation-main-container {
-    width: 100%;
-    padding: 1rem;
+  .test-job-list {
+    padding: 15px;
   }
-  
-  .col-md-3 {
-    width: 100%;
+
+  .test-job-list li {
+    padding: 10px;
   }
 }
-
   </style>
-  
