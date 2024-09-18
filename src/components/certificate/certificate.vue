@@ -168,8 +168,6 @@ const searchTerm = ref("");
 const gradeCertificates = ref([]);
 const selectedCategory = ref("");
 const selectedGrade = ref(""); // 선택된 등급
-const testJobs = ref([]);
-const showTestJobs = ref(false);
 
 const filteredCertificates = computed(() => {
   let filtered = gradeCertificates.value;
@@ -248,38 +246,6 @@ const fetchGradeCertificates = async () => {
     gradeCertificates.value = allCertificates.flat();
 };
 
-
-// 시험 일정 데이터 호출
-const fetchTestJobs = async () => {
-  try {
-    const response = await axios.get("http://localhost:8090/api/v1/testjob");
-
-    // 응답 데이터 구조 확인
-    console.log("전체 응답 데이터:", response.data);
-
-    // 응답 데이터에서 items 추출
-    const items = response.data.response.body.items.item;
-
-    // items가 배열인지 확인
-    if (Array.isArray(items)) {
-      testJobs.value = items;
-      showTestJobs.value = true; // 시험 일정 표시
-    } else {
-      console.error("예상된 배열이 아닙니다:", items);
-      showTestJobs.value = false; // 오류 발생 시 표시 안 함
-    }
-
-    console.log("시험 일정 데이터:", testJobs.value);
-  } catch (error) {
-    console.error("시험 일정 정보를 가져오는 중 오류 발생:", error);
-    showTestJobs.value = false; // 오류 발생 시 표시 안 함
-  }
-};
-
-
-
-
-
 const changePage = (pageNumber) => {
   if (pageNumber >= 1 && pageNumber <= totalPages.value) {
     currentPage.value = pageNumber;
@@ -289,7 +255,6 @@ const changePage = (pageNumber) => {
 // 페이지 로드 시 자격증 정보 가져오기
 onMounted(() => {
   fetchGradeCertificates();
-  fetchTestJobs();
 });
 </script>
 
@@ -345,6 +310,7 @@ body {
   display: flex;
   align-items: center;
 }
+
 .search-box {
   display: flex;
   align-items: center;
@@ -494,10 +460,6 @@ body {
   font-size: 0.9rem;
   color: #555;
   margin: 0; /* p 태그의 기본 여백 제거 */
-}
-
-.curation-item:hover {
-  text-decoration: none; /* 호버 상태에서도 밑줄 제거 */
 }
 
 .recruitment-cards {

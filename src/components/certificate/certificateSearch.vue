@@ -76,6 +76,8 @@
     { id: 5, name: '컴퓨터활용능력' },
   ];
   
+
+
   const filteredResults = computed(() => {
     if (!searchTerm.value) return [];
     return dataList.filter(item =>
