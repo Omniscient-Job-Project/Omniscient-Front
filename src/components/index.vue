@@ -75,7 +75,7 @@ const router = useRouter();
 const jobs = ref([]);
 
 const currentPage = ref(1);
-const itemsPerPage = 16;
+const itemsPerPage = 21;
 const searchTerm = ref('');
 
 const categories = [
@@ -190,9 +190,10 @@ onMounted(() => {
 
 .main-container {
   font-family: 'Roboto', sans-serif;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 20px;
+  padding: 40px;
   background-color: #f8f9fa;
 }
 
@@ -228,23 +229,24 @@ onMounted(() => {
 
 .hero {
   text-align: center;
-  padding: 80px 40px;
+  padding: 100px 60px;
   background: linear-gradient(135deg, #f0f4f8 0%, #d9e6f2 100%);
   color: #2c3e50;
   border-radius: 15px;
-  margin: 40px 0;
+  margin: 60px 0;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .hero-title {
-  font-size: 42px;
+  font-size: 48px;
   font-weight: 700;
   margin-bottom: 20px;
   color: #34495e;
 }
 
 .hero-subtitle {
-  font-size: 20px;
+  font-size: 24px;
+  max-width: 800px;
   margin-bottom: 40px;
   color: #5d6d7e;
   max-width: 600px;
@@ -256,7 +258,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   gap: 15px;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -301,8 +303,8 @@ onMounted(() => {
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
 }
 
 .category-item {
@@ -342,8 +344,8 @@ onMounted(() => {
 
 .job-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
 }
 
 .job-card {
@@ -354,6 +356,7 @@ onMounted(() => {
   transition: transform 0.3s ease;
   position: relative;
   border: 1px solid #e9ecef;
+  padding: 30px;
 }
 
 .job-card:hover {
@@ -367,14 +370,14 @@ onMounted(() => {
 }
 
 .job-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   margin-bottom: 10px;
   color: #212529;
 }
 
 .company-name, .job-location, .job-career {
-  font-size: 14px;
+  font-size: 16px;
   color: #6c757d;
   margin-bottom: 5px;
 }
@@ -474,7 +477,7 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .main-container {
-    padding: 10px;
+    padding: 30px;
   }
 
   .header {
@@ -482,17 +485,20 @@ onMounted(() => {
     align-items: flex-start;
   }
 
+  .hero {
+    padding: 80px 40px;
+  }
   .main-nav {
     margin-top: 20px;
     flex-wrap: wrap;
   }
 
   .hero-title {
-    font-size: 28px;
+    font-size: 36px;
   }
 
   .hero-subtitle {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .search-bar {
