@@ -50,25 +50,61 @@
         </div>
       </div>
     </div>
+
+<!-- 개선된 모달 컴포넌트 -->
+<div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <h3><i :class="modalIcon"></i> {{ modalTitle }}</h3>
+        <p>{{ modalMessage }}</p>
+        <div class="modal-actions">
+          <button @click="closeModal" class="confirm-button">
+            <i class="fas fa-check"></i> 확인
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-
-  
-
 </template>
 
 <script setup>
-import { ref, onMounted, defineEmits } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 import FindAccountModal from './findAccount.vue';
 
 const API_URL = import.meta.env.VITE_API_URL;
-const emit = defineEmits();
 const userId = ref('');
 const password = ref('');
 const router = useRouter();
 const authStore = useAuthStore();
+const modalConfirmAction = ref(null);
+
+// 모달 관련 상태
+const showModal = ref(false);
+const modalTitle = ref('');
+const modalMessage = ref('');
+const modalIcon = ref('');
+
+// 모달 열기 함수
+const openModal = (title, message, icon = 'fas fa-info-circle', onConfirm = null) => {
+  modalTitle.value = title;
+  modalMessage.value = message;
+  modalIcon.value = icon;
+  showModal.value = true;
+  if (onConfirm) {
+    modalConfirmAction.value = onConfirm;
+  }
+};
+
+// 모달 닫기 함수
+const closeModal = () => {
+  showModal.value = false;
+  if (modalConfirmAction.value) {
+    modalConfirmAction.value();
+    modalConfirmAction.value = null;
+  }
+};
 
 // 로그인 요청 처리
 const handleSubmit = async () => {
@@ -89,8 +125,10 @@ const handleSubmit = async () => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       authStore.login(accessToken);
       console.log('로그인 상태:', authStore.isLoggedIn);
-      alert('로그인 성공!');
-      router.push('/');
+      openModal('로그인 성공', '로그인에 성공했습니다!', 'fas fa-check-circle');
+      setTimeout(() => {
+        router.push('/');
+      }, 1500);
     }
   } catch (error) {
     console.error('로그인 오류:', error);
@@ -108,18 +146,17 @@ const handleSubmit = async () => {
         errorMessage = error.response.data.error;
       }
       
-      alert(`로그인 실패: ${errorMessage}`);
+      openModal('로그인 실패', `로그인 실패: ${errorMessage}`, 'fas fa-exclamation-circle');
     } else if (error.request) {
       console.error('Request:', error.request);
-      alert('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+      openModal('연결 오류', '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.', 'fas fa-wifi');
     } else {
       console.error('Error message:', error.message);
-      alert('로그인 처리 중 오류가 발생했습니다.');
+      openModal('오류', '로그인 처리 중 오류가 발생했습니다.', 'fas fa-exclamation-triangle');
     }
   }
 };
 
-// 토큰 갱신 함수
 const refreshAccessToken = async () => {
   try {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -136,21 +173,14 @@ const refreshAccessToken = async () => {
 
 // 로그아웃 처리
 const logout = () => {
-  // 로그아웃 확인 창 표시
-  const confirmation = confirm('정말 로그아웃 하시겠습니까?');
-
-  if (confirmation) {
-    // 사용자가 확인을 누른 경우 로그아웃 진행
+  openModal('로그아웃 확인', '정말 로그아웃 하시겠습니까?', 'fas fa-sign-out-alt', () => {
+    // 실제 로그아웃 처리
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     delete axios.defaults.headers.common['Authorization'];
-    authStore.logout();  // Pinia 스토어 업데이트
-    alert('로그아웃 되었습니다.');  // 로그아웃 성공 알림 추가
+    authStore.logout();
     router.push('/login');
-  } else {
-    // 사용자가 취소를 누른 경우 로그아웃 취소
-    alert('로그아웃이 취소되었습니다.');
-  }
+  });
 };
 
 // Axios 요청 인터셉터 설정
@@ -191,7 +221,7 @@ onMounted(() => {
     console.log('토큰이 존재하여 로그인 상태로 설정됨');
   } else {
     console.log('토큰이 없음, 로그아웃 상태');
-    alert('Welcome to 전직시! 로그인 해주세요.');
+    openModal('환영합니다', 'Welcome to 전직시! 로그인 해주세요.');
   }
   console.log('초기 로그인 상태:', authStore.isLoggedIn);
 });
@@ -204,8 +234,6 @@ const openFindAccountModal = () => {
   }
 };
 </script>
-
-
 
 <style>
 .auth-container {
@@ -306,5 +334,83 @@ text-decoration: none; /* 호버 시에도 밑줄 없음 */
 .image-content h2 {
 font-size: 36px;
 margin-bottom: 20px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 50px;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  color: #007bff;
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+.modal-content p {
+  font-size: 20px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.confirm-button {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #28a745;
+  color: white;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 40px;
+  }
+
+  .modal-content h3 {
+    font-size: 28px;
+  }
+
+  .modal-content p {
+    font-size: 18px;
+  }
+
+  .confirm-button {
+    padding: 12px 24px;
+    font-size: 18px;
+  }
 }
 </style>
