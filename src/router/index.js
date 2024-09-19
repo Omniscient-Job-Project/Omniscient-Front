@@ -1,22 +1,40 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 // 기본 뷰 및 컴포넌트
+
+// 메인 페이지
 const Main = () => import("../views/indexView.vue");
+
+// 채용 페이지
 const Curation = () => import("../views/curationView.vue");
+
+// 자유 게시판 페이지
 const BoardList = () => import("../components/board/boardList.vue");
 const PostDetail = () => import("../components/board/postDetail.vue");
 const PostForm = () => import("../components/board/postForm.vue");
+
+// 자격증 페이지
 const Certificate = () => import("../views/certificateView.vue");
 const TestJobs = () => import("../views/testJobsView.vue");
-const CertificateSearch = () => import("../components/certificate/certificateSearch.vue");
-const Mypage = () => import("../components/mypage/mypage.vue");
+const ExamLocations = () => import("../views/examLocationsView.vue");
+
+
+// 로그인 & 로그아웃 페이지
 const Login = () => import("../views/loginView.vue");
 const Signup = () => import("../views/signUp.vue");
+
+
+const Mypage = () => import("../components/mypage/mypage.vue");
 const ProfilePage = () => import("../components/mypage/profilePage.vue");
+
+// 공지사항 페이지
 const NoticeMainV = () => import("../views/noticeMainV.vue");
 const NoticeMain = () => import("../components/notice/noticeMain.vue");
 const NoticeFAQ = () => import("../components/notice/noticeFAQ.vue");
 const NoticeDetail = () => import("../components/notice/noticeDetail.vue");
+
+
+// 관리자 페이지
 const Manager = () => import("../views/managerMainV.vue");
 const ManagerMain = () => import("../components/manager/managerMain.vue");
 const ManagerFAQ = () => import("../views/managerFaq.vue");
@@ -27,22 +45,34 @@ const ManagerFAQPost = () => import("../components/manager/faqPost.vue");
 const ManagerFAQModify = () => import("../components/manager/faqModify.vue");
 const ManagerNoticeModify = () => import("../components/manager/noticeModify.vue");
 const ManagerNoticePost = () => import("../components/manager/noticePost.vue");
+
+
+// 마이페이지
 const MyHome = () => import("../components/mypage/myhome.vue");
 const ResumeManagementPage = () => import("../components/mypage/resumeManagementPage.vue");
 const ApplicationsPageComponent = () => import("../components/mypage/applicationsPageComponent.vue");
 const ScrapPage = () => import("../components/mypage/scrapPage.vue");
 const CertificatesPage = () => import("../components/mypage/certificatesPage.vue");
+
+// 에러 페이지
 const Error = () => import("../views/errorView.vue");
+
+// 이용약관 페이지
 const Terms = () => import("../views/termsView.vue");
  
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+
+    // 홈
     { 
       path: '/',
       name: 'home',
       component: Main
     },
+
+
+    // 자유게시판 페이지
     {
       path: '/board/:category?',
       name: 'boardList',
@@ -58,6 +88,9 @@ const router = createRouter({
       name: 'postForm',
       component: PostForm,
     },
+
+
+    // 마이페이지
     {
       path: '/mypage',
       name: 'mypage',
@@ -95,6 +128,9 @@ const router = createRouter({
         }
       ]
     },
+
+
+    // 채용 페이지
     {
       path: '/curation',
       name: 'curation',
@@ -105,6 +141,9 @@ const router = createRouter({
       name: 'curationDetail',
       component: Curation
     },
+
+
+    // 자격증 페이지
     {
       path: '/certificate',
       name: 'certificate',
@@ -116,6 +155,14 @@ const router = createRouter({
       component: TestJobs
     },
     {
+      path: '/examLocations',
+      name: 'examLocations',
+      component : ExamLocations
+    },
+
+
+    // 로그인 & 로그아웃 페이지
+    {
       path: '/login',
       component: Login
     },
@@ -123,6 +170,9 @@ const router = createRouter({
       path: '/signUp',
       component: Signup
     },
+
+
+    // 공지사항 페이지
     {
       path: '/notice',
       component: NoticeMainV,
@@ -146,6 +196,9 @@ const router = createRouter({
         }
       ]
     },
+
+
+    // 관리자 페이지
     {
       path: '/manager',
       name: 'manager',
@@ -193,11 +246,16 @@ const router = createRouter({
 
       ]
     },
+
+    
+    // 에러 페이지
     {
       path: '/:pathMatch(.*)*',
       name: 'Error',
       component: Error
     },
+
+    // 이용약관 페이지
     {
       path: '/terms',
       name: 'terms',
