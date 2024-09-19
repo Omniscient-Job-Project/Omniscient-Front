@@ -2,8 +2,8 @@
   <div class="main-container">
     <!-- 히어로 섹션 -->
     <section class="hero">
-    <h2 class="hero-title">당신의 꿈을 위한 첫걸음</h2>
-    <p class="hero-subtitle">수천 개의 채용 정보에서 당신에게 맞는 직업을 찾아보세요</p>
+    <h2 class="hero-title">당신의 내일이 더 빛날 수 있도록, 오늘부터 시작하세요</h2>
+    <p class="hero-subtitle">수천 개의 채용 정보 중 당신에게 딱 맞는 직업을 함께<br>찾아드리겠습니다.</p>
     <div class="search-bar">
       <input type="text" v-model="searchTerm" placeholder="직무, 회사, 키워드 검색" class="search-input" @input="searchJobs">
       <button @click="searchJobs" class="search-button">
