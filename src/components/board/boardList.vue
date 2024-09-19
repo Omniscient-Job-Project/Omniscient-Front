@@ -160,7 +160,7 @@ const formatDate = (dateString) => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f4f7f6;
+  background-color: #e6f2ff;
 }
 
 .board-container {
@@ -170,6 +170,9 @@ const formatDate = (dateString) => {
   margin: 30px auto;
   padding: 20px;
   box-sizing: border-box;
+  background-color: #ffffff; /* 보드 컨테이너에 흰색 배경 추가 */
+  border-radius: 12px; /* 모서리 둥글게 */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 그림자 효과 추가 */
 }
 
 .notice-container {

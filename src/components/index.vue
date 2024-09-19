@@ -236,7 +236,6 @@ onMounted(() => {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-
 .hero-title {
   font-size: 42px;
   font-weight: 700;
@@ -288,7 +287,6 @@ onMounted(() => {
   transform: translateY(-2px);
 }
 
-
 .section-title {
   font-size: 24px;
   color: #212529;
@@ -313,19 +311,33 @@ onMounted(() => {
   align-items: center;
   padding: 20px;
   background-color: white;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .category-item:hover {
   transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .category-item i {
-  font-size: 24px;
-  color: #0166FF;
+  font-size: 28px;
   margin-bottom: 10px;
+}
+
+.category-item:nth-child(1) i { color: #3498db; }
+.category-item:nth-child(2) i { color: #e74c3c; }
+.category-item:nth-child(3) i { color: #f39c12; }
+.category-item:nth-child(4) i { color: #2ecc71; }
+.category-item:nth-child(5) i { color: #9b59b6; }
+.category-item:nth-child(6) i { color: #1abc9c; }
+
+.category-item span {
+  font-weight: 500;
+  color: #333;
+  margin-top: 10px;
 }
 
 .job-grid {
@@ -341,10 +353,12 @@ onMounted(() => {
   overflow: hidden;
   transition: transform 0.3s ease;
   position: relative;
+  border: 1px solid #e9ecef;
 }
 
 .job-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .job-card-content {
@@ -365,10 +379,15 @@ onMounted(() => {
   margin-bottom: 5px;
 }
 
-.company-name i, .job-location i, .job-career i {
-  margin-right: 5px;
-  color: #0166FF;
+/* 새로운 job-card 아이콘 스타일 */
+.job-card-content i {
+  font-size: 16px;
+  margin-right: 8px;
 }
+
+.company-name i { color: #3498db; }
+.job-location i { color: #e74c3c; }
+.job-career i { color: #2ecc71; }
 
 .bookmark-btn {
   position: absolute;
@@ -377,8 +396,15 @@ onMounted(() => {
   background: none;
   border: none;
   font-size: 20px;
-  color: #ffc107;
   cursor: pointer;
+}
+
+.bookmark-btn i {
+  color: #95a5a6;
+}
+
+.bookmark-btn.bookmarked {
+  color: #f1c40f; /* 북마크된 상태의 색상 */
 }
 
 .pagination {
@@ -387,6 +413,7 @@ onMounted(() => {
   align-items: center;
   margin-top: 40px;
 }
+
 .page-btn {
   padding: 10px 15px;
   background-color: #0166FF;
@@ -434,34 +461,6 @@ onMounted(() => {
 .page-info {
   margin: 0 20px;
   font-weight: 500;
-}
-
-.stats {
-  background-color: white;
-  border-radius: 10px;
-  padding: 40px;
-  margin: 40px 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 40px;
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 36px;
-  font-weight: 700;
-  color: #0166FF;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.stat-label {
-  font-size: 16px;
-  color: #495057;
 }
 
 .footer {
@@ -513,119 +512,8 @@ onMounted(() => {
   .job-grid {
     grid-template-columns: 1fr;
   }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
-@media (max-width: 768px) {
-  .hero {
-    padding: 60px 20px;
-  }
-
-  .hero-title {
-    font-size: 32px;
-  }
-
-  .hero-subtitle {
-    font-size: 18px;
-  }
-
-  .search-bar {
-    flex-direction: column;
-  }
-
-  .search-input, .search-button {
-    width: 100%;
-  }
-}
-
-/* 추가적인 스타일 개선 */
-.job-card {
-  border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
-}
-
-.job-card:hover {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.search-input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(1, 102, 255, 0.2);
-}
-
-.nav-item {
-  position: relative;
-}
-
-.nav-item::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  bottom: -5px;
-  left: 0;
-  background-color: #0166FF;
-  visibility: hidden;
-  transform: scaleX(0);
-  transition: all 0.3s ease-in-out;
-}
-
-.nav-item:hover::after {
-  visibility: visible;
-  transform: scaleX(1);
-}
-
-.category-item {
-  cursor: pointer;
-}
-
-.category-item:hover i {
-  transform: scale(1.2);
-  transition: transform 0.3s ease;
-}
-
-.stat-item {
-  position: relative;
-}
-
-.stat-item::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 2px;
-  background-color: #0166FF;
-}
-
-/* 애니메이션 효과 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-.hero, .job-card, .category-item, .stat-item {
-  animation: fadeIn 1s ease-out;
-}
-
-/* 접근성 개선 */
-.search-input:focus, .search-button:focus, .page-btn:focus {
-  outline: 2px solid #0166FF;
-  outline-offset: 2px;
-}
-
-/* 다크 모드 지원 (선택적) */
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #121212;
@@ -645,7 +533,7 @@ onMounted(() => {
     color: #e0e0e0;
   }
 
-  .job-card, .category-item, .stats {
+  .job-card, .category-item {
     background-color: #252525;
     border-color: #333;
   }
@@ -659,16 +547,21 @@ onMounted(() => {
     color: #e0e0e0;
   }
 
-  .stat-number {
-    color: #33a1fd;
+  .category-item span {
+    color: #ecf0f1;
   }
 
-  .page-numbers {
-    display: none;
+  /* 다크 모드에서의 job-card 아이콘 색상 */
+  .company-name i { color: #5dade2; }
+  .job-location i { color: #ec7063; }
+  .job-career i { color: #58d68d; }
+  
+  .bookmark-btn i {
+    color: #bdc3c7;
   }
-
-  .pagination {
-    justify-content: space-between;
+  
+  .bookmark-btn i.bookmarked {
+    color: #f4d03f;
   }
 }
 </style>
