@@ -38,11 +38,17 @@ const isLoggedIn = computed(() => authStore.isLoggedIn);
 
 const handleAuth = () => {
   if (authStore.isLoggedIn) {
-    authStore.logout(); // 로그아웃 처리
-    console.log('로그인 상태:', authStore.isLoggedIn); // 여기 추가
-    router.push('/login');
+    // 로그아웃 확인창 띄우기
+    const confirmation = confirm('정말 로그아웃 하시겠습니까?');
+    
+    if (confirmation) {
+      authStore.logout(); // 로그아웃 처리
+      console.log('로그아웃 처리 완료');
+      router.push('/login'); // 로그아웃 후 로그인 페이지로 이동
+    } else {
+      console.log('로그아웃 취소');
+    }
   } else {
-    console.log('로그인 상태:', authStore.isLoggedIn); // 여기 추가
     router.push('/login'); // 로그인 페이지로 이동
   }
 };
