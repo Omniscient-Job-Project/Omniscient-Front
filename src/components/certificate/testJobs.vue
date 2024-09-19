@@ -92,131 +92,134 @@
       </div>
   
   
-      <!-- 페이지네이션 -->
-      <nav aria-label="Page navigation">
-        <ul class="pagination">
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <a
-              class="page-link"
-              href="#"
-              aria-label="Previous"
-              @click.prevent="changePage(currentPage - 1)"
-            >
-              <span aria-hidden="true">&laquo;</span>
-            </a>
-          </li>
-          <li
-            v-for="page in totalPages"
-            :key="page"
-            class="page-item"
-            :class="{ active: page === currentPage }"
-          >
-            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-          </li>
-          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-            <a
-              class="page-link"
-              href="#"
-              aria-label="Next"
-              @click.prevent="changePage(currentPage + 1)"
-            >
-              <span aria-hidden="true">&raquo;</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-  
-  
-
-  
-  
+    <!-- 페이지네이션 -->
+    <div class="pagination">
+      <button @click="goToTestJobsPage(1)" :disabled="currentTestJobsPage === 1" class="page-btn">
+          <i class="fas fa-angle-double-left"></i>
+      </button>
+      <button @click="prevTestJobsPage" :disabled="currentTestJobsPage === 1" class="page-btn">
+          <i class="fas fa-angle-left"></i>
+      </button>
+      <div class="page-numbers">
+          <button v-for="pageNumber in displayedTestJobsPageNumbers" :key="pageNumber"
+                  @click="goToTestJobsPage(pageNumber)"
+                  :class="['page-number', { active: currentTestJobsPage === pageNumber }]">
+              {{ pageNumber }}
+          </button>
+      </div>
+      <button @click="nextTestJobsPage" :disabled="currentTestJobsPage === totalTestJobsPages" class="page-btn">
+          <i class="fas fa-angle-right"></i>
+      </button>
+      <button @click="goToTestJobsPage(totalTestJobsPages)" :disabled="currentTestJobsPage === totalTestJobsPages" class="page-btn">
+          <i class="fas fa-angle-double-right"></i>
+      </button>
     </div>
+
+  </div>
+</template>
   
-    
-  
-  
-  </template>
-  
-  <script setup>
-  import { ref, computed, onMounted } from "vue";
-  import axios from "axios";
-  import { getChoseong } from "es-hangul";
-  
-  const searchTerm = ref("");
-  const gradeCertificates = ref([]);
-  const selectedCategory = ref("");
-  const selectedGrade = ref(""); // 선택된 등급
-  const testJobs = ref([]);
-  const showTestJobs = ref(false);
-  
-  // 자격증 필터링 로직
-  const filteredCertificates = computed(() => {
-    let filtered = gradeCertificates.value;
-  
-    // 검색어 필터
-    if (searchTerm.value) {
-      const searchChoseong = getChoseong(searchTerm.value);
-      filtered = filtered.filter((certificate) => {
-        const certificateChoseong = getChoseong(
-          certificate.jmNm + certificate.instiNm
-        );
-        return certificateChoseong.includes(searchChoseong);
-      });
-    }
-  
-    return filtered;
-  });
-  
-  // 시험 일정 필터링 및 페이지네이션 로직
-  const currentTestJobsPage = ref(1);
-  const itemsPerTestJobsPage = 10;
-  const totalTestJobsPages = computed(() =>
-    Math.ceil(testJobs.value.length / itemsPerTestJobsPage)
-  );
-  
-  const currentPage = ref(1);
-  const itemsPerPage = 16;
-  const totalPages = computed(() =>
-    Math.ceil(filteredCertificates.value.length / itemsPerPage)
-  );
-  
-  // 시험 일정 데이터 호출
-  const fetchTestJobs = async () => {
-    try {
-      const response = await axios.get("http://localhost:8090/api/v1/testjob");
-  
-      const items = response.data.response.body.items.item;
-      if (Array.isArray(items)) {
-        testJobs.value = items;
-        showTestJobs.value = true;
-      } else {
-        console.error("예상된 배열이 아닙니다:", items);
-        showTestJobs.value = false;
-      }
-    } catch (error) {
-      console.error("시험 일정 정보를 가져오는 중 오류 발생:", error);
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import axios from "axios";
+import { getChoseong } from "es-hangul";
+
+const searchTerm = ref("");
+const gradeCertificates = ref([]);
+const selectedCategory = ref("");
+const selectedGrade = ref(""); // 선택된 등급
+const testJobs = ref([]);
+const showTestJobs = ref(false);
+
+// 자격증 필터링 로직
+const filteredCertificates = computed(() => {
+  let filtered = gradeCertificates.value;
+
+  // 검색어 필터
+  if (searchTerm.value) {
+    const searchChoseong = getChoseong(searchTerm.value);
+    filtered = filtered.filter((certificate) => {
+      const certificateChoseong = getChoseong(
+        certificate.jmNm + certificate.instiNm
+      );
+      return certificateChoseong.includes(searchChoseong);
+    });
+  }
+
+  return filtered;
+});
+
+// 시험 일정 필터링 및 페이지네이션 로직
+const currentTestJobsPage = ref(1);
+const itemsPerTestJobsPage = 10;
+const totalTestJobsPages = computed(() =>
+  Math.ceil(testJobs.value.length / itemsPerTestJobsPage)
+);
+
+const paginatedTestJobs = computed(() => {
+  const start = (currentTestJobsPage.value - 1) * itemsPerTestJobsPage;
+  const end = start + itemsPerTestJobsPage;
+  return testJobs.value.slice(start, end);
+});
+
+// 시험 일정 데이터 호출
+const fetchTestJobs = async () => {
+  try {
+    const response = await axios.get("http://localhost:8090/api/v1/testjob");
+
+    const items = response.data.response.body.items.item;
+    if (Array.isArray(items)) {
+      testJobs.value = items;
+      showTestJobs.value = true;
+    } else {
+      console.error("예상된 배열이 아닙니다:", items);
       showTestJobs.value = false;
     }
-  };
-  
-  // 페이지 변경 함수 (자격증 및 시험 일정)
-  const changePage = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages.value) {
-      currentPage.value = pageNumber;
-    }
-  };
-  
-  const changeTestJobsPage = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalTestJobsPages.value) {
-      currentTestJobsPage.value = pageNumber;
-    }
-  };
-  
-  // 페이지 로드 시 자격증 및 시험 일정 정보 가져오기
-  onMounted(() => {
-    fetchTestJobs();
-  });
-  </script>
+  } catch (error) {
+    console.error("시험 일정 정보를 가져오는 중 오류 발생:", error);
+    showTestJobs.value = false;
+  }
+};
+
+// 페이지 변경 함수 (시험 일정)
+const changeTestJobsPage = (pageNumber) => {
+  if (pageNumber >= 1 && pageNumber <= totalTestJobsPages.value) {
+    currentTestJobsPage.value = pageNumber;
+  }
+};
+
+const prevTestJobsPage = () => {
+  if (currentTestJobsPage.value > 1) currentTestJobsPage.value--;
+};
+
+const nextTestJobsPage = () => {
+  if (currentTestJobsPage.value < totalTestJobsPages.value) currentTestJobsPage.value++;
+};
+
+const goToTestJobsPage = (page) => {
+  currentTestJobsPage.value = page;
+};
+
+const displayedTestJobsPageNumbers = computed(() => {
+  const range = 2;
+  let start = Math.max(currentTestJobsPage.value - range, 1);
+  let end = Math.min(currentTestJobsPage.value + range, totalTestJobsPages.value);
+
+  if (start <= 3) {
+    end = Math.min(5, totalTestJobsPages.value);
+  }
+  if (end >= totalTestJobsPages.value - 2) {
+    start = Math.max(1, totalTestJobsPages.value - 4);
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+});
+
+// 페이지 로드 시 시험 일정 정보 가져오기
+onMounted(() => {
+  fetchTestJobs();
+});
+</script>
+
   
   
   
@@ -232,12 +235,11 @@
   
   .curation-main-container {
     margin: 2rem auto;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: #E6F3FF;
     backdrop-filter: blur(10px);
     padding: 2rem;
     box-sizing: border-box;
-    width: 95%;
-    max-width: 1400px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -512,43 +514,61 @@
   }
   
   .pagination {
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    padding: 0;
-    margin-top: 2rem;
-  }
-  
-  .page-item {
-    margin: 0 5px;
-  }
-  
-  .page-link {
-    display: block;
-    padding: 8px 12px;
-    border: 1px solid #0166ff;
-    color: #0166ff;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-  
-  .page-link:hover {
-    background-color: #0166ff;
-    color: white;
-  }
-  
-  .page-item.active .page-link {
-    background-color: #0166ff;
-    color: white;
-  }
-  
-  .page-item.disabled .page-link {
-    color: #6c757d;
-    pointer-events: none;
-    background-color: #fff;
-    border-color: #dee2e6;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.page-btn {
+  padding: 10px 15px;
+  background-color: #0166FF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  margin: 0 5px;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #014fd3;
+  transform: translateY(-2px);
+}
+
+.page-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  margin: 0 10px;
+}
+
+.page-number {
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: transparent;
+  border: 1px solid #0166FF;
+  color: #0166FF;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.page-number.active,
+.page-number:hover {
+  background-color: #0166FF;
+  color: white;
+}
+
+.page-info {
+  margin: 0 20px;
+  font-weight: 500;
+}
+
   
   @media (max-width: 1200px) {
     .col-md-3 {
@@ -593,7 +613,7 @@
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 15px;
-  background-color: #f9f9f9;
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
 }
