@@ -26,10 +26,6 @@
             <input type="text" id="name" v-model="name" required>
           </div>
           <div class="form-group">
-            <label for="birthDate">생년월일</label>
-            <input type="date" id="birthDate" v-model="birthDate" required>
-          </div>
-          <div class="form-group">
             <label for="email">이메일</label>
             <input type="email" id="email" v-model="email" required>
             <button type="button" class="send-code-btn" @click="sendAuthCode">인증번호 발송</button>
@@ -48,10 +44,6 @@
           <div class="form-group">
             <label for="name">이름</label>
             <input type="text" id="name" v-model="name" required>
-          </div>
-          <div class="form-group">
-            <label for="birthDate">생년월일</label>
-            <input type="date" id="birthDate" v-model="birthDate" required>
           </div>
           <div class="form-group">
             <label for="userId">아이디</label>
@@ -74,38 +66,71 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue';
-  
-  const isOpen = ref(false);
-  const activeTab = ref('id');
-  const email = ref('');
-  const userId = ref('');
-  const userEmail = ref('');
-  
-  const openModal = () => {
-    isOpen.value = true;
-  };
-  
-  const closeModal = () => {
-    isOpen.value = false;
-    activeTab.value = 'id';
-    email.value = '';
-    userId.value = '';
-    userEmail.value = '';
-  };
-  
-  const findId = async () => {
-    // 여기에 아이디 찾기 로직 구현
-    console.log('Finding ID for email:', email.value);
-    // API 호출 및 결과 처리
-  };
-  
-  const findPassword = async () => {
-    // 여기에 비밀번호 찾기 로직 구현
-    console.log('Resetting password for user:', userId.value, 'with email:', userEmail.value);
-    // API 호출 및 결과 처리
-  };
-  
+ import { ref } from 'vue';
+
+
+
+const isOpen = ref(false);
+const activeTab = ref('id');
+const email = ref('');
+const userId = ref('');
+const authCode = ref('');
+const name = ref(''); 
+
+const openModal = () => {
+  isOpen.value = true;
+};
+
+const closeModal = () => {
+  isOpen.value = false;
+  activeTab.value = 'id';
+  email.value = '';
+  userId.value = '';
+  authCode.value = '';
+  name.value = ''; 
+};
+
+const sendAuthCode = async () => {
+  if (!email.value) {
+    alert('이메일을 입력해주세요.');
+    return;
+  }
+  try {
+    const response = await fetch('/api/v1/login/send-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name.value, 
+        email: email.value, 
+      }),
+    });
+
+    if (response.ok) {
+      const verificationCode = await response.text();
+      console.log('인증 코드:', verificationCode);
+      alert('인증 코드가 이메일로 전송되었습니다.');
+    } else {
+      alert('인증 코드 전송에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('Error sending email:', error);
+    alert('인증 코드 전송 중 오류가 발생했습니다.');
+  }
+};
+
+const findId = async () => {
+  // 여기에 아이디 찾기 로직 구현
+  console.log('Finding ID for email:', email.value);
+  // API 호출 및 결과 처리
+};
+
+const findPassword = async () => {
+  // 여기에 비밀번호 찾기 로직 구현
+  console.log('Resetting password for user:', userId.value, 'with email:', email.value);
+  // API 호출 및 결과 처리
+};
   defineExpose({ openModal });
   </script>
   
