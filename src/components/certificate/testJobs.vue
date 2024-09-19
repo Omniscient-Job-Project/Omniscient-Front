@@ -123,6 +123,8 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import { getChoseong } from "es-hangul";
 
+
+const API_URL = import.meta.env.VITE_API_URL;
 const searchTerm = ref("");
 const gradeCertificates = ref([]);
 const selectedCategory = ref("");
@@ -164,7 +166,7 @@ const paginatedTestJobs = computed(() => {
 // 시험 일정 데이터 호출
 const fetchTestJobs = async () => {
   try {
-    const response = await axios.get("http://localhost:8090/api/v1/testjob");
+    const response = await axios.get(`${API_URL}/api/v1/testjob`);
 
     const items = response.data.response.body.items.item;
     if (Array.isArray(items)) {
