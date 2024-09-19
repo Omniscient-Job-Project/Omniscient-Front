@@ -16,23 +16,18 @@
       </router-link>
     </div>
 
-
-
-    <!-- 자격증 정보 카드 -->
+    <!-- 검색 창 -->
     <div class="recruitment-cards">
       <div class="info-search-container">
         <h2 class="section-title">자격증 정보</h2>
         <div class="info-search-container">
-          <div class="search-box" @click="ToggleFilter">
+          <div class="search-box">
             <div class="input-wrapper">
               <input
                 type="text"
                 class="search-input-box"
                 placeholder="분야를 입력해주세요."
                 v-model="searchTerm"
-                @focus="handleInputFocus"
-                @blur="handleInputBlur"
-                @keydown="handleKeyDown"
               />
               <img
                 src="@/assets/img/search-icon.svg"
@@ -43,6 +38,7 @@
             </div>
           </div>
 
+          <!-- 필터링 -->
           <div class="filter-section">
             <label for="gradeFilter">등급:</label>
             <select v-model="selectedGrade" id="gradeFilter">
@@ -60,115 +56,101 @@
       </div>
 
 
-
+      <!-- 자격증 카드 -->
       <div class="row">
-        <div
-          v-for="gradecertificate in paginatedCertificates"
-          :key="gradecertificate.id"
-          class="col-md-3"
-        >
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <i class="fas fa-certificate" style="color: #4caf50"></i>
-                <!-- 녹색: 자격증 -->
-                {{ gradecertificate.jmNm }}
-              </h5>
-              <p class="card-text">
-                <i class="fas fa-building" style="color: #2196f3"></i>
-                <!-- 파란색: 기관 -->
-                기관: {{ gradecertificate.instiNm }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-trophy" style="color: #ff9800"></i>
-                <!-- 주황색: 등급 -->
-                등급: {{ gradecertificate.grdNm }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-chart-line" style="color: #673ab7"></i>
-                <!-- 보라색: 취득률 -->
-                자격증 취득률: {{ gradecertificate.preyyAcquQualIncRate }}%
-              </p>
-              <p class="card-text">
-                <i class="fas fa-chart-bar" style="color: #3f51b5"></i>
-                <!-- 파란색: 전년도 자격증 취득 수 -->
-                전년도 자격증 취득 수: {{ gradecertificate.preyyQualAcquCnt }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-chart-pie" style="color: #ff5722"></i>
-                <!-- 주황색: 총 자격증 취득 수 -->
-                총 자격증 취득 수: {{ gradecertificate.qualAcquCnt }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-calendar-alt" style="color: #009688"></i>
-                <!-- 청록색: 통계 연도 -->
-                통계 연도: {{ gradecertificate.statisYy }}
-              </p>
-              <p class="card-text">
-                <i class="fas fa-calendar-check" style="color: #8bc34a"></i>
-                <!-- 연두색: 합계 연도 -->
-                합계 연도: {{ gradecertificate.sumYy }}
-              </p>
-            </div>
-          </div>
+  <div
+    v-for="gradecertificate in paginatedCertificates"
+    :key="gradecertificate.jmNm"
+    class="col-md-3"
+  >
+    <div class="card">
+      <div class="card-body">
+        <!-- 북마크 아이콘 추가 -->
+        <div class="bookmark-icon" @click.stop="toggleBookmark(gradecertificate)">
+          <i :class="['fas', 'fa-bookmark', { 'bookmarked': isBookmarked(gradecertificate.jmNm) }]"></i>
         </div>
+        <h5 class="card-title">
+          <i class="fas fa-certificate" style="color: #4caf50"></i>
+          {{ gradecertificate.jmNm }}
+        </h5>
+        <p class="card-text">
+          <i class="fas fa-building" style="color: #2196f3"></i>
+          기관: {{ gradecertificate.instiNm }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-trophy" style="color: #ff9800"></i>
+          등급: {{ gradecertificate.grdNm }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-chart-line" style="color: #673ab7"></i>
+          자격증 취득률: {{ gradecertificate.preyyAcquQualIncRate }}%
+        </p>
+        <p class="card-text">
+          <i class="fas fa-chart-bar" style="color: #3f51b5"></i>
+          전년도 자격증 취득 수: {{ gradecertificate.preyyQualAcquCnt }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-chart-pie" style="color: #ff5722"></i>
+          총 자격증 취득 수: {{ gradecertificate.qualAcquCnt }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-calendar-alt" style="color: #009688"></i>
+          통계 연도: {{ gradecertificate.statisYy }}
+        </p>
+        <p class="card-text">
+          <i class="fas fa-calendar-check" style="color: #8bc34a"></i>
+          합계 연도: {{ gradecertificate.sumYy }}
+        </p>
       </div>
     </div>
-
-
-    <!-- 페이지네이션 -->
-    <nav aria-label="Page navigation">
-      <ul class="pagination">
-        <li class="page-item" :class="{ disabled: currentPage === 1 }">
-          <a
-            class="page-link"
-            href="#"
-            aria-label="Previous"
-            @click.prevent="changePage(currentPage - 1)"
-          >
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li
-          v-for="page in totalPages"
-          :key="page"
-          class="page-item"
-          :class="{ active: page === currentPage }"
-        >
-          <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-        </li>
-        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <a
-            class="page-link"
-            href="#"
-            aria-label="Next"
-            @click.prevent="changePage(currentPage + 1)"
-          >
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-
+  </div>
 
   </div>
 
-  
+    </div>
 
+    <!-- 페이지네이션 -->
+    <div class="pagination">
+        <button @click="goToPage(1)" :disabled="currentPage === 1" class="page-btn">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+        <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">
+          <i class="fas fa-angle-left"></i>
+        </button>
+        <div class="page-numbers">
+          <button v-for="pageNumber in displayedPageNumbers" :key="pageNumber"
+                  @click="goToPage(pageNumber)"
+                  :class="['page-number', { active: currentPage === pageNumber }]">
+            {{ pageNumber }}
+          </button>
+        </div>
+        <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn">
+          <i class="fas fa-angle-right"></i>
+        </button>
+        <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="page-btn">
+          <i class="fas fa-angle-double-right"></i>
+        </button>
+    </div>
 
+  </div>
 </template>
 
+
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import axios from "axios";
 import { getChoseong } from "es-hangul";
 
+// 자격증 및 필터 상태
 const searchTerm = ref("");
 const gradeCertificates = ref([]);
 const selectedCategory = ref("");
 const selectedGrade = ref(""); // 선택된 등급
 
+// 북마크 상태
+const bookmarks = ref([]);
+
+// 필터링된 자격증 반환
 const filteredCertificates = computed(() => {
   let filtered = gradeCertificates.value;
 
@@ -200,6 +182,7 @@ const filteredCertificates = computed(() => {
   return filtered;
 });
 
+// 페이지네이션 상태
 const currentPage = ref(1);
 const itemsPerPage = 16;
 const totalPages = computed(() =>
@@ -212,70 +195,159 @@ const paginatedCertificates = computed(() => {
   return filteredCertificates.value.slice(start, end);
 });
 
-// 필터링된 grdCds를 기반으로 자격증 데이터를 가져오는 함수
-const fetchGradeCertificates = async () => {
-    // 필터링된 grdCd 배열 생성
-    const grdCds = selectedCategory.value ? [selectedCategory.value] : ["10", "20", "30", "31", "32", "33", "40"];
-    
-    // 개별 API 호출을 위한 비동기 함수
-    const fetchCertificatesByGrade = async (grdCd) => {
-        try {
-            const response = await axios.get(`http://localhost:8090/api/v1/gradejob?grdCd=${grdCd}`);
-            if (response.data && response.data.response && response.data.response.body) {
-                const items = response.data.response.body.items.item;
-                if (Array.isArray(items)) {
-                    return items;
-                } else {
-                    console.error(`아이템 배열이 예상되었으나, ${grdCd}에 대해 다음이 반환되었습니다:`, items);
-                    return [];
-                }
-            } else {
-                console.error(`응답 데이터 구조가 예상과 일치하지 않습니다: ${grdCd}`, response.data);
-                return [];
-            }
-        } catch (error) {
-            console.error(`자격증 정보를 가져오는 중 오류 발생 (${grdCd}):`, error);
-            return [];
-        }
-    };
-
-    // 모든 grdCd 값에 대해 비동기 호출을 수행
-    const allCertificates = await Promise.all(grdCds.map(fetchCertificatesByGrade));
-
-    // 모든 결과를 하나의 배열로 결합
-    gradeCertificates.value = allCertificates.flat();
+// 북마크 관련 함수
+const loadBookmarks = () => {
+  const savedBookmarks = localStorage.getItem('bookmarks');
+  if (savedBookmarks) {
+    bookmarks.value = JSON.parse(savedBookmarks);
+    console.log('북마크 데이터 로드됨:', bookmarks.value);
+  } else {
+    bookmarks.value = [];
+    console.log('저장된 북마크 없음');
+  }
 };
 
+// 북마크 저장 함수
+const saveBookmarks = () => {
+  localStorage.setItem('bookmarks', JSON.stringify(bookmarks.value));
+};
+
+// 북마크 배열 감시 및 저장
+watch(bookmarks, saveBookmarks, { deep: true });
+
+// 북마크 토글 함수
+const toggleBookmark = (gradecertificate) => {
+  console.log(`북마크 토글: 자격증 이름 - ${gradecertificate.jmNm}`);
+  
+  if (gradecertificate && gradecertificate.jmNm) {
+    const isAlreadyBookmarked = bookmarks.value.some(item => item.jmNm === gradecertificate.jmNm);
+    console.log(`현재 북마크 상태: ${isAlreadyBookmarked}`);
+
+    if (isAlreadyBookmarked) {
+      bookmarks.value = bookmarks.value.filter(item => item.jmNm !== gradecertificate.jmNm); // 북마크 제거
+      console.log(`북마크 제거됨: 자격증 이름 - ${gradecertificate.jmNm}`);
+    } else {
+      bookmarks.value = [...bookmarks.value, gradecertificate]; // 북마크 추가
+      console.log(`북마크 추가됨: 자격증 이름 - ${gradecertificate.jmNm}`);
+    }
+
+    console.log('변경된 북마크 목록:', bookmarks.value);
+  } else {
+    console.error('유효하지 않은 자격증 객체:', gradecertificate);
+  }
+};
+
+// 자격증이 북마크된 상태인지 확인하는 함수
+const isBookmarked = (certificateName) => {
+  if (certificateName) {
+    const result = bookmarks.value.some(item => item.jmNm === certificateName);
+    if (result) {
+      console.log(`북마크 상태: ${result} (자격증 이름: ${certificateName})`);
+    }
+    return result;
+  } else {
+    console.error('유효하지 않은 자격증 이름:', certificateName);
+    return false;
+  }
+};
+
+
+
+// 자격증 데이터 가져오기 함수
+const fetchGradeCertificates = async () => {
+  // 필터링된 grdCd 배열 생성
+  const grdCds = selectedCategory.value ? [selectedCategory.value] : ["10", "20", "30", "31", "32", "33", "40"];
+  
+  // 개별 API 호출을 위한 비동기 함수
+  const fetchCertificatesByGrade = async (grdCd) => {
+    try {
+      const response = await axios.get(`http://localhost:8090/api/v1/gradejob?grdCd=${grdCd}`);
+      if (response.data && response.data.response && response.data.response.body) {
+        const items = response.data.response.body.items.item;
+        if (Array.isArray(items)) {
+          return items;
+        } else {
+          console.error(`아이템 배열이 예상되었으나, ${grdCd}에 대해 다음이 반환되었습니다:`, items);
+          return [];
+        }
+      } else {
+        console.error(`응답 데이터 구조가 예상과 일치하지 않습니다: ${grdCd}`, response.data);
+        return [];
+      }
+    } catch (error) {
+      console.error(`자격증 정보를 가져오는 중 오류 발생 (${grdCd}):`, error);
+      return [];
+    }
+  };
+
+  // 모든 grdCd 값에 대해 비동기 호출을 수행
+  const allCertificates = await Promise.all(grdCds.map(fetchCertificatesByGrade));
+
+  // 모든 결과를 하나의 배열로 결합
+  gradeCertificates.value = allCertificates.flat();
+};
+
+// 페이지 변경 함수
 const changePage = (pageNumber) => {
   if (pageNumber >= 1 && pageNumber <= totalPages.value) {
     currentPage.value = pageNumber;
   }
 };
 
-// 페이지 로드 시 자격증 정보 가져오기
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--;
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++;
+};
+
+const goToPage = (page) => {
+  currentPage.value = page;
+};
+
+const displayedPageNumbers = computed(() => {
+  const range = 2;
+  let start = Math.max(currentPage.value - range, 1);
+  let end = Math.min(currentPage.value + range, totalPages.value);
+
+  if (start <= 3) {
+    end = Math.min(5, totalPages.value);
+  }
+  if (end >= totalPages.value - 2) {
+    start = Math.max(1, totalPages.value - 4);
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+});
+
+// 페이지 로드 시 자격증 정보와 북마크 가져오기
 onMounted(() => {
   fetchGradeCertificates();
+  loadBookmarks();
 });
 </script>
+
+
+
 
 
 <style scoped>
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
 
 body {
-  background-color: #e6f3ff;
+  background-color: #E6F3FF;
   color: #333;
   font-family: "Arial", sans-serif;
 }
 
 .curation-main-container {
   margin: 2rem auto;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: #E6F3FF;
   backdrop-filter: blur(10px);
   padding: 2rem;
   box-sizing: border-box;
-  width: 95%;
-  max-width: 1400px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -554,40 +626,57 @@ body {
 .pagination {
   display: flex;
   justify-content: center;
-  list-style: none;
-  padding: 0;
-  margin-top: 2rem;
+  align-items: center;
+  margin-top: 40px;
 }
 
-.page-item {
+.page-btn {
+  padding: 10px 15px;
+  background-color: #0166FF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
   margin: 0 5px;
 }
 
-.page-link {
-  display: block;
-  padding: 8px 12px;
-  border: 1px solid #0166ff;
-  color: #0166ff;
-  text-decoration: none;
-  border-radius: 8px;
+.page-btn:hover:not(:disabled) {
+  background-color: #014fd3;
+  transform: translateY(-2px);
+}
+
+.page-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  margin: 0 10px;
+}
+
+.page-number {
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: transparent;
+  border: 1px solid #0166FF;
+  color: #0166FF;
+  border-radius: 5px;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.page-link:hover {
-  background-color: #0166ff;
+.page-number.active,
+.page-number:hover {
+  background-color: #0166FF;
   color: white;
 }
 
-.page-item.active .page-link {
-  background-color: #0166ff;
-  color: white;
-}
-
-.page-item.disabled .page-link {
-  color: #6c757d;
-  pointer-events: none;
-  background-color: #fff;
-  border-color: #dee2e6;
+.page-info {
+  margin: 0 20px;
+  font-weight: 500;
 }
 
 @media (max-width: 1200px) {

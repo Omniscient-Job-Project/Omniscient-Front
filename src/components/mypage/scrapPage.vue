@@ -1,8 +1,10 @@
 <template>
   <div class="scrap-page">
     <h1 class="page-title"><i class="fas fa-bookmark"></i> 스크랩</h1>
-    <div class="scrap-list">
-      <div v-for="(item, index) in scrapItems" :key="item.jobId" class="scrap-item">
+
+    <!-- 채용공고 스크랩 리스트 -->
+    <div v-if="hasJobScrapItems" class="scrap-list">
+      <div v-for="(item, index) in jobScrapItems" :key="item.jobId" class="scrap-item">
         <div class="scrap-content">
           <h3>{{ item.jobInfoTitle }}</h3>
           <p>{{ item.jobCompanyName }}</p>
@@ -10,23 +12,82 @@
           <p>{{ item.jobCareerCondition }}</p>
         </div>
         <div class="scrap-actions">
-          <button @click="removeScrap(index)" class="remove-btn">
+          <button @click="removeScrap(index, 'job')" class="remove-btn">
             <i class="fas fa-trash"></i>
           </button>
         </div>
       </div>
     </div>
-    <div v-if="scrapItems.length === 0" class="empty-state">
+
+    <!-- 자격증 스크랩 리스트 -->
+    <div v-if="hasCertScrapItems" class="scrap-list">
+      <div v-for="(item, index) in certScrapItems" :key="item.jmNm" class="scrap-item">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="fas fa-certificate" style="color: #4caf50"></i>
+              {{ item.jmNm }}
+            </h5>
+            <p class="card-text">
+              <i class="fas fa-building" style="color: #2196f3"></i>
+              기관: {{ item.instiNm }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-trophy" style="color: #ff9800"></i>
+              등급: {{ item.grdNm }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-chart-line" style="color: #673ab7"></i>
+              자격증 취득률: {{ item.preyyAcquQualIncRate }}%
+            </p>
+            <p class="card-text">
+              <i class="fas fa-chart-bar" style="color: #3f51b5"></i>
+              전년도 자격증 취득 수: {{ item.preyyQualAcquCnt }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-chart-pie" style="color: #ff5722"></i>
+              총 자격증 취득 수: {{ item.qualAcquCnt }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-calendar-alt" style="color: #009688"></i>
+              통계 연도: {{ item.statisYy }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-calendar-check" style="color: #8bc34a"></i>
+              합계 연도: {{ item.sumYy }}
+            </p>
+            <div class="scrap-actions">
+              <button @click="removeScrap(index, 'cert')" class="remove-btn">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 스크랩 항목이 없는 경우 -->
+    <div v-if="!hasJobScrapItems && !hasCertScrapItems" class="empty-state">
       <i class="fas fa-folder-open"></i>
-      <p>스크랩한 채용공고가 없습니다.</p>
+      <p>스크랩한 항목이 없습니다.</p>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, watch } from 'vue';
 
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue';
+
+// 스크랩 항목 데이터
 const scrapItems = ref([]);
+
+// 채용공고와 자격증 스크랩 항목 분리
+const jobScrapItems = computed(() => scrapItems.value.filter(item => item.jobId));
+const certScrapItems = computed(() => scrapItems.value.filter(item => item.jmNm));
+
+// 스크랩 항목이 있는지 여부
+const hasJobScrapItems = computed(() => jobScrapItems.value.length > 0);
+const hasCertScrapItems = computed(() => certScrapItems.value.length > 0);
 
 const loadScrapItems = () => {
   const savedItems = localStorage.getItem('bookmarks');
@@ -39,14 +100,24 @@ const saveScrapItems = () => {
   localStorage.setItem('bookmarks', JSON.stringify(scrapItems.value));
 };
 
-const removeScrap = (index) => {
-  scrapItems.value.splice(index, 1);
+const removeScrap = (index, type) => {
+  if (type === 'job') {
+    // Remove job item based on its unique property
+    const jobIdToRemove = jobScrapItems.value[index].jobId;
+    scrapItems.value = scrapItems.value.filter(item => item.jobId !== jobIdToRemove);
+  } else if (type === 'cert') {
+    // Remove cert item based on its unique property
+    const certIdToRemove = certScrapItems.value[index].jmNm;
+    scrapItems.value = scrapItems.value.filter(item => item.jmNm !== certIdToRemove);
+  }
 };
 
 onMounted(loadScrapItems);
 
 watch(scrapItems, saveScrapItems, { deep: true });
 </script>
+
+
 
 <style scoped>
 .scrap-page {
