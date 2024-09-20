@@ -8,14 +8,16 @@
             <h2 class="section-title">기본 정보</h2>
             <div class="profile-main">
               <div class="profile-image">
-                <img :src="profileImageUrl" alt="프로필 이미지" @click="triggerImageUpload" />
-                <input type="file" ref="imageInput" @change="handleImageUpload" style="display: none;" accept="image/*" id="profileImage">
+                <img :src="previewImage || profileImageUrl" alt="프로필 이미지" @click="triggerImageUpload" />
+                <input type="file" ref="imageInput" @change="handleImageUpload" style="display: none;" accept="image/*" id="profileImage" multiple>
                 <label for="profileImage" v-if="isEditing" class="image-upload-prompt">
                   <i class="fas fa-camera"></i>
-                  <span>이미지 변경</span>
+                  <span>이미지 변경 (최대 5MB)</span>
                 </label>
               </div>
+
               <div class="profile-details">
+                <!-- 이름, 직책 입력 필드 -->
                 <div v-if="!isEditing">
                   <h2>{{ profile.name }}</h2>
                   <p class="job-title">{{ profile.jobTitle }}</p>
@@ -30,6 +32,8 @@
                     <input id="jobTitle" v-model="profile.jobTitle" type="text" class="edit-input">
                   </div>
                 </div>
+
+                <!-- 연락처 정보 -->
                 <div class="contact-info">
                   <div v-if="!isEditing">
                     <p><i class="fas fa-envelope"></i> {{ profile.email }}</p>
@@ -50,7 +54,9 @@
             </div>
           </div>
         </div>
+
         <div class="profile-right">
+          <!-- 추가 정보 섹션 -->
           <div class="profile-section additional-info">
             <h2 class="section-title">추가 정보</h2>
             <div class="info-section">
@@ -70,6 +76,8 @@
               </div>
             </div>
           </div>
+
+          <!-- 자격증 섹션 -->
           <div class="profile-section certificates">
             <h2 class="section-title">자격증</h2>
             <div class="certificates-section">
@@ -88,6 +96,8 @@
               </div>
             </div>
           </div>
+
+          <!-- 버튼 섹션 -->
           <div class="button-container">
             <button type="submit" v-if="isEditing" class="edit-button save-mode">
               <i class="fas fa-save"></i> 저장
@@ -99,6 +109,7 @@
         </div>
       </div>
     </form>
+
     <!-- 저장 확인 모달 -->
     <div v-if="showSaveModal" class="modal-overlay" @click="closeSaveModal">
       <div class="modal-content" @click.stop>
@@ -114,6 +125,7 @@
         </div>
       </div>
     </div>
+
     <!-- 비활성화 확인 모달 -->
     <div v-if="showDeactivateModal" class="modal-overlay" @click="closeDeactivateModal">
       <div class="modal-content" @click.stop>
@@ -133,148 +145,219 @@
 </template>
 
 <script>
+import { ref, reactive, computed, onMounted } from 'vue';
 import axios from 'axios';
-const API_URL = import.meta.env.VITE_API_URL;
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8090/api/v1/mypage/profile';
 
 export default {
   name: 'ProfilePage',
-  data() {
-    return {
-      profile: {
-        id: null,
-        name: '',
-        jobTitle: '',
-        email: '',
-        phone: '',
-        age: null,
-        address: '',
-        certificates: [],
-        profileImage: null
-      },
-      isEditing: false,
-      imageFile: null,
-      showSaveModal: false,
-      showDeactivateModal: false
-    };
-  },
-  computed: {
-    profileImageUrl() {
-      return this.profile.profileImage
-        ? `data:image/jpeg;base64,${this.profile.profileImage}`
-        : 'https://via.placeholder.com/150';
+  setup() {
+    const profile = reactive({
+      id: null,
+      name: '',
+      jobTitle: '',
+      email: '',
+      phone: '',
+      age: null,
+      address: '',
+      certificates: [],
+      status: true,
+      profileImages: []
+    });
+
+    const isEditing = ref(false);
+    const imageInput = ref(null);
+    const previewImage = ref(null);
+    const showSaveModal = ref(false);
+    const showDeactivateModal = ref(false);
+    const profileImageUrl = computed(() => {
+  // 프로필에 이미지가 있는 경우 Base64 형식으로 표시
+  return profile.profileImages && profile.profileImages.length > 0
+    ? `data:image/jpeg;base64,${profile.profileImages[0]}`  // Base64 인코딩된 이미지 표시
+    : 'https://via.placeholder.com/150'; // 기본 이미지
+});
+
+const loadProfile = async () => {
+  try {
+    const response = await axios.get(API_URL);
+    if (response.data && response.data.length > 0) {
+      // 프로필 데이터를 불러옴
+      Object.assign(profile, response.data[0]);
+
+      // 이미지 데이터가 있을 경우 Base64로 프로필에 저장
+      if (response.data[0].profileImages) {
+        profile.profileImages = response.data[0].profileImages.map(img => img.image);  // 이미지 데이터를 Base64로 저장
+      }
+    } else {
+      throw new Error('프로필을 찾을 수 없습니다.');
     }
-  },
-  created() {
-    this.loadProfile();
-  },
-  methods: {
-    async loadProfile() {
-      try {
-        const response = await axios.get(`${API_URL}/api/v1/mypage`);
-        if (response.data && response.data.length > 0) {
-          this.profile = response.data[0];  // 첫 번째 프로필을 사용
-        } else {
-          throw new Error('프로필을 찾을 수 없습니다.');
-        }
-      } catch (error) {
-        console.error('프로필을 불러오는데 실패했습니다:', error);
-        alert('프로필을 불러오는데 실패했습니다.');
-      }
-    },
-    toggleEditMode() {
-      this.isEditing = !this.isEditing;
-    },
-    addCertificate() {
-      this.profile.certificates.push('');
-    },
-    removeCertificate(index) {
-      this.profile.certificates.splice(index, 1);
-    },
-    triggerImageUpload() {
-      if (this.isEditing) {
-        this.$refs.imageInput.click();
-      }
-    },
-    handleImageUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.imageFile = file;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.profile.profileImage = e.target.result.split(',')[1]; // Store base64 string
-        };
-        reader.readAsDataURL(file);
-      }
-    },
-    showConfirmModal() {
-      this.showSaveModal = true;
-    },
-    closeSaveModal() {
-      this.showSaveModal = false;
-    },
-    confirmSave() {
-      this.saveProfile();
-    },
-    async saveProfile() {
-      try {
-        const formData = new FormData();
-        Object.keys(this.profile).forEach(key => {
-          if (key === 'id' && !this.profile.id) {
-            return;
-          }
-          if (key === 'certificates') {
-            formData.append(key, JSON.stringify(this.profile[key]));
-          } else {
-            formData.append(key, this.profile[key]);
-          }
-        });
+  } catch (error) {
+    console.error('프로필을 불러오는데 실패했습니다:', error);
+    alert('프로필을 불러오는데 실패했습니다.');
+  }
+};
 
-        if (this.imageFile) {
-          formData.append('profileImage', this.imageFile);
-        }
 
-        let response;
-        if (this.profile.id) {
-          response = await axios.put(`${API_URL}/api/v1/mypage/${this.profile.id}`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-        } else {
-          response = await axios.post(`${API_URL}/api/v1/mypage`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-        }
+    const toggleEditMode = () => {
+      isEditing.value = !isEditing.value;
+    };
 
-        this.profile = response.data;
-        this.isEditing = false;
-        this.showSaveModal = false;
-      } catch (error) {
-        console.error('프로필 저장에 실패했습니다:', error);
-        alert('프로필 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
+    const addCertificate = () => {
+      profile.certificates.push('');
+    };
+
+    const removeCertificate = (index) => {
+      profile.certificates.splice(index, 1);
+    };
+
+    const triggerImageUpload = () => {
+      if (isEditing.value) {
+        imageInput.value.click();
       }
-    },
-    showDeactivateModal() {
-      this.showDeactivateModal = true;
-    },
-    closeDeactivateModal() {
-      this.showDeactivateModal = false;
-    },
-    async confirmDeactivate() {
+    };
+    const handleImageUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    if (file.size > 5 * 1024 * 1024) {
+      alert('이미지 크기는 5MB를 초과할 수 없습니다.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImage.value = e.target.result;
+      // Base64 인코딩된 이미지 데이터를 profile 객체에 저장
+      profile.profileImages = [e.target.result.split(',')[1]];  // Base64 데이터로 저장
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+
+    const showConfirmModal = () => {
+      showSaveModal.value = true;
+    };
+
+    const closeSaveModal = () => {
+      showSaveModal.value = false;
+    };
+
+    const confirmSave = () => {
+      saveProfile();
+    };
+
+    const saveProfile = async () => {
+  try {
+    const formData = new FormData();
+    Object.keys(profile).forEach(key => {
+      if (key === 'id' && !profile.id) return;
+      if (key === 'certificates') {
+        formData.append(key, JSON.stringify(profile[key]));
+      } else if (key === 'profileImages' && profile[key]) {
+        // Base64 이미지 데이터를 Blob으로 변환하여 추가
+        const imageBlob = b64toBlob(profile[key][0], 'image/jpeg');
+        formData.append('profileImages', imageBlob, 'profile_image.jpg');
+      } else {
+        formData.append(key, profile[key]);
+      }
+    });
+
+    console.log('FormData 내용:', Object.fromEntries(formData));
+
+    let response;
+    if (profile.id) {
+      response = await axios.put(`${API_URL}/${profile.id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    } else {
+      response = await axios.post(API_URL, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+
+    // 서버에서 갱신된 프로필 데이터를 다시 로드하여 업데이트
+    await loadProfile();  // 프로필 재로드
+
+    console.log('서버 응답:', response.data);
+    Object.assign(profile, response.data);
+    isEditing.value = false;
+    showSaveModal.value = false;
+    previewImage.value = null;
+    alert('프로필이 성공적으로 저장되었습니다.');
+  } catch (error) {
+    console.error('프로필 저장 중 오류 발생:', error);
+    console.error('오류 상세 정보:', error.response ? error.response.data : '응답 없음');
+    alert('프로필 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
+  }
+};
+
+    // Base64를 Blob으로 변환하는 유틸리티 함수
+    const b64toBlob = (b64Data, contentType = '', sliceSize = 512) => {
+      const byteCharacters = atob(b64Data);
+      const byteArrays = [];
+
+      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+
+      const blob = new Blob(byteArrays, { type: contentType });
+      return blob;
+    };
+
+    const showDeactivateConfirmation = () => {
+      showDeactivateModal.value = true;
+    };
+
+    const closeDeactivateModal = () => {
+      showDeactivateModal.value = false;
+    };
+
+    const confirmDeactivate = async () => {
       try {
-        await axios.put(`${API_URL}/api/v1/mypage/deactivate/${this.profile.id}`);
-        this.showDeactivateModal = false;
+        await axios.put(`${API_URL}/api/v1/mypage/profile/deactivate/${profile.id}`);
+        showDeactivateModal.value = false;
         alert('프로필이 성공적으로 비활성화되었습니다.');
         // 여기서 로그아웃 처리나 홈페이지로 리다이렉트 등을 수행할 수 있습니다.
       } catch (error) {
         console.error('프로필 비활성화에 실패했습니다:', error);
         alert('프로필 비활성화에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
       }
-    }
+    };
+
+    onMounted(() => {
+      loadProfile();
+    });
+
+    return {
+      profile,
+      isEditing,
+      imageInput,
+      previewImage,
+      showSaveModal,
+      showDeactivateModal,
+      profileImageUrl,
+      toggleEditMode,
+      addCertificate,
+      removeCertificate,
+      triggerImageUpload,
+      handleImageUpload,
+      showConfirmModal,
+      closeSaveModal,
+      confirmSave,
+      showDeactivateConfirmation,
+      closeDeactivateModal,
+      confirmDeactivate,
+      handleImageUpload,
+      saveProfile,
+    };
   }
-}
+};
 </script>
 
 <style scoped>
