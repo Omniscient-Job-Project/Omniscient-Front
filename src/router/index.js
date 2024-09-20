@@ -16,8 +16,6 @@ const PostForm = () => import("../components/board/postForm.vue");
 // 자격증 페이지
 const Certificate = () => import("../views/certificateView.vue");
 const TestJobs = () => import("../views/testJobsView.vue");
-const ExamLocations = () => import("../views/examLocationsView.vue");
-
 
 // 로그인 & 로그아웃 페이지
 const Login = () => import("../views/loginView.vue");
