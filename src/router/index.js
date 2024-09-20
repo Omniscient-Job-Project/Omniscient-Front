@@ -127,7 +127,6 @@ const router = createRouter({
       ]
     },
 
-
     // 채용 페이지
     {
       path: '/curation',
@@ -152,12 +151,6 @@ const router = createRouter({
       name: "testJobs",
       component: TestJobs
     },
-    {
-      path: '/examLocations',
-      name: 'examLocations',
-      component : ExamLocations
-    },
-
 
     // 로그인 & 로그아웃 페이지
     {
@@ -168,7 +161,6 @@ const router = createRouter({
       path: '/signUp',
       component: Signup
     },
-
 
     // 공지사항 페이지
     {
@@ -194,7 +186,6 @@ const router = createRouter({
         }
       ]
     },
-
 
     // 관리자 페이지
     {
