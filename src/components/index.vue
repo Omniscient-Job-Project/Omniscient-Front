@@ -1,5 +1,7 @@
 <template>
   <div class="main-container">
+
+    
     <!-- 히어로 섹션 -->
     <section class="hero">
     <h2 class="hero-title">당신의 내일이 더 빛날 수 있도록, 오늘부터 시작하세요</h2>
@@ -12,6 +14,7 @@
     </div>
   </section>
 
+
     <!-- 주요 카테고리 섹션 -->
     <section class="categories">
       <h3 class="section-title">주요 카테고리</h3>
@@ -22,6 +25,7 @@
         </div>
       </div>
     </section>
+
 
     <!-- 채용 정보 리스팅 -->
     <section class="job-listing">
@@ -39,6 +43,8 @@
           </button>
         </div>
       </div>
+
+
       <!-- 페이지네이션 -->
       <div class="pagination">
         <button @click="goToPage(1)" :disabled="currentPage === 1" class="page-btn">

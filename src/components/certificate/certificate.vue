@@ -682,23 +682,66 @@ body {
 
 @media (max-width: 1200px) {
   .col-md-3 {
-    width: 33.33%;
+    width: 50%; /* 2열 레이아웃 */
   }
 }
 
 @media (max-width: 992px) {
   .col-md-3 {
-    width: 50%;
+    width: 50%; /* 2열 레이아웃 */
   }
 }
 
 @media (max-width: 768px) {
-  .curation-main-container {
-    width: 100%;
-    padding: 1rem;
-  }
   .col-md-3 {
+    width: 100%; /* 1열 레이아웃 */
+  }
+
+  .section-title {
+    font-size: 1.25rem; /* 모바일 화면에서 제목 크기 조정 */
+  }
+
+  .info-search-container {
+    font-size: 20px;
+    padding: 15px; /* 모바일 화면에서 패딩 조정 */
+  }
+
+  .search-input-box {
+    font-size: 14px;
+  }
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .card-text {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .pagination {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .page-btn {
     width: 100%;
+  }
+
+  .page-numbers {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .page-number {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>
