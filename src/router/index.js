@@ -236,7 +236,7 @@ const router = createRouter({
       ]
     },
 
-    
+
     // 에러 페이지
     {
       path: '/:pathMatch(.*)*',
