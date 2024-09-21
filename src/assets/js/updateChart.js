@@ -1,18 +1,21 @@
 import Chart from 'chart.js/auto';
+import { ref } from 'vue';
 
-export const updateChart = (selectedRange, visitorCount, visitorCountMonth, chartInstance) => {
+const chartInstance = ref(null);
+
+export const updateChart = (selectedRange, visitorCount, visitorCountMonth) => {
     const ctx = document.getElementById('visitorsChart').getContext('2d');
     
     if (!ctx) {
         console.error('Chart context is not available.');
         return;
     }
-    
+
+    // 기존 차트 인스턴스가 존재하면 파괴
     if (chartInstance.value) {
         chartInstance.value.destroy();
     }
 
-    // 라벨과 데이터 설정
     const labels = selectedRange.value === 'daily'
         ? Array.from({ length: 31 }, (_, i) => `${i + 1}일`)
         : ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
@@ -24,6 +27,7 @@ export const updateChart = (selectedRange, visitorCount, visitorCountMonth, char
         return;
     }
 
+    // 새로운 차트 생성
     chartInstance.value = new Chart(ctx, {
         type: 'bar',
         data: {

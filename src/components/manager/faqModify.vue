@@ -29,27 +29,46 @@ const faq = ref({ question: '', answer: '' });
 
 const fetchFaq = async () => {
   try {
-    const response = await axios.get(`${API_URL}/api/v1/faqs/${route.params.id}`);
-    faq.value = response.data;
+    const token = localStorage.getItem('token'); 
+    const response = await axios.get(`${API_URL}/api/v1/faqs/${route.params.id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`, 
+      }
+    });
+    if (response.data) {
+      faq.value = response.data;
+    } else {
+      console.error('FAQ not found');
+      // 여기에서 사용자에게 알림을 줄 수 있습니다.
+    }
   } catch (error) {
-    console.error('Error fetching FAQ:', error);
+    console.error('Error fetching FAQ:', error.response ? error.response.data : error.message);
   }
 };
 
 const updateFaq = async () => {
   try {
-    const response = await axios.put(`${API_URL}/api/v1/faqs/update/${route.params.id}`, faq.value);
-    console.log('FAQ updated:', response.data);
-    router.push('/manager/faqList'); // 경로 확인
+    const token = localStorage.getItem('token'); 
+    const response = await axios.put(`${API_URL}/api/v1/faqs/update/${route.params.id}`, faq.value, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (response.data) {
+      router.push('/manager/faqList'); 
+    } else {
+      console.error('Failed to update FAQ');
+      // 여기에서 사용자에게 알림을 줄 수 있습니다.
+    }
   } catch (error) {
-    console.error('Error updating FAQ:', error);
+    console.error('Error updating FAQ:', error.response ? error.response.data : error.message);
   }
 };
 
-
-
 onMounted(fetchFaq);
 </script>
+
 
 <style scoped>
 .faq-form {

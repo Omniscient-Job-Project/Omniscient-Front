@@ -12,7 +12,7 @@ export const useNoticeStore = defineStore('notice', {
       this.loading = true;
       this.error = null;
       try {
-        const response = await axios.get('http://localhost:8090/api/v1/notice');
+        const response = await axios.get(`${API_URL}/api/v1/notice`);
         this.notice = response.data;
       } catch (err) {
         this.error = err.response ? err.response.data : err.message;

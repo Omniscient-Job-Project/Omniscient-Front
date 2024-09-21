@@ -15,7 +15,7 @@
       </thead>
       <tbody>
         <tr v-for="notice in noticeList" :key="notice.noticeId">
-          <td>{{ notice.displayId }}</td> <!-- 변경된 번호 표시 -->
+          <td>{{ notice.displayId }}</td>
           <td>
             <a href="javascript:void(0);" @click="viewDetail(notice.noticeId)">
               {{ notice.noticeTitle }}
@@ -45,69 +45,80 @@
   </div>
 </template>
 
-
 <script>
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-
 export default {
   data() {
     return {
-      noticeList: [], // 공지사항 목록
-      selectedNotice: null // 선택된 공지사항의 상세 정보
+      noticeList: [],
+      selectedNotice: null
     };
   },
   mounted() {
-    this.fetchNotices(); // 컴포넌트가 마운트될 때 공지사항 목록을 불러옴
+    this.fetchNotices();
   },
   methods: {
-    // 공지사항 목록을 가져오는 메서드
     async fetchNotices() {
       try {
-        const response = await axios.get(`${API_URL}/api/v1/notice`);
-        // 상태가 true인 공지사항만 필터링 후, 번호 재정렬
+        const response = await axios.get(`${API_URL}/api/v1/notice`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
         this.noticeList = response.data
-          .filter(notice => notice.noticeStatus !== false) // 상태가 false인 공지사항 제거
+          .filter(notice => notice.noticeStatus !== false)
           .map((notice, index) => ({
             ...notice,
-            displayId: index + 1 // 번호를 1부터 순차적으로 매김
+            displayId: index + 1
           }))
-          .sort((a, b) => b.noticeId - a.noticeId); // 내림차순으로 정렬
+          .sort((a, b) => b.noticeId - a.noticeId);
       } catch (error) {
-        console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다!', error);
+        console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다!', error.response?.data || error.message);
       }
     },
 
-    // 공지사항을 삭제하는 메서드
     async deleteNotice(noticeId) {
-      try {
-        // 상태를 false로 변경하는 로직 호출
-        const response = await axios.put(`${API_URL}/api/v1/notice/delete/${noticeId}`);
-        console.log('삭제 응답:', response);
-        await this.fetchNotices(); // 목록 새로고침
-      } catch (error) {
-        console.error('공지사항을 삭제하는 중 오류가 발생했습니다!', error);
+  try {
+    await axios.put(`${API_URL}/api/v1/notice/delete/${noticeId}`, {
+      headers: {
+        'Content-Type': 'application/json'
       }
-    },
+    });
+    console.log('공지사항이 성공적으로 삭제되었습니다.');
+    this.fetchNotices(); // 공지사항 목록을 다시 불러옵니다.
+  } catch (error) {
+    console.error('공지사항을 삭제하는 중 오류가 발생했습니다:', error.response?.data || error.message);
+  }
+},
 
-    // 공지사항 수정 페이지로 이동하는 메서드
     editNotice(noticeId) {
-      this.$router.push({ path: '/manager/noticeModify', query: { id: noticeId } });
+      if (!noticeId) {
+        console.error('공지사항 ID가 유효하지 않습니다.');
+        return;
+      }
+      this.$router.push({
+        path: '/manager/noticeModify',
+        query: { id: noticeId }
+      });
     },
 
-    // 공지사항 상세 정보를 불러오는 메서드
     async viewDetail(noticeId) {
       try {
-        const response = await axios.get(`${API_URL}/api/v1/notice/${noticeId}`);
+        const response = await axios.get(`${API_URL}/api/v1/notice/${noticeId}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
         this.selectedNotice = response.data;
+        console.log('공지사항 상세 정보를 불러왔습니다:', this.selectedNotice);
       } catch (error) {
-        console.error('공지 상세 정보를 가져오는 중 오류가 발생했습니다!', error);
+        console.error('공지사항 상세 정보를 불러오는 중 오류가 발생했습니다:', error.response?.data || error.message);
       }
     },
 
-    // 날짜를 포맷팅하는 메서드
     formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString();
