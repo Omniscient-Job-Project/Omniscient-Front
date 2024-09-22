@@ -56,6 +56,11 @@
         </div>
       </div>
     </div>
+    </div>
+
+    <WomenJobs v-if="selectedCategory === 'womenJobs'" />
+    <UniversityJob v-if="selectedCategory === 'studentJobs'" />
+    <ElderlyJobs v-if="selectedCategory == 'elderlyJobs'" />
 
     <!-- 페이지네이션 -->
     <nav aria-label="Page navigation">
@@ -82,7 +87,13 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import CurationIndex from '@/components/curation/curationIndex.vue';
+
+// import EmploymentCenterComponent from '@/components/EmploymentCenter.vue';
+import ElderlyJobs from '../curation/ElderlyJobs.vue';
+import WomenJobs from '../curation/womenJobs.vue';
+import UniversityJob from '../curation/universityJob.vue'
+// import HomeComponent from '@/components/Home.vue';
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
