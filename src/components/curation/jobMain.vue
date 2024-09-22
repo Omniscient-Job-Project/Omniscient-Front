@@ -82,6 +82,9 @@
     </div>
 
     <WomenJobs v-if="selectedCategory === 'womenJobs'" />
+    <UniversityJob v-if="selectedCategory === 'studentJobs'" />
+    <ElderlyJobs v-if="selectedCategory == 'elderlyJobs'" />
+
 
     <!-- 페이지네이션 -->
     <nav aria-label="Page navigation">
@@ -110,9 +113,9 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 // import EmploymentCenterComponent from '@/components/EmploymentCenter.vue';
-// import ElderlyJobsComponent from '@/components/ElderlyJobs.vue';
+import ElderlyJobs from '../curation/ElderlyJobs.vue';
 import WomenJobs from '../curation/womenJobs.vue';
-// import StudentJobsComponent from '@/components/StudentJobs.vue';
+import UniversityJob from '../curation/universityJob.vue'
 // import HomeComponent from '@/components/Home.vue';
 
 
