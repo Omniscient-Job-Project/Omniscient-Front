@@ -40,8 +40,8 @@
     </div>
 
     <!-- 선택된 카테고리에 따라 컴포넌트 표시 -->
-    <!-- <EmploymentCenter v-if="selectedCategory === 'employment'" />
-    <ElderlyJobs v-if="selectedCategory === 'elderlyJobs'" /> -->
+    <!-- 
+     -->
     
     <!-- <StudentJobs v-if="selectedCategory === 'studentJobs'" /> -->
     <!-- 홈은 기본으로 표시할 수 있으면 다른 컴포넌트 추가 -->
@@ -84,6 +84,7 @@
     <WomenJobs v-if="selectedCategory === 'womenJobs'" />
     <UniversityJob v-if="selectedCategory === 'studentJobs'" />
     <ElderlyJobs v-if="selectedCategory == 'elderlyJobs'" />
+    <Employment v-if="selectedCategory === 'employment'" />
 
 
     <!-- 페이지네이션 -->
@@ -112,11 +113,10 @@ import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
-// import EmploymentCenterComponent from '@/components/EmploymentCenter.vue';
+import Employment from '../curation/employment.vue';
 import ElderlyJobs from '../curation/ElderlyJobs.vue';
 import WomenJobs from '../curation/womenJobs.vue';
 import UniversityJob from '../curation/universityJob.vue'
-// import HomeComponent from '@/components/Home.vue';
 
 
 const API_URL = import.meta.env.VITE_API_URL;
