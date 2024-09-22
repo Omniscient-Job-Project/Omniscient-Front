@@ -55,7 +55,7 @@ const fetchCertificatesByEmployment = async () => {
     const response = await axios.get(`${API_URL}/api/v1/employment`);
     if (response.data && response.data.GGEMPLTSP && response.data.GGEMPLTSP.row) {
       employments.value = response.data.GGEMPLTSP.row
-        .filter(row => row.DIV_NM === '여성 일자리') // 여성 일자리 필터링
+        .filter(row => row.DIV_NM === '여성 일자리')
         .map(row => ({
           instNm: row.INST_NM,
           contctNm: row.CONTCT_NM,

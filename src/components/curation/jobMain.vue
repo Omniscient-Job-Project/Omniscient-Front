@@ -1,19 +1,5 @@
 <template>
   <div class="curation-main-container">
-    <!-- 자격증 검색 -->
-    <div class="select-container">
-      <h2 class="section-title">자격증 검색</h2>
-      <div class="select">
-        <p>보유하고 있는 자격증 또는 취득할 자격증을 선택하세요.</p>
-      </div>
-      <div class="input-group mb-3">
-        <input type="text" v-model="certificate" class="form-control" placeholder="자격증의 이름을 입력하세요." aria-label="자격증"
-          aria-describedby="button-addon2" />
-      </div>
-      <div class="button-container">
-        <button class="btn btn-primary" type="button" @click="onSelectComplete">선택 완료</button>
-      </div>
-    </div>
 
     <!-- 큐레이션 -->
     <div class="curation-index">
@@ -81,10 +67,11 @@
     </div>
     </div>
 
-    <WomenJobs v-if="selectedCategory === 'womenJobs'" />
-    <UniversityJob v-if="selectedCategory === 'studentJobs'" />
-    <ElderlyJobs v-if="selectedCategory == 'elderlyJobs'" />
-    <Employment v-if="selectedCategory === 'employment'" />
+    <WomenJobs v-if="selectedCategory === 'womenJobs'" :jobs="paginatedJobs" />
+    <UniversityJob v-if="selectedCategory === 'studentJobs'" :jobs="paginatedJobs" />
+    <ElderlyJobs v-if="selectedCategory === 'elderlyJobs'" :jobs="paginatedJobs" />
+    <Employment v-if="selectedCategory === 'employment'" :jobs="paginatedJobs" />
+
 
 
     <!-- 페이지네이션 -->
@@ -105,6 +92,8 @@
         </li>
       </ul>
     </nav>
+
+
   </div>
 </template>
   
@@ -195,13 +184,22 @@ watch(searchTerm, (newTerm) => {
 
 // 검색어에 맞게 필터링된 채용 정보 반환
 const filteredJobs = computed(() => {
-  if (!searchTerm.value) return jobs.value;
-  return jobs.value.filter(job =>
-    job.jobInfoTitle.includes(searchTerm.value) || job.jobCompanyName.includes(searchTerm.value)
-  );
+  // 각 카테고리별로 작업을 필터링
+  if (selectedCategory.value === 'womenJobs') {
+    return jobs.value.filter(job => job.apiType === 'women'); // 여성 일자리 API의 데이터 필터링
+  } else if (selectedCategory.value === 'studentJobs') {
+    return jobs.value.filter(job => job.apiType === 'student'); // 대학생 일자리 API의 데이터 필터링
+  } else if (selectedCategory.value === 'elderlyJobs') {
+    return jobs.value.filter(job => job.apiType === 'elderly'); // 노인 일자리 API의 데이터 필터링
+  } else if (selectedCategory.value === 'employment') {
+    return jobs.value.filter(job => job.apiType === 'employment'); // 고용센터 API의 데이터 필터링
+  }
+  
+  return jobs.value; // 기본적으로 모든 작업 반환
 });
 
 const totalPages = computed(() => Math.ceil(filteredJobs.value.length / itemsPerPage));
+
 const paginatedJobs = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
@@ -283,7 +281,7 @@ body {
   border-left: 5px solid #0166FF;
 }
 
-.select-container, .curation-index, .search-bar {
+.curation-index, .search-bar {
   width: 100%;
   background-color: #ffffff;
   border: none;
@@ -294,14 +292,8 @@ body {
   transition: all 0.3s ease;
 }
 
-.select-container:hover, .curation-index:hover, .search-bar:hover {
+.curation-index:hover, .search-bar:hover {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.select p {
-  margin-top: 10px;
-  text-align: center;
-  color: #555;
 }
 
 .input-group {
