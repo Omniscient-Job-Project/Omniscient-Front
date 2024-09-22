@@ -20,8 +20,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(user,) in filteredUsers" :key="user.userId">
-          <td>{{ user.userId }}</td>
+        <tr v-for="(user, index) in filteredUsers" :key="user.userId">
+          <td>{{ index + 1 }}</td> <!-- 순번 표시 -->
           <td>
             <select v-model="user.role" class="form-select">
               <option value="USER">회원</option>
@@ -34,7 +34,7 @@
       </tbody>
     </table>
   </div>
-  <div class="text-end mt-4"> <!-- 오른쪽 정렬을 위한 text-end 사용 -->
+  <div class="text-end mt-4">
     <button @click="submitChanges" class="btn btn-primary">확인</button>
   </div>
 </template>
@@ -49,7 +49,6 @@ const selectedRole = ref(null);
 
 const fetchUsers = async () => {
   try {
-    // const response = await axios.get('/api/v1/user');
     const response = await axios.get(`${API_URL}/api/v1/user`);
     users.value = response.data;
   } catch (error) {
@@ -59,13 +58,18 @@ const fetchUsers = async () => {
 
 const submitChanges = async () => {
   try {
-    for (const user of users.value) {
-      // await axios.put('/api/v1/user', user);
-      await axios.put(`${API_URL}/api/v1/user`, user);
-      console.log(`사용자 ${user.userId} 업데이트 성공`);
-    }
+    const promises = users.value.map(user =>
+      axios.put(`${API_URL}/api/v1/user/${user.userId}`, user, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+    );
+    await Promise.all(promises); // 모든 요청을 동시에 처리
+    alert('모든 사용자 정보가 성공적으로 업데이트되었습니다.');
   } catch (error) {
     console.error('사용자 업데이트 실패:', error);
+    alert('사용자 업데이트 중 오류가 발생했습니다. 다시 시도해 주세요.');
   }
 };
 
@@ -84,6 +88,7 @@ onMounted(() => {
   fetchUsers();
 });
 </script>
+
 
 <style scoped>
 body {

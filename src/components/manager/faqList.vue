@@ -11,7 +11,6 @@
           </tr>
         </thead>
         <tbody>
-          <!-- 6개까지만 보여줌 -->
           <tr v-for="faq in faqs.slice(0, 6)" :key="faq.id">
             <td>{{ faq.question }}</td>
             <td>{{ faq.answer }}</td>
@@ -50,8 +49,10 @@ const editFaq = (id) => {
 
 const deleteFaq = async (id) => {
   try {
-    await axios.put(`${API_URL}/api/v1/faqs/delete/${id}`);
-    fetchFaqs(); // Refresh the list
+    const response = await axios.put(`${API_URL}/api/v1/faqs/delete/${id}`);
+    if (response.data) { // 삭제 성공 시
+      fetchFaqs(); // Refresh the list
+    }
   } catch (error) {
     console.error('Error deleting FAQ:', error);
   }

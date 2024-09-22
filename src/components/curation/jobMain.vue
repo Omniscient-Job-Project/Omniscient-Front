@@ -16,14 +16,36 @@
     </div>
 
     <!-- 큐레이션 -->
-    <!-- <div class="curation-index">
-      <div class="curation-item"><i class="fas fa-home"></i><p>홈</p></div>
-      <div class="curation-item"><i class="fas fa-certificate"></i><p>자격증</p></div>
-      <div class="curation-item"><i class="fas fa-subway"></i><p>지하철</p></div>
-      <div class="curation-item"><i class="fas fa-ellipsis-h"></i><p>등등</p></div>
-    </div> -->
-    <CurationIndex />
+    <div class="curation-index">
+      <div class="curation-item" @click="selectCategory('home')">
+        <i class="fas fa-home" style="color: #4caf50"></i>
+        <p>홈</p>
+      </div>
+      <div class="curation-item" @click="selectCategory('employment')">
+        <i class="fas fa-briefcase" style="color: #2196f3"></i>
+        <p>고용센터</p>
+      </div>
+      <div class="curation-item" @click="selectCategory('elderlyJobs')">
+        <i class="fas fa-user-friends" style="color: #ff9800"></i>
+        <p>노인일자리</p>
+      </div>
+      <div class="curation-item" @click="selectCategory('womenJobs')">
+        <i class="fas fa-female" style="color: #e91e63"></i>
+        <p>여성일자리</p>
+      </div>
+      <div class="curation-item" @click="selectCategory('studentJobs')">
+        <i class="fas fa-graduation-cap" style="color: #673ab7"></i>
+        <p>대학생일자리</p>
+      </div>
+    </div>
 
+    <!-- 선택된 카테고리에 따라 컴포넌트 표시 -->
+    <!-- <EmploymentCenter v-if="selectedCategory === 'employment'" />
+    <ElderlyJobs v-if="selectedCategory === 'elderlyJobs'" /> -->
+    
+    <!-- <StudentJobs v-if="selectedCategory === 'studentJobs'" /> -->
+    <!-- 홈은 기본으로 표시할 수 있으면 다른 컴포넌트 추가 -->
+    <!-- <HomeComponent v-if="selectedCategory === 'home'" /> -->
   
   <!-- 검색창 -->
   <div class="search-bar">
@@ -38,6 +60,7 @@
   </div>
 
     <!-- 채용정보 카드 -->
+    <div v-if="selectedCategory === 'home'">
     <div class="recruitment-cards">
       <h2 class="section-title">채용 정보</h2>
       <div class="row">
@@ -61,6 +84,7 @@
     <WomenJobs v-if="selectedCategory === 'womenJobs'" />
     <UniversityJob v-if="selectedCategory === 'studentJobs'" />
     <ElderlyJobs v-if="selectedCategory == 'elderlyJobs'" />
+
 
     <!-- 페이지네이션 -->
     <nav aria-label="Page navigation">
@@ -102,6 +126,7 @@ const jobs = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 16;
 const bookmarks = ref([]);
+const selectedCategory = ref('home');
 
 // localStorage에서 북마크 불러오기
 const loadBookmarks = () => {
@@ -214,6 +239,10 @@ const searchJobs = () => {
       job.jobInfoTitle.includes(searchTerm.value) || job.jobCompanyName.includes(searchTerm.value)
     );
   }
+};
+
+const selectCategory = (category) => {
+  selectedCategory.value = category;
 };
 
 </script>
