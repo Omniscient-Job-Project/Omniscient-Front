@@ -25,13 +25,6 @@
       </div>
     </div>
 
-    <!-- 선택된 카테고리에 따라 컴포넌트 표시 -->
-    <!-- 
-     -->
-    
-    <!-- <StudentJobs v-if="selectedCategory === 'studentJobs'" /> -->
-    <!-- 홈은 기본으로 표시할 수 있으면 다른 컴포넌트 추가 -->
-    <!-- <HomeComponent v-if="selectedCategory === 'home'" /> -->
   
   <!-- 검색창 -->
   <div class="search-bar">
@@ -186,13 +179,13 @@ watch(searchTerm, (newTerm) => {
 const filteredJobs = computed(() => {
   // 각 카테고리별로 작업을 필터링
   if (selectedCategory.value === 'womenJobs') {
-    return jobs.value.filter(job => job.apiType === 'women'); // 여성 일자리 API의 데이터 필터링
+    return jobs.value.filter(job => job.apiType === 'women');
   } else if (selectedCategory.value === 'studentJobs') {
-    return jobs.value.filter(job => job.apiType === 'student'); // 대학생 일자리 API의 데이터 필터링
+    return jobs.value.filter(job => job.apiType === 'student');
   } else if (selectedCategory.value === 'elderlyJobs') {
-    return jobs.value.filter(job => job.apiType === 'elderly'); // 노인 일자리 API의 데이터 필터링
+    return jobs.value.filter(job => job.apiType === 'elderly');
   } else if (selectedCategory.value === 'employment') {
-    return jobs.value.filter(job => job.apiType === 'employment'); // 고용센터 API의 데이터 필터링
+    return jobs.value.filter(job => job.apiType === 'employment');
   }
   
   return jobs.value; // 기본적으로 모든 작업 반환
