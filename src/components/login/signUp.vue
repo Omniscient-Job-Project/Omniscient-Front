@@ -80,10 +80,11 @@ const handleSubmit = async () => {
       birthDate: birthDate.value,
       email: email.value,
       phoneNumber: phoneNumber.value,
+    },{
+      timeout: 5000 
     });
 
     console.log(response); // 응답 데이터 확인
-
     if (response.status === 200) {
       alert(response.data); // 서버에서 받은 메시지 출력
       window.location.href = '/login'; // 로그인 페이지로 리다이렉트
@@ -91,11 +92,21 @@ const handleSubmit = async () => {
       alert('회원가입 실패: ' + response.data);
     }
   } catch (error) {
-    console.error(error); // 에러 로그 출력
+    console.error('Error details:', error);
     if (error.response) {
-      alert('서버 에러: ' + error.response.data);
+      // 서버 응답이 2xx 범위를 벗어난 상태 코드를 반환한 경우
+      console.error('Response data:', error.response.data);
+      console.error('Response status:', error.response.status);
+      console.error('Response headers:', error.response.headers);
+      alert(`서버 에러: ${error.response.status} - ${error.response.data}`);
+    } else if (error.request) {
+      // 요청이 이루어졌으나 응답을 받지 못한 경우
+      console.error('Request made but no response received');
+      alert('서버로부터 응답을 받지 못했습니다. 네트워크 연결을 확인해주세요.');
     } else {
-      alert('회원가입 요청 중 문제가 발생했습니다.');
+      // 요청 설정 중에 문제가 발생한 경우
+      console.error('Error setting up the request:', error.message);
+      alert('요청 설정 중 오류가 발생했습니다: ' + error.message);
     }
   }
 };

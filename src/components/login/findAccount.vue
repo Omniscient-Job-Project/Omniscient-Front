@@ -1,81 +1,81 @@
 <template>
-    <div v-if="isOpen" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
-        <button class="close-btn" @click="closeModal">&times;</button>
-        <h2>계정 찾기</h2>
-        <div class="tab-container">
-          <button 
-            :class="['tab-btn', { active: activeTab === 'id' }]" 
-            @click="activeTab = 'id'"
-          >
-            아이디 찾기
-          </button>
-          <button 
-            :class="['tab-btn', { active: activeTab === 'password' }]" 
-            @click="activeTab = 'password'"
-          >
-            비밀번호 찾기
-          </button>
-        </div>
-        
-        <!-- 아이디 찾기 -->
-      <div v-if="activeTab === 'id'" class="tab-content">
-        <form @submit.prevent="verifyId">
-          <div class="form-group">
-            <label for="name">이름</label>
-            <input type="text" id="name" v-model="name" required>
-          </div>
-          <div class="form-group">
-            <label for="email">이메일</label>
-            <input type="email" id="email" v-model="email" required>
-            <button type="button" class="send-code-btn" @click="sendAuthCode">인증번호 발송</button>
-          </div>
-          <div class="form-group">
-            <label for="authCode">인증번호</label>
-            <input type="text" id="authCode" v-model="authCode" required>
-          </div>
-          <button type="submit" class="submit-btn">인증확인</button>
-        </form>
+  <div v-if="isOpen" class="modal-overlay" @click="closeModal">
+    <div class="modal-content" @click.stop>
+      <button class="close-btn" @click="closeModal">&times;</button>
+      <h2>계정 찾기</h2>
+      <div class="tab-container">
+        <button 
+          :class="['tab-btn', { active: activeTab === 'id' }]" 
+          @click="activeTab = 'id'"
+        >
+          아이디 찾기
+        </button>
+        <button 
+          :class="['tab-btn', { active: activeTab === 'password' }]" 
+          @click="activeTab = 'password'"
+        >
+          비밀번호 찾기
+        </button>
       </div>
-
-      <!-- 비밀번호 찾기 -->
-      <div v-else class="tab-content">
-        <form @submit.prevent="verifyPassword">
-          <div class="form-group">
-            <label for="name">이름</label>
-            <input type="text" id="name" v-model="name" required>
-          </div>
-          <div class="form-group">
-            <label for="userId">아이디</label>
-            <input type="text" id="userId" v-model="userId" required>
-          </div>
-          <div class="form-group">
-            <label for="email">이메일</label>
-            <input type="email" id="email" v-model="email" required>
-            <button type="button" class="send-code-btn" @click="sendAuthCode">인증번호 발송</button>
-          </div>
-          <div class="form-group">
-            <label for="authCode">인증번호</label>
-            <input type="text" id="authCode" v-model="authCode" required>
-          </div>
-          <button type="submit" class="submit-btn">인증확인</button>
-        </form>
+      
+      <!-- 아이디 찾기 -->
+    <div v-if="activeTab === 'id'" class="tab-content">
+      <form @submit.prevent="findId">
+        <div class="form-group">
+          <label for="name">이름</label>
+          <input type="text" id="name" v-model="name" required>
         </div>
+        <div class="form-group">
+          <label for="email">이메일</label>
+          <input type="email" id="email" v-model="email" required>
+          <button type="button" class="send-code-btn" @click="sendAuthCode">인증번호 발송</button>
+        </div>
+        <div class="form-group">
+          <label for="authCode">인증번호</label>
+          <input type="text" id="authCode" v-model="authCode" required>
+        </div>
+        <button type="submit" class="submit-btn">인증확인</button>
+      </form>
+    </div>
+
+    <!-- 비밀번호 찾기 -->
+    <div v-else class="tab-content">
+      <form @submit.prevent="resetPassword">
+        <div class="form-group">
+          <label for="name">이름</label>
+          <input type="text" id="name" v-model="name" required>
+        </div>
+        <div class="form-group">
+          <label for="userId">아이디</label>
+          <input type="text" id="userId" v-model="userId" required>
+        </div>
+        <div class="form-group">
+          <label for="email">이메일</label>
+          <input type="email" id="email" v-model="email" required>
+          <button type="button" class="send-code-btn" @click="sendAuthCode">인증번호 발송</button>
+        </div>
+        <div class="form-group">
+          <label for="authCode">인증번호</label>
+          <input type="text" id="authCode" v-model="authCode" required>
+        </div>
+        <button type="submit" class="submit-btn">인증확인</button>
+      </form>
       </div>
     </div>
-  </template>
+  </div>
+</template>
   
   <script setup>
  import { ref } from 'vue';
+import axios from 'axios';
 
-
-
+const API_URL = import.meta.env.VITE_API_URL;
 const isOpen = ref(false);
 const activeTab = ref('id');
 const email = ref('');
 const userId = ref('');
 const authCode = ref('');
-const name = ref(''); 
+const name = ref('');
 
 const openModal = () => {
   isOpen.value = true;
@@ -83,11 +83,15 @@ const openModal = () => {
 
 const closeModal = () => {
   isOpen.value = false;
+  resetForm();
+};
+
+const resetForm = () => {
   activeTab.value = 'id';
   email.value = '';
   userId.value = '';
   authCode.value = '';
-  name.value = ''; 
+  name.value = '';
 };
 
 const sendAuthCode = async () => {
@@ -96,41 +100,80 @@ const sendAuthCode = async () => {
     return;
   }
   try {
-    const response = await fetch('/api/v1/login/send-code', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: name.value, 
-        email: email.value, 
-      }),
-    });
-
-    if (response.ok) {
-      const verificationCode = await response.text();
-      console.log('인증 코드:', verificationCode);
-      alert('인증 코드가 이메일로 전송되었습니다.');
-    } else {
-      alert('인증 코드 전송에 실패했습니다.');
-    }
+    const response = await axios.post(`${API_URL}/api/v1/login/send-code`, {
+  email: email.value
+}, {
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+    alert(response.data);
   } catch (error) {
-    console.error('Error sending email:', error);
-    alert('인증 코드 전송 중 오류가 발생했습니다.');
+    console.error('Error sending auth code:', error);
+    if (error.response) {
+      console.error('Error response:', error.response);
+      console.error('Error response data:', error.response.data);
+      console.error('Error response status:', error.response.status);
+      console.error('Error response headers:', error.response.headers);
+      
+      if (error.response.status === 404) {
+        alert('해당 이메일로 등록된 계정이 없습니다.');
+      } else {
+        alert(`오류 발생: ${error.response.data}`);
+      }
+    } else if (error.request) {
+      console.error('Error request:', error.request);
+      alert('서버로부터 응답이 없습니다.');
+    } else {
+      console.error('Error message:', error.message);
+      alert('요청 설정 중 오류가 발생했습니다.');
+    }
   }
 };
 
 const findId = async () => {
-  // 여기에 아이디 찾기 로직 구현
-  console.log('Finding ID for email:', email.value);
-  // API 호출 및 결과 처리
+  try {
+    const response = await axios.post(`${API_URL}/api/v1/login/find-id`, {
+      email: email.value,
+      authCode: authCode.value
+    });
+
+    if (response.status === 200) {
+      alert('아이디가 이메일로 전송되었습니다.');
+      closeModal();
+    } else {
+      alert('아이디 찾기에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('Error finding ID:', error);
+    if (error.response && error.response.status === 404) {
+      alert('해당 이메일로 등록된 계정이 없습니다.');
+    } else {
+      alert('아이디 찾기 중 오류가 발생했습니다.');
+    }
+  }
 };
 
-const findPassword = async () => {
-  // 여기에 비밀번호 찾기 로직 구현
-  console.log('Resetting password for user:', userId.value, 'with email:', email.value);
-  // API 호출 및 결과 처리
+const resetPassword = async () => {
+    try {
+        const response = await axios.post(`${API_URL}/api/v1/login/reset-password`, {
+            email: email.value,
+            newPassword: newPassword.value,
+            code: authCode.value
+        });
+
+        if (response.status === 200) {
+            alert('비밀번호가 성공적으로 재설정되었습니다.');
+            closeModal();
+        } else {
+            alert('비밀번호 재설정에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        alert('비밀번호 재설정 중 오류가 발생했습니다.');
+    }
 };
+
   defineExpose({ openModal });
   </script>
   
