@@ -1,41 +1,38 @@
 <template>
 
-    <div class="recruitment-cards">
-      <h2 class="section-title">대학생 일자리 정보</h2>
-        <div class="row">
-          <div v-for="employment in employments" :key="employment.instNm" class="col-md-3">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">{{ employment.instNm }}</h5>
-                  <p class="card-text">
-                    <i class="fas fa-phone" style="color: #4caf50;"></i> 
-                    <strong>연락처:</strong> {{ employment.contctNm }}
-                  </p>
-                  <p class="card-text">
-                    <i class="fas fa-map-marker-alt" style="color: #2196f3;"></i>
-                    <strong>주소:</strong> {{ employment.refineLotnoAddr }} (우편번호: {{ employment.refineZipNo }})
-                  </p>
-                  <p class="card-text">
-                    <i class="fas fa-road" style="color: #ff9800;"></i>
-                    <strong>도로명 주소:</strong> {{ employment.refineRoadnmAddr }}
-                  </p>
-                  <p class="card-text">
-                    <i class="fas fa-map" style="color: #673ab7;"></i>
-                    <strong>지역:</strong> {{ employment.regionNm }}
-                  </p>
-                  <p class="card-text">
-                    <i class="fas fa-tag" style="color: #e91e63;"></i>
-                    <strong>분류:</strong> {{ employment.divNm }}
-                  </p>
-  
-                  <a :href="employment.hmpgNm" target="_blank" class="btn btn-primary">
-                    <i class="fas fa-external-link-alt"></i> 홈페이지 방문
-                  </a>
-                </div>
+  <div class="recruitment-cards">
+    <h2 class="section-title">대학생 일자리 정보</h2>
+    <div class="row">
+      <div v-for="employment in employments" :key="employment.instNm" class="col-md-3">
+        <div class="card">
+          <div class="card-body">
+
+              <div class="bookmark-icon" @click="toggleBookmark(employment)">
+                <i :class="isBookmarked(employment.instNm) ? 'fas fa-bookmark bookmarked' : 'far fa-bookmark'"></i>
               </div>
+              <a :href="employment.hmpgNm" target="_blank" class="home-icon">
+                <i class="fas fa-external-link-alt" style="color: #007bff;"></i>
+              </a>
+
+            <h5 class="card-title">{{ employment.instNm }}</h5>
+            <p class="card-text">
+              <i class="fas fa-phone" style="color: #4caf50;"></i> 
+              <strong>연락처:</strong> {{ employment.contctNm }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-map-marker-alt" style="color: #e74c3c;"></i>
+              <strong>주소:</strong> {{ employment.refineLotnoAddr }} (우편번호: {{ employment.refineZipNo }})
+            </p>
+            <p class="card-text">
+              <i class="fas fa-map" style="color: #673ab7;"></i>
+              <strong>지역:</strong> {{ employment.regionNm }}
+            </p>
           </div>
         </div>
+      </div>
     </div>
+  </div>
+
       
   </template>
   
@@ -45,11 +42,42 @@
   import { ref, computed, onMounted, watch } from 'vue';
   import axios from 'axios';
   import { useRouter } from 'vue-router';
-  const API_URL = import.meta.env.VITE_API_URL;
-  
 
+
+  const API_URL = import.meta.env.VITE_API_URL;
   const employments = ref([]);
-  
+  const bookmarks = ref([]);
+
+// localStorage에서 북마크 불러오기
+const loadBookmarks = () => {
+  const savedBookmarks = localStorage.getItem('bookmarks');
+  if (savedBookmarks) {
+    bookmarks.value = JSON.parse(savedBookmarks);
+  }
+};
+
+// 북마크 저장하기
+const saveBookmarks = () => {
+  localStorage.setItem('bookmarks', JSON.stringify(bookmarks.value));
+};
+
+// 북마크 변경 감지 및 저장
+watch(bookmarks, saveBookmarks, { deep: true });
+
+const toggleBookmark = (employment) => {
+  const index = bookmarks.value.findIndex(employment => employment.instNm === employment.instNm);
+  if (index > -1) {
+    bookmarks.value.splice(index, 1); // 북마크에서 제거
+  } else {
+    bookmarks.value.push(employment); // 북마크에 추가
+  }
+};
+
+const isBookmarked = (instNm) => {
+  return bookmarks.value.some(employment => employment.instNm === instNm); // 북마크에 있는지 확인
+};
+
+
   const fetchCertificatesByEmployment = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/v1/employment`);
@@ -79,6 +107,7 @@
   
   onMounted(() => {
     fetchCertificatesByEmployment();
+    loadBookmarks();
   });
   </script>
   <style scoped>
@@ -91,6 +120,16 @@
   .job-list {
     width: 100%;
   }
+
+  .section-title {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  width: 100%;
+  text-align: left;
+  padding-left: 10px;
+  border-left: 5px solid #0166FF;
+}
   
   .row {
     display: flex;
@@ -184,6 +223,28 @@
     background-color: #fff;
     border-color: #dee2e6;
   }
+
+  .bookmark-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.bookmark-icon i {
+  color: #B0C4DE;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.bookmark-icon i:hover {
+  transform: scale(1.1);
+}
+
+.bookmark-icon i.bookmarked {
+  color: #FFD700;
+}
   
   @media (max-width: 1200px) {
     .col-md-3 { width: 33.33%; }
