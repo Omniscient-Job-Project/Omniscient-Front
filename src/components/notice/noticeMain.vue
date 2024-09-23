@@ -26,60 +26,60 @@ onMounted(fetchNotices);
 
 <template>
   <div class="container">
-    <div class="main-content">
-      <div class="notice-board">
-        <h2>공지사항</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>번호</th>
-              <th>제목</th>
-              <th>등록일</th>
-              <th>조회수</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="notice in notices" :key="notice.noticeId">
-              <td>{{ notice.displayId }}</td> <!-- 새로 부여된 번호를 표시 -->
-              <td>
-                <router-link :to="{ name: 'noticeDetail', params: { id: notice.noticeId } }">
-                  {{ notice.noticeTitle }}
-                </router-link>
-              </td>
-              <td>{{ new Date(notice.noticeCreateAt).toLocaleDateString() }}</td>
-              <td>{{ notice.noticeViews }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="board">
+      <h2>공지사항</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>등록일</th>
+            <th>조회수</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="notice in notices" :key="notice.noticeId">
+            <td>{{ notice.displayId }}</td>
+            <td>
+              <router-link :to="{ name: 'noticeDetail', params: { id: notice.noticeId } }">
+                {{ notice.noticeTitle }}
+              </router-link>
+            </td>
+            <td>{{ new Date(notice.noticeCreateAt).toLocaleDateString() }}</td>
+            <td>{{ notice.noticeViews }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <style scoped>
+
 .container {
   display: flex;
   margin: 0 auto;
   max-width: 1200px;
-  height: 70vh;
+  min-height: 70vh;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
-.main-content {
-  flex: 1;
-  padding: 40px;
-  margin-left: 20px;
-  background-color: white;
-  max-width: 1000px;
-  margin-top: 10px;
-}
-
-.notice-board {
+.board {
+  width: 100%;
   font-family: Arial, sans-serif;
-  max-width: 800px;
-  margin: 0 auto;
+  background-color: transparent;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: center;
 }
 
 table {
@@ -89,17 +89,31 @@ table {
 
 th, td {
   text-align: center;
-  border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
 }
 
 th {
-  background-color: #f2f2f2;
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #495057;
 }
 
-/* 번호 칸의 너비를 조정 */
+td a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+td a:hover {
+  text-decoration: underline;
+}
+
 th:first-child, td:first-child {
-  width: 60px; /* 너비를 줄입니다 */
+  width: 60px;
+}
+
+th:last-child, td:last-child {
+  width: 100px;
 }
 
 tbody tr {
@@ -107,8 +121,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background-color: #e3f2fd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transform: scale(1.02);
+  background-color: #f1f3f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

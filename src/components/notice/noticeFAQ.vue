@@ -57,10 +57,9 @@ onMounted(fetchFaqs);
 </script>
 
 <template>
-  <div class="main-content">
-    <div class="notice-board">
+  <div class="container">
+    <div class="board">
       <h2>자주 묻는 질문 (FAQ)</h2>
-
       <table>
         <thead>
           <tr>
@@ -78,7 +77,6 @@ onMounted(fetchFaqs);
               </td>
               <td>{{ faq.faqViews }}</td>
             </tr>
-            <!-- Display the answer when an FAQ is selected -->
             <tr v-if="selectedFaqId === faq.id">
               <td colspan="3" class="answer">
                 {{ faq.answer }}
@@ -96,25 +94,26 @@ onMounted(fetchFaqs);
   display: flex;
   margin: 0 auto;
   max-width: 1200px;
-  height: 70vh;
+  min-height: 70vh;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
-.main-content {
-  flex: 1;
-  padding: 40px;
-  margin-left: 20px;
-  background-color: white;
-  max-width: 1000px;
-  margin-top: 10px;
-}
-
-.notice-board {
+.board {
+  width: 100%;
   font-family: Arial, sans-serif;
-  max-width: 800px;
-  margin: 0 auto;
+  background-color: transparent;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: center;
 }
 
 table {
@@ -124,40 +123,37 @@ table {
 
 th, td {
   text-align: center;
-  border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
 }
 
 th {
-  background-color: #f2f2f2;
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #495057;
 }
 
-/* 번호 칸의 너비를 조정 */
 th:first-child, td:first-child {
-  width: 60px; /* 번호 칸의 너비 */
+  width: 60px;
 }
 
-/* 조회수 칸의 너비를 조정 */
 th:last-child, td:last-child {
-  width: 100px; /* 조회수 칸의 너비 */
+  width: 100px;
 }
 
-/* 클릭 가능한 제목 스타일 */
 .clickable-title {
   cursor: pointer;
-  color: #3498db;
-  text-decoration: underline;
+  color: #007bff;
 }
 
 .clickable-title:hover {
-  color: #2980b9;
+  text-decoration: underline;
 }
 
-/* 답변 스타일 */
 .answer {
-  background-color: #f9f9f9;
-  padding: 10px;
-  border-top: 1px solid #ddd;
+  background-color: #f8f9fa;
+  padding: 15px;
+  text-align: left;
 }
 
 tbody tr {
@@ -165,8 +161,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background-color: #e3f2fd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transform: scale(1.02);
+  background-color: #f1f3f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>
