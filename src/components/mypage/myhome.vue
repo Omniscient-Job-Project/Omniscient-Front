@@ -29,23 +29,37 @@
   </template>
   
   <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
+  import axios from 'axios';
   
-  const userName = ref('신주연');
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  const userName = ref(''); // 초기값은 빈 문자열
+  
   const certificates = ref([
-    { name: '정보처리기사', date: '2023-05-15', issuer: '한국산업인력공단', number: '23-12-1234' },
-    { name: 'SQLD', date: '2023-08-20', issuer: '한국데이터산업진흥원', number: 'SQL-2023-12345' },
+      { name: '정보처리기사', date: '2023-05-15', issuer: '한국산업인력공단', number: '23-12-1234' },
+      { name: 'SQLD', date: '2023-08-20', issuer: '한국데이터산업진흥원', number: 'SQL-2023-12345' },
   ]);
   
   const summaryItems = computed(() => [
-    { label: '지원한 회사', value: 5, icon: 'fas fa-building' },
-    { label: '열람된 이력서', value: 3, icon: 'fas fa-eye' },
-    { label: '보유 자격증', value: certificates.value.length, icon: 'fas fa-award' },
+      { label: '지원한 회사', value: 5, icon: 'fas fa-building' },
+      { label: '열람된 이력서', value: 3, icon: 'fas fa-eye' },
+      { label: '보유 자격증', value: certificates.value.length, icon: 'fas fa-award' },
   ]);
   
   const showRecommendations = () => {
-    console.log('추천 채용공고 표시');
+      console.log('추천 채용공고 표시');
   };
+  
+  // 컴포넌트가 마운트될 때 API 호출
+  onMounted(async () => {
+      try {
+          const response = await axios.get(`${API_URL}/api/v1/user/me`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+          userName.value = response.data.username; // 응답에서 사용자 이름을 가져와 설정
+      } catch (error) {
+          console.error('사용자 정보를 가져오는 데 실패했습니다:', error);
+      }
+  });
   </script>
   
   <style scoped>
