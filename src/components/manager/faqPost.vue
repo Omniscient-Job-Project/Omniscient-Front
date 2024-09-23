@@ -4,11 +4,11 @@
     <form @submit.prevent="createFaq">
       <div>
         <label for="question">질문:</label>
-        <input v-model="newFaq.question" type="text" id="question" required />
+        <input v-model="newFaq.question" type="text" faqId="question" required />
       </div>
       <div>
         <label for="answer">답변:</label>
-        <textarea v-model="newFaq.answer" id="answer" required></textarea>
+        <textarea v-model="newFaq.answer" faqId="answer" required></textarea>
       </div>
       <!-- 버튼들을 감싸는 div 추가 -->
       <div class="button-group">
