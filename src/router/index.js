@@ -227,7 +227,7 @@ const router = createRouter({
           component: ManagerFAQPost
         },
         {
-          path: 'faqModify/:id',
+          path: 'faqModify/:faqId',
           name: 'ManagerFaqModify',
           component: ManagerFAQModify,
           props: true

@@ -11,12 +11,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="faq in faqs.slice(0, 6)" :key="faq.id">
+          <tr v-for="faq in faqs.slice(0, 6)" :key="faq.faqId">
             <td>{{ faq.question }}</td>
             <td>{{ faq.answer }}</td>
             <td>
-              <button @click="editFaq(faq.id)">수정</button>
-              <button @click="deleteFaq(faq.id)">삭제</button>
+              <button @click="editFaq(faq.faqId)">수정</button>
+              <button @click="deleteFaq(faq.faqId)">삭제</button>
             </td>
           </tr>
         </tbody>
@@ -43,13 +43,13 @@ const fetchFaqs = async () => {
   }
 };
 
-const editFaq = (id) => {
-  router.push({ name: 'ManagerFaqModify', params: { id } });
+const editFaq = (faqId) => {
+  router.push({ name: 'ManagerFaqModify', params: { faqId } });
 };
 
-const deleteFaq = async (id) => {
+const deleteFaq = async (faqId) => {
   try {
-    const response = await axios.put(`${API_URL}/api/v1/faqs/delete/${id}`);
+    const response = await axios.put(`${API_URL}/api/v1/faqs/delete/${faqId}`);
     if (response.data) { // 삭제 성공 시
       fetchFaqs(); // Refresh the list
     }

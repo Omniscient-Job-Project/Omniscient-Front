@@ -4,11 +4,11 @@
     <form @submit.prevent="updateFaq">
       <div>
         <label for="question">질문:</label>
-        <input v-model="faq.question" type="text" id="question" required />
+        <input v-model="faq.question" type="text" faqId="question" required />
       </div>
       <div>
         <label for="answer">답변:</label>
-        <textarea v-model="faq.answer" id="answer" required></textarea>
+        <textarea v-model="faq.answer" faqId="answer" required></textarea>
       </div>
       <button type="submit">저장</button>
     </form>
@@ -30,7 +30,7 @@ const faq = ref({ question: '', answer: '' });
 const fetchFaq = async () => {
   try {
     const token = localStorage.getItem('token'); 
-    const response = await axios.get(`${API_URL}/api/v1/faqs/${route.params.id}`, {
+    const response = await axios.get(`${API_URL}/api/v1/faqs/${route.params.faqId}`, {
       headers: {
         'Authorization': `Bearer ${token}`, 
       }
@@ -49,7 +49,7 @@ const fetchFaq = async () => {
 const updateFaq = async () => {
   try {
     const token = localStorage.getItem('token'); 
-    const response = await axios.put(`${API_URL}/api/v1/faqs/update/${route.params.id}`, faq.value, {
+    const response = await axios.put(`${API_URL}/api/v1/faqs/update/${route.params.faqId}`, faq.value, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

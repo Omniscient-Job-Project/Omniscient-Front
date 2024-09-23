@@ -18,18 +18,20 @@ export const updateChart = async (selectedRange, visitorCount, visitorCountMonth
         return;
     }
 
-    // 차트 인스턴스가 초기화되지 않았을 때만 새로 생성
+    // 차트 인스턴스가 이미 있다면 파괴
     if (chartInstance.value) {
-        console.log('Destroying existing chart instance.');
         chartInstance.value.destroy();
     }
 
-    const rangeValue = selectedRange && selectedRange.value ? selectedRange.value : 'daily'; // 기본값 설정
+    // 기본값 설정
+    const rangeValue = selectedRange?.value || 'daily'; // selectedRange가 undefined일 경우 기본값 설정
     const labels = rangeValue === 'daily'
         ? Array.from({ length: 31 }, (_, i) => `${i + 1}일`)
         : ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
 
-    const data = rangeValue === 'daily' ? visitorCount.value : visitorCountMonth.value;
+    // visitorCount와 visitorCountMonth에 대한 기본값 설정
+    const data = Array.isArray(visitorCount?.value) ? visitorCount.value : [];
+    const monthlyData = Array.isArray(visitorCountMonth?.value) ? visitorCountMonth.value : [];
 
     if (!Array.isArray(data)) {
         console.error('Visitor data is not an array:', data);
@@ -44,7 +46,7 @@ export const updateChart = async (selectedRange, visitorCount, visitorCountMonth
                 labels: labels,
                 datasets: [{
                     label: '방문자수',
-                    data: data,
+                    data: rangeValue === 'daily' ? data : monthlyData,
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
@@ -71,4 +73,3 @@ export const updateChart = async (selectedRange, visitorCount, visitorCountMonth
         console.error('Error creating chart:', error);
     }
 };
-
