@@ -250,12 +250,11 @@ body {
 
 .curation-main-container {
   margin: 2rem auto;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: #E6F3FF;
   backdrop-filter: blur(10px);
   padding: 2rem;
   box-sizing: border-box;
-  width: 95%;
-  max-width: 1400px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
