@@ -62,9 +62,6 @@ onMounted(fetchFaqs);
 </script>
 
 <style scoped>
-.faq-list {
-  padding: 20px;
-}
 
 h1 {
   margin-bottom: 20px;
@@ -81,13 +78,13 @@ table {
 }
 
 th, td {
-  border: 1px solid #ddd;
+  border: 1px solid #AFF6C3;
   padding: 10px;
   text-align: left;
 }
 
 th {
-  background-color: #f4f4f4;
+  background-color: #AFF6C3;
 }
 
 button {

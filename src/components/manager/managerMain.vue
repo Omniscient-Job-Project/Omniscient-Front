@@ -159,30 +159,39 @@ const fetchUserCountFromApi = async () => {
 };
 
 onMounted(async () => {
-    await visitorStore.trackVisitor();  // 방문자 추적
+  await visitorStore.trackVisitor();  // 방문자 추적
 
-    try {
-        todayVisitorCount.value = await fetchTodayVisitorCount(todayVisitorCount);
-        await fetchVisitorData(selectedRange, visitorCount, visitorCountMonth, updateChart);
-
-        // 관리자 권한이 있을 경우 모든 사용자를 가져옴
-        const isAdmin = true;  // 임시로 관리자 권한 확인 (나중에 실제 권한 확인 로직 필요)
-        if (isAdmin) {
-            users.value = await fetchAllUsersFromApi();
-        } else {
-            const currentUser = await fetchCurrentUserFromApi();
-            if (currentUser) users.value = [currentUser];
-        }
-
-        userCount.value = await fetchUserCountFromApi();
-    } catch (error) {
-        console.error('Error during initialization:', error.message || error);
-    }
-});
-
-watch(selectedRange, async () => {
+  try {
+    todayVisitorCount.value = await fetchTodayVisitorCount();
+    
     await fetchVisitorData(selectedRange, visitorCount, visitorCountMonth, updateChart);
+  
+    // 관리자 권한이 있을 경우 모든 사용자를 가져옴
+    const isAdmin = true;  // 임시로 관리자 권한 확인 (나중에 실제 권한 확인 로직 필요)
+    if (isAdmin) {
+      users.value = await fetchAllUsersFromApi();
+    } else {
+      const currentUser = await fetchCurrentUserFromApi();
+      if (currentUser) users.value = [currentUser];
+    }
+
+    userCount.value = await fetchUserCountFromApi();
+  } catch (error) {
+    console.error('Error during initialization:', error.message || error);
+  }
 });
+
+
+
+watch(selectedRange, async (newValue) => {
+  try {
+    console.log('watch triggered, new selectedRange value:', newValue);
+    await fetchVisitorData(selectedRange, visitorCount, visitorCountMonth, updateChart);
+  } catch (error) {
+    console.error('Error in watch:', error);
+  }
+});
+
 
 </script>
 
