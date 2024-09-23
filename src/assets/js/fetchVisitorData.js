@@ -1,15 +1,18 @@
+import axios from 'axios'; // axios 임포트
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const fetchVisitorData = async (selectedRange, visitorCount, visitorCountMonth, updateChart) => {
   try {
     const token = localStorage.getItem('token');
-    
     if (!token) {
       console.error('No authorization token found in local storage.');
       return;
     }
 
-    const endpoint = selectedRange.value === 'daily' 
-      ? `${API_URL}/api/v1/dailyVisitors` 
-      : `${API_URL}/api/v1/monthlyVisitors`;
+    // 엔드포인트를 컨트롤러에 맞게 수정
+    const endpoint = selectedRange.value === 'daily'  // selectedRange가 'daily'일 경우
+      ? `${API_URL}/api/v1/dailyVisitors`
+      : `${API_URL}/api/v1/monthlyVisitors`;  // 'monthly'일 경우
 
     const response = await axios.get(endpoint, {
       headers: {
@@ -18,26 +21,23 @@ export const fetchVisitorData = async (selectedRange, visitorCount, visitorCount
     });
 
     if (selectedRange.value === 'daily') {
+      // 일일 방문자 데이터 처리
       if (Array.isArray(response.data)) {
-        visitorCount.value = Array(31).fill(0);  // 31일로 초기화
-        response.data.forEach(visitor => {
-          const day = new Date(visitor.visitDate).getDate();
-          if (day >= 1 && day <= 31) {
-            visitorCount.value[day - 1] = visitor.visitCount;  // 해당 날짜의 방문자 수 할당
-          }
-        });
+        visitorCount.value = response.data;
       } else {
-        console.error('Expected an array but got:', typeof response.data);
+        console.error('Invalid data format for daily visitors:', response.data);
       }
-    } else if (selectedRange.value === 'monthly') {
-      if (Array.isArray(response.data) && response.data.length === 12) {  // 12개월 데이터 확인
-        visitorCountMonth.value = response.data;  // 월별 데이터 할당
+    } else {
+      // 월별 방문자 데이터 처리
+      if (Array.isArray(response.data)) {
+        visitorCountMonth.value = response.data;
       } else {
-        console.error('Expected an array with 12 items but got:', response.data);
+        console.error('Invalid data format for monthly visitors:', response.data);
       }
     }
 
-    updateChart();  // 차트 업데이트
+    // 차트 업데이트
+    updateChart(selectedRange, visitorCount, visitorCountMonth);
   } catch (error) {
     console.error('Failed to fetch visitor data:', error.message || error);
   }
