@@ -7,7 +7,7 @@
       <div class="footer-link">
         <a href="https://github.com/Omniscient-Job-Project" target="_blank" class="footer-link">깃허브</a>
       </div>
-      <div class="footer-link">전직시</div>
+      <RouterLink to="/login" class="footer-link">전직시</RouterLink>
     </div>
   </footer>
 </template>
