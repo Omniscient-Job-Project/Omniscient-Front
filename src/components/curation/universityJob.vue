@@ -1,7 +1,6 @@
 <template>
 
   <div class="recruitment-cards">
-    <h2 class="section-title">대학생 일자리 정보</h2>
     <div class="row">
       <div v-for="employment in employments" :key="employment.instNm" class="col-md-3">
         <div class="card">

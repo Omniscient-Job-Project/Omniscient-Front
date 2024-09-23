@@ -27,21 +27,34 @@
 
   
   <!-- 검색창 -->
-  <div class="search-bar">
-    <div class="card-input">
-      <input type="text" v-model="searchTerm" class="form-control" placeholder="채용 정보를 검색해보세요." aria-label="검색"
-        aria-describedby="button-addon2" />
-      <button class="btn btn-primary search-button" type="button" id="button-addon2" @click="searchJobs">
-        <i class="fas fa-search"></i>
-        <span>검색</span>
-      </button>
+  <div class="header-container">
+    <h2 class="section-title">
+    {{ selectedCategory === 'womenJobs' ? '여성 일자리' :
+      selectedCategory === 'studentJobs' ? '대학생 일자리' :
+      selectedCategory === 'elderlyJobs' ? '노인 일자리' :
+      selectedCategory === 'employment' ? '고용센터' : '채용 정보' }}
+  </h2>
+  <div class="search-box">
+    <div class="input-wrapper">
+      <input
+        type="text"
+        class="search-input-box"
+        placeholder="분야를 입력해주세요."
+        v-model="searchTerm"
+      />
+      <img
+        src="@/assets/img/search-icon.svg"
+        class="search-icon"
+        @click="handleSearch"
+        alt="검색 아이콘"
+      />
     </div>
   </div>
+</div>
 
     <!-- 채용정보 카드 -->
     <div v-if="selectedCategory === 'home'">
     <div class="recruitment-cards">
-      <h2 class="section-title">채용 정보</h2>
       <div class="row">
         <div v-for="job in paginatedJobs" :key="job.jobId" class="col-md-3">
           <div class="card" @click="goToDetail(job.jobId)">
@@ -94,6 +107,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { getChoseong } from "es-hangul";
 
 import Employment from '../curation/employment.vue';
 import ElderlyJobs from '../curation/ElderlyJobs.vue';
@@ -164,6 +178,25 @@ const fetchJobs = async () => {
 onMounted(() => {
   fetchJobs();
   loadBookmarks();
+});
+
+
+// 필터링된 자격증 반환
+const filteredCertificates = computed(() => {
+  let filtered = gradeCertificates.value;
+
+  // 검색어 필터
+  if (searchTerm.value) {
+    const searchChoseong = getChoseong(searchTerm.value);
+    filtered = filtered.filter((certificate) => {
+      const certificateChoseong = getChoseong(
+        certificate.jmNm + certificate.instiNm
+      );
+      return certificateChoseong.includes(searchChoseong);
+    });
+  }
+
+  return filtered;
 });
 
 // 검색어 변경 시 필터링
@@ -362,49 +395,58 @@ body {
   color: #555;
 }
 
-.search-bar .card-input {
+.card-input {
   display: flex;
   align-items: center;
 }
 
-.search-bar input {
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem; /* 제목과 카드 사이의 간격을 위해 추가 */
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.search-box:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-input-box::placeholder {
+  color: #999;
+} 
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-input-box {
   flex-grow: 1;
-  margin-right: 10px;
-  height: 45px;
-  padding: 10px 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px 0 0 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.search-bar input:focus {
-  border-color: #0166FF;
-  box-shadow: 0 0 0 2px rgba(1, 102, 255, 0.2);
-}
-
-.search-button {
-  height: 68px;
-  padding: 0 20px;
+  padding: 8px 12px;
   border: none;
-  border-radius: 0 8px 8px 0;
-  background-color: #0166FF;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
+  outline: none;
+  font-size: 16px;
 }
 
-.search-button:hover {
-  background-color: #0056b3;
+.search-icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
 }
 
-.search-button i {
-  margin-right: 8px;
-}
 
 .recruitment-cards {
   width: 100%;
