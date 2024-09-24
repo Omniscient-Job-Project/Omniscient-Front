@@ -144,7 +144,7 @@ watch(bookmarks, saveBookmarks, { deep: true });
 const fetchJobs = async () => {
   try {
     // 경기도잡아바 API 호출
-    const response1 = await axios.get(`${API_URL}/api/v1/jobaba/jobinfo`, { withCredentials: true });
+    const response1 = await axios.get(`${API_URL}/api/v1/jobaba/jobinfo?param=someValue`, { withCredentials: true });
     const jobData1 = response1.data.GGJOBABARECRUSTM.row;
     const jobsFromJobaba = jobData1.map(job => ({
       jobId: job.ENTRPRS_NM,  // 프론트엔드에서 사용하는 속성 이름을 백엔드 JSON 구조에 맞게 수정
