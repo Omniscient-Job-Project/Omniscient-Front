@@ -1,6 +1,6 @@
 <!-- Header -->
 <div align="center">
-  <img src="https://via.placeholder.com/1000x300.png?text=%EC%A0%84%EC%A7%80%EC%A0%81+%EA%B5%AC%EC%A7%81%EC%9E%90+%EC%8B%9C%EC%A0%90" alt="프로젝트 배너" width="100%">
+<!--   <img src="https://via.placeholder.com/1000x300.png?text=%EC%A0%84%EC%A7%80%EC%A0%81+%EA%B5%AC%EC%A7%81%EC%9E%90+%EC%8B%9C%EC%A0%90" alt="프로젝트 배너" width="100%"> -->
 </div>
 <h1 align="center">🚀 전지적 구직자 시점(전직자)</h1>
 <p align="center">
@@ -40,36 +40,6 @@
  <h3 align="center">🚀프로젝트 기간</h3>
   <p align="center">2024.08.26 ~ 10.02</p>
   <br>
-  <h3 align="center">🚀기여자</h3>
-  <br>
-  <table align="center">
-    <tr>
-       <td align="center">
-        <strong align="center">김화연</strong><br>
-        <img src="https://avatars.githubusercontent.com/KHY90" width="100" height="100"><br>
-        <a href="https://github.com/KHY90">GitHub</a>
-      </td>
-      <td align="center">
-        <strong align="center">신주연</strong><br>
-        <img src="https://avatars.githubusercontent.com/u/166350778?v=4" width="100" height="100"><br>
-        <a href="https://github.com/shinjoo12">GitHub</a>
-      </td>
-      <td align="center">
-        <strong>우승엽</strong><br>
-        <img src="https://avatars.githubusercontent.com/u/166350761?v=4" width="100" height="100"><br>
-        <a href="https://github.com/wooseungyeop">GitHub</a>
-      </td>
-      <td align="center">
-        <strong align="center">김재석</strong><br>
-        <img src="https://avatars.githubusercontent.com/u/166350670?v=4" width="100" height="100"><br>
-        <a href="https://github.com/kimjaesuk">GitHub</a>
-      </td>
-      <td align="center">
-        <strong align="center">목진희</strong><br>
-        <img src="https://avatars.githubusercontent.com/Jin-tonix" width="100" height="100"><br>
-        <a href="https://github.com/Jin-tonix">GitHub</a>
-      </td>
-    </tr>
 
 🛠 기술 스택
 프론트엔드
