@@ -95,7 +95,7 @@ const categories = [
 
 const fetchJobs = async () => {
   try {
-    const response1 = await axios.get(`${API_URL}/api/v1/jobaba/jobinfo`, { withCredentials: true });
+    const response1 = await axios.get(`${API_URL}/api/v1/jobaba/jobinfo?param=someValue`, { withCredentials: true });
     const response2 = await axios.get(`${API_URL}/api/v1/seoul/jobinfo`, { withCredentials: true });
     
     const jobsFromJobaba = response1.data.GGJOBABARECRUSTM.row.map(job => ({
