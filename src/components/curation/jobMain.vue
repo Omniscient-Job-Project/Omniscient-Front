@@ -80,10 +80,7 @@
       </div>
     </div>
 
-    <WomenJobs
-      v-if="selectedCategory === 'womenJobs'" 
-      :jobs="paginatedJobs"
-    />
+    <WomenJobs v-if="selectedCategory === 'womenJobs'" :jobs="paginatedJobs" />
     <UniversityJob
       v-if="selectedCategory === 'studentJobs'"
       :jobs="paginatedJobs"
@@ -189,37 +186,59 @@ watch(bookmarks, saveBookmarks, { deep: true });
 // 자격증 데이터 가져오기 함수
 const fetchJobs = async () => {
   try {
+    // 중복 방지를 위한 Set 생성
+    const jobIds = new Set();
+
     // 경기도잡아바 API 호출
     const response1 = await axios.get(
       `${API_URL}/api/v1/jobaba/jobinfo?param=someValue`,
       { withCredentials: true }
     );
     const jobData1 = response1.data.GGJOBABARECRUSTM.row;
-    const jobsFromJobaba = jobData1.map((job) => ({
-      jobId: job.ENTRPRS_NM, // 프론트엔드에서 사용하는 속성 이름을 백엔드 JSON 구조에 맞게 수정
-      jobInfoTitle: job.PBANC_CONT,
-      jobCompanyName: job.ENTRPRS_NM,
-      jobLocation: job.WORK_REGION_CONT,
-      jobCareerCondition: job.CAREER_DIV,
-      apiType: "jobaba", // API 유형 추가
-    }));
+    const jobsFromJobaba = jobData1.map((job) => {
+      const jobEntry = {
+        jobId: job.ENTRPRS_NM, // 프론트엔드에서 사용하는 속성 이름을 백엔드 JSON 구조에 맞게 수정
+        jobInfoTitle: job.PBANC_CONT,
+        jobCompanyName: job.ENTRPRS_NM,
+        jobLocation: job.WORK_REGION_CONT,
+        jobCareerCondition: job.CAREER_DIV,
+        apiType: "jobaba", // API 유형 추가
+      };
+      return jobEntry;
+    });
+
+    // 중복된 데이터 필터링 및 추가
+    jobsFromJobaba.forEach((job) => {
+      if (!jobIds.has(job.jobId)) {
+        jobIds.add(job.jobId);
+        jobs.value.push(job);
+      }
+    });
 
     // 서울시 채용 API 호출
     const response2 = await axios.get(`${API_URL}/api/v1/seoul/jobinfo`, {
       withCredentials: true,
     });
     const jobData2 = response2.data.GetJobInfo.row;
-    const jobsFromSeoul = jobData2.map((job) => ({
-      jobId: job.JO_REQST_NO,
-      jobInfoTitle: job.JO_SJ,
-      jobCompanyName: job.CMPNY_NM,
-      jobLocation: job.WORK_PARAR_BASS_ADRES_CN,
-      jobCareerCondition: job.CAREER_CND_NM,
-      apiType: "seoul", // API 유형 추가
-    }));
+    const jobsFromSeoul = jobData2.map((job) => {
+      const jobEntry = {
+        jobId: job.JO_REQST_NO,
+        jobInfoTitle: job.JO_SJ,
+        jobCompanyName: job.CMPNY_NM,
+        jobLocation: job.WORK_PARAR_BASS_ADRES_CN,
+        jobCareerCondition: job.CAREER_CND_NM,
+        apiType: "seoul", // API 유형 추가
+      };
+      return jobEntry;
+    });
 
-    // 두 API에서 가져온 데이터를 통합
-    jobs.value = [...jobsFromJobaba, ...jobsFromSeoul];
+    // 중복된 데이터 필터링 및 추가
+    jobsFromSeoul.forEach((job) => {
+      if (!jobIds.has(job.jobId)) {
+        jobIds.add(job.jobId);
+        jobs.value.push(job);
+      }
+    });
   } catch (error) {
     console.error("채용 정보를 가져오는 데 실패했습니다.", error);
   }
@@ -313,11 +332,14 @@ const searchJobs = () => {
   if (!searchTerm.value) {
     fetchJobs();
   } else {
-    jobs.value = jobs.value.filter(
-      (job) =>
-        job.jobInfoTitle.includes(searchTerm.value) ||
-        job.jobCompanyName.includes(searchTerm.value)
-    );
+    const lowerCaseSearchTerm = searchTerm.value.toLowerCase(); // 입력된 검색어를 소문자로 변환
+
+    jobs.value = jobs.value.filter((job) => {
+      return (
+        job.jobInfoTitle.toLowerCase().includes(lowerCaseSearchTerm) || // 제목을 소문자로 변환하여 비교
+        job.jobCompanyName.toLowerCase().includes(lowerCaseSearchTerm) // 회사 이름을 소문자로 변환하여 비교
+      );
+    });
   }
 };
 
@@ -342,7 +364,6 @@ body {
   padding: 2rem;
   box-sizing: border-box;
   width: 100%;
-  display: flex;
   flex-direction: column;
   align-items: center;
   border: none;
@@ -511,6 +532,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   margin: -15px;
+  min-width: 800px; /* 원하는 최소 너비 설정 (예: 800px) */
 }
 
 .col-md-3 {
@@ -525,8 +547,10 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   overflow: hidden;
-  height: 100%;
   background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  display: flex; /* 카드 내부의 요소를 flexbox로 설정 */
+  flex-direction: column; /* 수직 정렬 */
+  height: 100%; /* 기본적으로 카드 높이를 100%로 설정 */
 }
 
 .card:hover {
@@ -643,26 +667,24 @@ body {
   }
 }
 
+/* 카드가 2개 이하일 때의 스타일 조정 */
 @media (max-width: 768px) {
-  .curation-main-container {
-    width: 100%;
-    padding: 1rem;
-  }
   .col-md-3 {
-    width: 100%;
+    width: 100%; /* 작은 화면에서는 카드가 100% 너비를 차지하도록 설정 */
   }
-  .search-bar .card-input {
-    flex-direction: column;
+
+  /* 카드가 2개 이하일 때 높이를 고정 */
+  .row:has(.col-md-3:only-child) .card,
+  .row:has(.col-md-3:nth-child(-n + 2)) .card {
+    height: 300px; /* 원하는 고정 높이로 설정 */
   }
-  .search-bar input {
-    width: 100%;
-    margin-right: 0;
-    margin-bottom: 10px;
-    border-radius: 8px;
+
+  .row:has(.col-md-3:only-child) {
+    justify-content: center; /* 중앙 정렬 */
   }
-  .search-button {
-    width: 100%;
-    border-radius: 8px;
+
+  .row:has(.col-md-3:nth-child(-n + 2)) {
+    justify-content: center; /* 2개 이하일 때 중앙 정렬 */
   }
 }
 </style>
