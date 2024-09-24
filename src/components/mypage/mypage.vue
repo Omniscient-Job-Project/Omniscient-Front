@@ -39,6 +39,7 @@ const menuItems = [
   { name: 'applicationsPage', label: '지원 현황', icon: 'fas fa-briefcase' },
   { name: 'scrapPage', label: '스크랩', icon: 'fas fa-bookmark' },
   { name: 'certificatesPage', label: '자격증 관리', icon: 'fas fa-certificate' },
+  { name: 'withdrawalPage', label: '회원 탈퇴', icon: 'fas fa-user-slash' }
 ];
 
 const hoveredItem = ref(null);
