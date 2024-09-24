@@ -20,29 +20,29 @@ const fetchFaqs = async () => {
 const displayedFaqs = computed(() => faqs.value.slice(0, 6));
 
 // Toggle the selected FAQ
-const toggleAnswer = async (id) => {
-  if (selectedFaqId.value === id) {
+const toggleAnswer = async (faqId) => {
+  if (selectedFaqId.value === faqId) {
     // If the same FAQ is clicked again, close it
     selectedFaqId.value = null;
   } else {
     // If a different FAQ is clicked, open it and increment view count
-    selectedFaqId.value = id;
-    await incrementViewCount(id); // Increment the view count when the answer is opened
+    selectedFaqId.value = faqId;
+    await incrementViewCount(faqId); // Increment the view count when the answer is opened
   }
 };
 
-const incrementViewCount = async (id) => {
-  console.log(`Incrementing views for faqId: ${id}`);
+const incrementViewCount = async (faqId) => {
+  console.log(`Incrementing views for faqId: ${faqId}`);
   try {
     // Check if an update is already in progress
     if (incrementing.value) return;
     incrementing.value = true;
     
     // Update the view count on the server
-    await axios.put(`${API_URL}/api/v1/faqs/views/${id}`);
+    await axios.put(`${API_URL}/api/v1/faqs/views/${faqId}`);
 
     // Update the local faq's view count
-    const faq = faqs.value.find(faq => faq.id === id);
+    const faq = faqs.value.find(faq => faq.faqId === faqId);
     if (faq) {
       faq.faqViews += 1;
     }
@@ -69,15 +69,15 @@ onMounted(fetchFaqs);
           </tr>
         </thead>
         <tbody>
-          <template v-for="(faq, index) in displayedFaqs" :key="faq.id">
+          <template v-for="(faq, index) in displayedFaqs" :key="faq.faqId">
             <tr>
               <td>{{ index + 1 }}</td>
-              <td @click="toggleAnswer(faq.id)" class="clickable-title">
+              <td @click="toggleAnswer(faq.faqId)" class="clickable-title">
                 {{ faq.question }}
               </td>
               <td>{{ faq.faqViews }}</td>
             </tr>
-            <tr v-if="selectedFaqId === faq.id">
+            <tr v-if="selectedFaqId === faq.faqId">
               <td colspan="3" class="answer">
                 {{ faq.answer }}
               </td>
