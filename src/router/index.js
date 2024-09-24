@@ -20,7 +20,8 @@ const TestJobs = () => import("../views/testJobsView.vue");
 // 로그인 & 로그아웃 페이지
 const Login = () => import("../views/loginView.vue");
 const Signup = () => import("../views/signUp.vue");
-
+const AdminLogin =() => import("../views/adminLoginView.vue");
+const AdminSignup =() => import("../views/adminSignupView.vue");
 
 const Mypage = () => import("../components/mypage/mypage.vue");
 const ProfilePage = () => import("../components/mypage/profilePage.vue");
@@ -51,7 +52,6 @@ const ResumeManagementPage = () => import("../components/mypage/resumeManagement
 const ApplicationsPageComponent = () => import("../components/mypage/applicationsPageComponent.vue");
 const ScrapPage = () => import("../components/mypage/scrapPage.vue");
 const CertificatesPage = () => import("../components/mypage/certificatesPage.vue");
-const Withdrawal = () => import("../components/mypage/withdrawal.vue");
 
 // 에러 페이지
 const Error = () => import("../views/errorView.vue");
@@ -124,11 +124,6 @@ const router = createRouter({
           path: 'certificates',
           name: 'certificatesPage',
           component: CertificatesPage
-        },
-        {
-          path: 'withdrawal',
-          name: 'withdrawalPage',
-          component: Withdrawal
         }
       ]
     },
@@ -159,6 +154,14 @@ const router = createRouter({
     },
 
     // 로그인 & 로그아웃 페이지
+    {
+      path:'/adminLogin',
+      component: AdminLogin
+    },
+    {
+      path: '/adminSignup',
+      component: AdminSignup,
+    },
     {
       path: '/login',
       component: Login
