@@ -1,8 +1,24 @@
+<template>
+  <div class="section-align">
+    <Sidebar v-if="!root.includes('detail')" />
+    <div class="section">
+      <div>
+        <div v-if="root === 'main'">
+          <Job />
+        </div>
+        <div v-if="root.includes('detail')">
+          <Detail />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
 import { useCurationStore } from "@/stores/rootstore";
 import { computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import Job from './jobMain.vue';
+import Job from "./jobMain.vue";
 import Detail from "./detail.vue";
 
 const store = useCurationStore();
@@ -32,23 +48,4 @@ watch(
 );
 </script>
 
-<template>
-  <div class="section-align">
-    <Sidebar v-if="!root.includes('detail')" />
-    <div class="section">
-      <div>
-        <div v-if="root === 'main'">
-          <Job />
-        </div>
-        <div v-if="root.includes('detail')">
-          <Detail />
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-<style scoped>
-
-</style>
-
+<style scoped></style>
