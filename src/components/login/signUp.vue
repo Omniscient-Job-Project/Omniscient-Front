@@ -39,12 +39,12 @@
             <input type="email" id="email" v-model="email" placeholder="email@example.com">
           </div>
 
-          <!-- <div class="info-box">
-            <i class="fas fa-info-circle"></i>
-            <small class="info-text">취업에 관련된 정보를 받을 때 편리해요</small>
-          </div> -->
+          
 
           <button type="submit" class="btn-signup">회원가입</button>
+
+       
+
         </form>
       </div>
 
@@ -111,6 +111,37 @@ const handleSubmit = async () => {
   }
 };
 
+const handleAdminSignup = async () => {
+  try {
+    const response = await axios.post(`${API_URL}/api/v1/signup/admin/signup`, {
+      userId: userId.value,
+      username: username.value,
+      password: password.value,
+      birthDate: birthDate.value,
+      email: email.value,
+      phoneNumber: phoneNumber.value,
+    });
+
+    if (response.status === 200) {
+      alert(response.data);
+      window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+    } else {
+      alert('관리자 회원가입 실패: ' + response.data);
+    }
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+const handleError = (error) => {
+  if (error.response) {
+    alert(`서버 에러: ${error.response.status} - ${error.response.data}`);
+  } else if (error.request) {
+    alert('서버로부터 응답을 받지 못했습니다. 네트워크 연결을 확인해주세요.');
+  } else {
+    alert('요청 설정 중 오류가 발생했습니다: ' + error.message);
+  }
+};
 </script>
 
 <style scoped>
