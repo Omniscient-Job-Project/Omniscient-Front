@@ -138,11 +138,13 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 import { getChoseong } from "es-hangul";
 
+// 컴포넌트 임포트
 import Employment from "../curation/employment.vue";
 import ElderlyJobs from "../curation/ElderlyJobs.vue";
 import WomenJobs from "../curation/womenJobs.vue";
 import UniversityJob from "../curation/universityJob.vue";
 
+// 상수 및 변수 설정
 const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
 const searchTerm = ref("");
@@ -150,8 +152,9 @@ const jobs = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 16;
 const bookmarks = ref([]);
-const selectedCategory = ref("");
+const selectedCategory = ref(""); // 선택된 카테고리 초기값 설정
 
+// 카테고리 라벨 계산
 const categoryLabel = computed(() => {
   switch (selectedCategory.value) {
     case "womenJobs":
@@ -167,7 +170,7 @@ const categoryLabel = computed(() => {
   }
 });
 
-// localStorage에서 북마크 불러오기
+// 북마크 관련 함수
 const loadBookmarks = () => {
   const savedBookmarks = localStorage.getItem("bookmarks");
   if (savedBookmarks) {
@@ -175,19 +178,17 @@ const loadBookmarks = () => {
   }
 };
 
-// 북마크 저장하기
 const saveBookmarks = () => {
   localStorage.setItem("bookmarks", JSON.stringify(bookmarks.value));
 };
 
-// 북마크 변경 감지 및 저장
 watch(bookmarks, saveBookmarks, { deep: true });
 
 // 자격증 데이터 가져오기 함수
 const fetchJobs = async () => {
   try {
-    // 중복 방지를 위한 Set 생성
     const jobIds = new Set();
+    jobs.value = []; // jobs 배열 초기화
 
     // 경기도잡아바 API 호출
     const response1 = await axios.get(
@@ -195,19 +196,15 @@ const fetchJobs = async () => {
       { withCredentials: true }
     );
     const jobData1 = response1.data.GGJOBABARECRUSTM.row;
-    const jobsFromJobaba = jobData1.map((job) => {
-      const jobEntry = {
-        jobId: job.ENTRPRS_NM, // 프론트엔드에서 사용하는 속성 이름을 백엔드 JSON 구조에 맞게 수정
-        jobInfoTitle: job.PBANC_CONT,
-        jobCompanyName: job.ENTRPRS_NM,
-        jobLocation: job.WORK_REGION_CONT,
-        jobCareerCondition: job.CAREER_DIV,
-        apiType: "jobaba", // API 유형 추가
-      };
-      return jobEntry;
-    });
+    const jobsFromJobaba = jobData1.map((job) => ({
+      jobId: job.ENTRPRS_NM,
+      jobInfoTitle: job.PBANC_CONT,
+      jobCompanyName: job.ENTRPRS_NM,
+      jobLocation: job.WORK_REGION_CONT,
+      jobCareerCondition: job.CAREER_DIV,
+      apiType: "jobaba", // API 유형 추가
+    }));
 
-    // 중복된 데이터 필터링 및 추가
     jobsFromJobaba.forEach((job) => {
       if (!jobIds.has(job.jobId)) {
         jobIds.add(job.jobId);
@@ -220,19 +217,15 @@ const fetchJobs = async () => {
       withCredentials: true,
     });
     const jobData2 = response2.data.GetJobInfo.row;
-    const jobsFromSeoul = jobData2.map((job) => {
-      const jobEntry = {
-        jobId: job.JO_REQST_NO,
-        jobInfoTitle: job.JO_SJ,
-        jobCompanyName: job.CMPNY_NM,
-        jobLocation: job.WORK_PARAR_BASS_ADRES_CN,
-        jobCareerCondition: job.CAREER_CND_NM,
-        apiType: "seoul", // API 유형 추가
-      };
-      return jobEntry;
-    });
+    const jobsFromSeoul = jobData2.map((job) => ({
+      jobId: job.JO_REQST_NO,
+      jobInfoTitle: job.JO_SJ,
+      jobCompanyName: job.CMPNY_NM,
+      jobLocation: job.WORK_PARAR_BASS_ADRES_CN,
+      jobCareerCondition: job.CAREER_CND_NM,
+      apiType: "seoul", // API 유형 추가
+    }));
 
-    // 중복된 데이터 필터링 및 추가
     jobsFromSeoul.forEach((job) => {
       if (!jobIds.has(job.jobId)) {
         jobIds.add(job.jobId);
@@ -244,55 +237,32 @@ const fetchJobs = async () => {
   }
 };
 
-// 페이지 로드 시 채용 정보 가져오기
+// 페이지 로드 시 작업 가져오기
 onMounted(() => {
   fetchJobs();
   loadBookmarks();
 });
 
-// 필터링된 자격증 반환
-const filteredCertificates = computed(() => {
-  let filtered = gradeCertificates.value;
-
-  // 검색어 필터
-  if (searchTerm.value) {
-    const searchChoseong = getChoseong(searchTerm.value);
-    filtered = filtered.filter((certificate) => {
-      const certificateChoseong = getChoseong(
-        certificate.jmNm + certificate.instiNm
-      );
-      return certificateChoseong.includes(searchChoseong);
-    });
-  }
-
-  return filtered;
-});
-
-// 검색어 변경 시 필터링
-watch(searchTerm, (newTerm) => {
-  if (!newTerm) {
-    fetchJobs(); // 검색어가 비어 있으면 모든 채용 정보를 다시 가져옴
-  } else {
-    searchJobs(); // 검색어가 있을 경우 필터링
-  }
-});
-
 // 검색어에 맞게 필터링된 채용 정보 반환
 const filteredJobs = computed(() => {
-  // 각 카테고리별로 작업을 필터링
-  if (selectedCategory.value === "womenJobs") {
-    return jobs.value.filter((job) => job.apiType === "women");
-  } else if (selectedCategory.value === "studentJobs") {
-    return jobs.value.filter((job) => job.apiType === "student");
-  } else if (selectedCategory.value === "elderlyJobs") {
-    return jobs.value.filter((job) => job.apiType === "elderly");
-  } else if (selectedCategory.value === "employment") {
-    return jobs.value.filter((job) => job.apiType === "employment");
-  }
+  if (!searchTerm.value) return jobs.value;
 
-  return jobs.value; // 기본적으로 모든 작업 반환
+  const lowerCaseSearchTerm = searchTerm.value.toLowerCase();
+  return jobs.value.filter(job => {
+    const titleChoseong = getChoseong(job.jobInfoTitle).toLowerCase();
+    const companyChoseong = getChoseong(job.jobCompanyName).toLowerCase();
+    
+    return (
+      job.jobInfoTitle.toLowerCase().includes(lowerCaseSearchTerm) ||
+      job.jobCompanyName.toLowerCase().includes(lowerCaseSearchTerm) ||
+      titleChoseong.includes(lowerCaseSearchTerm) ||
+      companyChoseong.includes(lowerCaseSearchTerm)
+    );
+  });
 });
 
+
+// 페이지네이션 관련 함수
 const totalPages = computed(() =>
   Math.ceil(filteredJobs.value.length / itemsPerPage)
 );
@@ -308,10 +278,7 @@ const changePage = (page) => {
   currentPage.value = page;
 };
 
-const goToDetail = (jobId) => {
-  router.push({ name: "curationDetail", params: { id: jobId } });
-};
-
+// 북마크 관련 함수
 const toggleBookmark = (job) => {
   const index = bookmarks.value.findIndex((item) => item.jobId === job.jobId);
   if (index > -1) {
@@ -327,26 +294,47 @@ const isBookmarked = (jobId) => {
   return bookmarks.value.some((item) => item.jobId === jobId);
 };
 
-// 검색 메소드 추가
+// 검색 관련 함수
 const searchJobs = () => {
   if (!searchTerm.value) {
     fetchJobs();
   } else {
-    const lowerCaseSearchTerm = searchTerm.value.toLowerCase(); // 입력된 검색어를 소문자로 변환
-
+    const lowerCaseSearchTerm = searchTerm.value.toLowerCase();
     jobs.value = jobs.value.filter((job) => {
       return (
-        job.jobInfoTitle.toLowerCase().includes(lowerCaseSearchTerm) || // 제목을 소문자로 변환하여 비교
-        job.jobCompanyName.toLowerCase().includes(lowerCaseSearchTerm) // 회사 이름을 소문자로 변환하여 비교
+        job.jobInfoTitle.toLowerCase().includes(lowerCaseSearchTerm) ||
+        job.jobCompanyName.toLowerCase().includes(lowerCaseSearchTerm)
       );
     });
+
+    console.log('검색된 결과:', jobs.value);
   }
 };
 
+// 검색어 변경 감지
+watch(searchTerm, (newTerm) => {
+  if (!newTerm) {
+    fetchJobs();
+  } else {
+    searchJobs();
+  }
+});
+
+// 카테고리 선택 함수
 const selectCategory = (category) => {
+  console.log(`카테고리가 변경되었습니다: ${category}`);
   selectedCategory.value = category;
+  // 카테고리 변경 시 검색 결과도 초기화
+  fetchJobs();
+};
+
+// 상세 페이지로 이동
+const goToDetail = (jobId) => {
+  router.push({ name: "curationDetail", params: { id: jobId } });
 };
 </script>
+
+
 
 <style scoped>
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
