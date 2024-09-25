@@ -99,6 +99,21 @@ const submitChanges = async () => {
   }
 };
 
+const deleteUser = async (userId) => {
+  try {
+    const token = localStorage.getItem('token');
+    await axios.put(`${API_URL}/api/v1/user/delete/${userId}`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}` // 헤더로 토큰 전송
+      }
+    });
+    users.value = users.value.filter(user => user.userId !== userId);
+  } catch (error) {
+    console.error('사용자 삭제 중 오류가 발생했습니다!', error);
+  }
+};
+
+
 const filterRole = (role) => {
   selectedRole.value = role;
 };
