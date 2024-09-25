@@ -48,7 +48,7 @@
     </div>
 
     <!-- 채용정보 카드 -->
-    <div v-if="selectedCategory === 'home'">
+
       <div class="recruitment-cards">
         <div class="row">
           <div v-for="job in paginatedJobs" :key="job.jobId" class="col-md-3">
@@ -78,7 +78,7 @@
           </div>
         </div>
       </div>
-    </div>
+
 
     <WomenJobs v-if="selectedCategory === 'womenJobs'" :jobs="paginatedJobs" />
     <UniversityJob
