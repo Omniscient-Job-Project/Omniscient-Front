@@ -70,14 +70,14 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { useAuthStore } from '@/stores/auth';
+import { useUserAuthStore } from '@/stores/userAuth.js';
 import FindAccountModal from './findAccount.vue';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const userId = ref('');
 const password = ref('');
 const router = useRouter();
-const authStore = useAuthStore();
+const authStore = useUserAuthStore();
 const modalConfirmAction = ref(null);
 
 // 모달 관련 상태
