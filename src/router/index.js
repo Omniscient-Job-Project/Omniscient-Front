@@ -99,7 +99,6 @@ const router = createRouter({
         const authStore = useAuthStore();
         const userAuthStore = useUserAuthStore();
         if (authStore.isLoggedIn || userAuthStore.isLoggedIn) {
-          alert('로그인을 해주세요.'); 
           next();
         } else {
           next('/login'); 
