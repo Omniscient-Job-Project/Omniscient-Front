@@ -21,9 +21,10 @@
   <style scoped>
   .not-found {
     text-align: center;
-    margin-top: 10vh;
+    margin-top: 20vh;
     font-family: 'Noto Sans', sans-serif;
     color: #555;
+    height: 80vh;
   }
   
   .logo-container {
@@ -31,8 +32,8 @@
   }
   
   .logo {
-    width: 60px;
-    height: 60px;
+    width: 200px;
+    height: 200px;
   }
   
   h1 {
