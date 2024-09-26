@@ -6,19 +6,18 @@
         <div class="omniscientLogo">
           <h1>Welcome to 전직시</h1>
         </div>
-        <p class="subtitle">{{ isAdminMode ? '관리자 로그인' : '당신의 꿈을 응원합니다!' }}</p>
+        <p class="subtitle">당신의 꿈을 응원합니다!</p>
         <div class="auth-box">
           <form @submit.prevent="handleSubmit">
             <div class="form-floating mb-3">
-              <label for="userId">{{ isAdminMode ? '관리자 ID' : '아이디' }}</label>
+              <label for="userId">아이디</label>
               <input
                 type="text"
                 class="form-control"
                 id="userId"
                 v-model="userId"
-                :placeholder="isAdminMode ? '관리자 ID를 입력해주세요' : '아이디를 입력해주세요'"
+                placeholder="아이디를 입력해주세요"
                 required
-                minlength="3" 
               />
             </div>
             <div class="form-floating">
@@ -30,21 +29,14 @@
                 v-model="password"
                 placeholder="패스워드를 입력해주세요"
                 required
-               
               />
             </div>
-            <div class="admin-toggle">
-              <input type="checkbox" id="adminMode" v-model="isAdminMode">
-              <label for="adminMode">관리자 모드</label>
-            </div>
             <div class="loginbutton">
-              <button type="submit" class="btn btn-primary mb-3">
-                {{ isAdminMode ? '관리자 로그인' : '로그인' }}
-              </button>
+              <button type="submit" class="btn btn-primary mb-3">로그인</button>
             </div>
           </form>
         </div>
-        <div class="options" v-if="!isAdminMode">
+        <div class="options">
           <RouterLink to="/signUp" class="link">회원가입</RouterLink> 
           <p class="link" @click="openFindAccountModal">아이디/비밀번호 찾기</p>
           <FindAccountModal ref="findAccountModalRef" />
@@ -87,9 +79,6 @@ const password = ref('');
 const router = useRouter();
 const authStore = useUserAuthStore();
 const modalConfirmAction = ref(null);
-const isAdminMode = ref(false);
-
-
 
 // 모달 관련 상태
 const showModal = ref(false);
@@ -120,53 +109,26 @@ const closeModal = () => {
 // 로그인 요청 처리
 const handleSubmit = async () => {
   try {
-    if (isAdminMode.value) {
-      // 하드코딩된 관리자 아이디와 비밀번호
-      const hardcodedAdminUserId = 'admin';
-      const hardcodedAdminPassword = 'admin';
-      
-      // 관리자 아이디와 비밀번호 확인
-      if (userId.value === hardcodedAdminUserId && password.value === hardcodedAdminPassword) {
-        // 관리자 로그인 성공 - 백엔드 요청 없이 직접 처리
-        const mockAdminToken = 'mock-admin-token'; // 실제 환경에서는 보안을 위해 이 방식을 사용하지 않습니다
-        localStorage.setItem('token', mockAdminToken);
-        localStorage.setItem('isAdmin', 'true');
-        axios.defaults.headers.common['Authorization'] = `Bearer ${mockAdminToken}`;
-        authStore.login(mockAdminToken, true);
-        console.log('관리자 로그인 성공');
-        openModal('관리자 로그인 성공', '관리자로 로그인했습니다!', 'fas fa-check-circle');
-        setTimeout(() => {
-          router.push('/manager');
-        }, 1500);
-      } else {
-        // 관리자 로그인 실패
-        throw new Error('관리자 아이디 또는 비밀번호가 올바르지 않습니다.');
+    const response = await axios.post(`${API_URL}/api/v1/login/post`, {
+      userId: userId.value,
+      password: password.value,
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
       }
-    } else {
-      // 일반 사용자 로그인 처리 (기존 코드 유지)
-      const loginEndpoint = '/api/v1/login/post';
-      const response = await axios.post(`${API_URL}${loginEndpoint}`, {
-        userId: userId.value,
-        password: password.value,
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+    });
 
-      if (response.status === 200) {
-        const { accessToken, refreshToken } = response.data;
-        localStorage.setItem('token', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('isAdmin', 'false');
-        axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-        authStore.login(accessToken, false);
-        console.log('로그인 상태:', authStore.isLoggedIn);
-        openModal('로그인 성공', '로그인에 성공했습니다!', 'fas fa-check-circle');
-        setTimeout(() => {
-          router.push('/');
-        }, 1500);
-      }
+    if (response.status === 200) {
+      const { accessToken, refreshToken } = response.data;
+      localStorage.setItem('token', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      authStore.login(accessToken);
+      console.log('로그인 상태:', authStore.isLoggedIn);
+      openModal('로그인 성공', '로그인에 성공했습니다!', 'fas fa-check-circle');
+      setTimeout(() => {
+        router.push('/');
+      }, 1500);
     }
   } catch (error) {
     console.error('로그인 오류:', error);
@@ -216,11 +178,10 @@ const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     delete axios.defaults.headers.common['Authorization'];
-    authStore.logout(); // Pinia 스토어 업데이트
+    authStore.logout();
     router.push('/login');
   });
 };
-
 
 // Axios 요청 인터셉터 설정
 axios.interceptors.request.use(config => {

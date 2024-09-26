@@ -1,6 +1,5 @@
 <template>
   <div class="curation-main-container">
-
     <!-- 큐레이션 -->
     <div class="curation-index">
       <div class="curation-item" @click="selectCategory('home')">
@@ -25,108 +24,152 @@
       </div>
     </div>
 
-  
-  <!-- 검색창 -->
-  <div class="header-container">
-    <h2 class="section-title">
-    {{ selectedCategory === 'womenJobs' ? '여성 일자리' :
-      selectedCategory === 'studentJobs' ? '대학생 일자리' :
-      selectedCategory === 'elderlyJobs' ? '노인 일자리' :
-      selectedCategory === 'employment' ? '고용센터' : '채용 정보' }}
-  </h2>
-  <div class="search-box">
-    <div class="input-wrapper">
-      <input
-        type="text"
-        class="search-input-box"
-        placeholder="분야를 입력해주세요."
-        v-model="searchTerm"
-      />
-      <img
-        src="@/assets/img/search-icon.svg"
-        class="search-icon"
-        @click="handleSearch"
-        alt="검색 아이콘"
-      />
+    <!-- 검색창 -->
+    <div class="header-container">
+      <h2 class="section-title">
+        {{ categoryLabel }}
+      </h2>
+      <div class="search-box">
+        <div class="input-wrapper">
+          <input
+            type="text"
+            class="search-input-box"
+            placeholder="분야를 입력해주세요."
+            v-model="searchTerm"
+          />
+          <img
+            src="@/assets/img/search-icon.svg"
+            class="search-icon"
+            @click="handleSearch"
+            alt="검색 아이콘"
+          />
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
     <!-- 채용정보 카드 -->
-    <div v-if="selectedCategory === 'home'">
-    <div class="recruitment-cards">
-      <div class="row">
-        <div v-for="job in paginatedJobs" :key="job.jobId" class="col-md-3">
-          <div class="card" @click="goToDetail(job.jobId)">
-            <div class="card-body">
-              <div class="bookmark-icon" @click.stop="toggleBookmark(job)">
-                <i :class="['fas', 'fa-bookmark', { 'bookmarked': isBookmarked(job.jobId) }]"></i>
+
+      <div class="recruitment-cards">
+        <div class="row">
+          <div v-for="job in paginatedJobs" :key="job.jobId" class="col-md-3">
+            <div class="card" @click="goToDetail(job.jobId)">
+              <div class="card-body">
+                <div class="bookmark-icon" @click.stop="toggleBookmark(job)">
+                  <i
+                    :class="[
+                      'fas',
+                      'fa-bookmark',
+                      { bookmarked: isBookmarked(job.jobId) },
+                    ]"
+                  ></i>
+                </div>
+                <h5 class="card-title">{{ job.jobInfoTitle }}</h5>
+                <p class="card-text company">
+                  <i class="fas fa-building"></i> {{ job.jobCompanyName }}
+                </p>
+                <p class="card-text location">
+                  <i class="fas fa-map-marker-alt"></i> {{ job.jobLocation }}
+                </p>
+                <p class="card-text career">
+                  <i class="fas fa-briefcase"></i> {{ job.jobCareerCondition }}
+                </p>
               </div>
-              <h5 class="card-title">{{ job.jobInfoTitle }}</h5>
-              <p class="card-text company"><i class="fas fa-building"></i> {{ job.jobCompanyName }}</p>
-              <p class="card-text location"><i class="fas fa-map-marker-alt"></i> {{ job.jobLocation }}</p>
-              <p class="card-text career"><i class="fas fa-briefcase"></i> {{ job.jobCareerCondition }}</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    </div>
+
 
     <WomenJobs v-if="selectedCategory === 'womenJobs'" :jobs="paginatedJobs" />
-    <UniversityJob v-if="selectedCategory === 'studentJobs'" :jobs="paginatedJobs" />
-    <ElderlyJobs v-if="selectedCategory === 'elderlyJobs'" :jobs="paginatedJobs" />
-    <Employment v-if="selectedCategory === 'employment'" :jobs="paginatedJobs" />
-
-
+    <UniversityJob
+      v-if="selectedCategory === 'studentJobs'"
+      :jobs="paginatedJobs"
+    />
+    <ElderlyJobs
+      v-if="selectedCategory === 'elderlyJobs'"
+      :jobs="paginatedJobs"
+    />
+    <Employment
+      v-if="selectedCategory === 'employment'"
+      :jobs="paginatedJobs"
+    />
 
     <!-- 페이지네이션 -->
     <nav aria-label="Page navigation">
       <ul class="pagination">
         <li class="page-item" :class="{ disabled: currentPage === 1 }">
-          <a class="page-link" href="#" aria-label="Previous" @click.prevent="changePage(currentPage - 1)">
+          <a
+            class="page-link"
+            href="#"
+            aria-label="Previous"
+            @click.prevent="changePage(currentPage - 1)"
+          >
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
-        <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: page === currentPage }">
-          <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+        <li
+          v-for="page in totalPages"
+          :key="page"
+          class="page-item"
+          :class="{ active: page === currentPage }"
+        >
+          <a class="page-link" href="#" @click.prevent="changePage(page)">{{
+            page
+          }}</a>
         </li>
         <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <a class="page-link" href="#" aria-label="Next" @click.prevent="changePage(currentPage + 1)">
+          <a
+            class="page-link"
+            href="#"
+            aria-label="Next"
+            @click.prevent="changePage(currentPage + 1)"
+          >
             <span aria-hidden="true">&raquo;</span>
           </a>
         </li>
       </ul>
     </nav>
-
-
   </div>
 </template>
-  
+
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, watch } from "vue";
+import axios from "axios";
+import { useRouter } from "vue-router";
 import { getChoseong } from "es-hangul";
 
-import Employment from '../curation/employment.vue';
-import ElderlyJobs from '../curation/ElderlyJobs.vue';
-import WomenJobs from '../curation/womenJobs.vue';
-import UniversityJob from '../curation/universityJob.vue'
-
+import Employment from "../curation/employment.vue";
+import ElderlyJobs from "../curation/ElderlyJobs.vue";
+import WomenJobs from "../curation/womenJobs.vue";
+import UniversityJob from "../curation/universityJob.vue";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
-const searchTerm = ref('');
+const searchTerm = ref("");
 const jobs = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 16;
 const bookmarks = ref([]);
-const selectedCategory = ref('home');
+const selectedCategory = ref("");
+
+const categoryLabel = computed(() => {
+  switch (selectedCategory.value) {
+    case "womenJobs":
+      return "여성 일자리";
+    case "studentJobs":
+      return "대학생 일자리";
+    case "elderlyJobs":
+      return "노인 일자리";
+    case "employment":
+      return "고용센터";
+    default:
+      return "채용 정보"; // 기본값 설정
+  }
+});
 
 // localStorage에서 북마크 불러오기
 const loadBookmarks = () => {
-  const savedBookmarks = localStorage.getItem('bookmarks');
+  const savedBookmarks = localStorage.getItem("bookmarks");
   if (savedBookmarks) {
     bookmarks.value = JSON.parse(savedBookmarks);
   }
@@ -134,7 +177,7 @@ const loadBookmarks = () => {
 
 // 북마크 저장하기
 const saveBookmarks = () => {
-  localStorage.setItem('bookmarks', JSON.stringify(bookmarks.value));
+  localStorage.setItem("bookmarks", JSON.stringify(bookmarks.value));
 };
 
 // 북마크 변경 감지 및 저장
@@ -143,34 +186,61 @@ watch(bookmarks, saveBookmarks, { deep: true });
 // 자격증 데이터 가져오기 함수
 const fetchJobs = async () => {
   try {
+    // 중복 방지를 위한 Set 생성
+    const jobIds = new Set();
+
     // 경기도잡아바 API 호출
-    const response1 = await axios.get(`${API_URL}/api/v1/jobaba/jobinfo?param=someValue`, { withCredentials: true });
+    const response1 = await axios.get(
+      `${API_URL}/api/v1/jobaba/jobinfo?param=someValue`,
+      { withCredentials: true }
+    );
     const jobData1 = response1.data.GGJOBABARECRUSTM.row;
-    const jobsFromJobaba = jobData1.map(job => ({
-      jobId: job.ENTRPRS_NM,  // 프론트엔드에서 사용하는 속성 이름을 백엔드 JSON 구조에 맞게 수정
-      jobInfoTitle: job.PBANC_CONT,
-      jobCompanyName: job.ENTRPRS_NM,
-      jobLocation: job.WORK_REGION_CONT,
-      jobCareerCondition: job.CAREER_DIV,
-      apiType: 'jobaba'  // API 유형 추가
-    }));
+    const jobsFromJobaba = jobData1.map((job) => {
+      const jobEntry = {
+        jobId: job.ENTRPRS_NM, // 프론트엔드에서 사용하는 속성 이름을 백엔드 JSON 구조에 맞게 수정
+        jobInfoTitle: job.PBANC_CONT,
+        jobCompanyName: job.ENTRPRS_NM,
+        jobLocation: job.WORK_REGION_CONT,
+        jobCareerCondition: job.CAREER_DIV,
+        apiType: "jobaba", // API 유형 추가
+      };
+      return jobEntry;
+    });
+
+    // 중복된 데이터 필터링 및 추가
+    jobsFromJobaba.forEach((job) => {
+      if (!jobIds.has(job.jobId)) {
+        jobIds.add(job.jobId);
+        jobs.value.push(job);
+      }
+    });
 
     // 서울시 채용 API 호출
-    const response2 = await axios.get(`${API_URL}/api/v1/seoul/jobinfo`, { withCredentials: true });
+    const response2 = await axios.get(`${API_URL}/api/v1/seoul/jobinfo`, {
+      withCredentials: true,
+    });
     const jobData2 = response2.data.GetJobInfo.row;
-    const jobsFromSeoul = jobData2.map(job => ({
-      jobId: job.JO_REQST_NO,
-      jobInfoTitle: job.JO_SJ,
-      jobCompanyName: job.CMPNY_NM,
-      jobLocation: job.WORK_PARAR_BASS_ADRES_CN,
-      jobCareerCondition: job.CAREER_CND_NM,
-      apiType: 'seoul'  // API 유형 추가
-    }));
+    const jobsFromSeoul = jobData2.map((job) => {
+      const jobEntry = {
+        jobId: job.JO_REQST_NO,
+        jobInfoTitle: job.JO_SJ,
+        jobCompanyName: job.CMPNY_NM,
+        jobLocation: job.WORK_PARAR_BASS_ADRES_CN,
+        jobCareerCondition: job.CAREER_CND_NM,
+        apiType: "seoul", // API 유형 추가
+      };
+      return jobEntry;
+    });
 
-    // 두 API에서 가져온 데이터를 통합
-    jobs.value = [...jobsFromJobaba, ...jobsFromSeoul];
+    // 중복된 데이터 필터링 및 추가
+    jobsFromSeoul.forEach((job) => {
+      if (!jobIds.has(job.jobId)) {
+        jobIds.add(job.jobId);
+        jobs.value.push(job);
+      }
+    });
   } catch (error) {
-    console.error('채용 정보를 가져오는 데 실패했습니다.', error);
+    console.error("채용 정보를 가져오는 데 실패했습니다.", error);
   }
 };
 
@@ -179,7 +249,6 @@ onMounted(() => {
   fetchJobs();
   loadBookmarks();
 });
-
 
 // 필터링된 자격증 반환
 const filteredCertificates = computed(() => {
@@ -202,29 +271,31 @@ const filteredCertificates = computed(() => {
 // 검색어 변경 시 필터링
 watch(searchTerm, (newTerm) => {
   if (!newTerm) {
-    fetchJobs();  // 검색어가 비어 있으면 모든 채용 정보를 다시 가져옴
+    fetchJobs(); // 검색어가 비어 있으면 모든 채용 정보를 다시 가져옴
   } else {
-    searchJobs();  // 검색어가 있을 경우 필터링
+    searchJobs(); // 검색어가 있을 경우 필터링
   }
 });
 
 // 검색어에 맞게 필터링된 채용 정보 반환
 const filteredJobs = computed(() => {
   // 각 카테고리별로 작업을 필터링
-  if (selectedCategory.value === 'womenJobs') {
-    return jobs.value.filter(job => job.apiType === 'women');
-  } else if (selectedCategory.value === 'studentJobs') {
-    return jobs.value.filter(job => job.apiType === 'student');
-  } else if (selectedCategory.value === 'elderlyJobs') {
-    return jobs.value.filter(job => job.apiType === 'elderly');
-  } else if (selectedCategory.value === 'employment') {
-    return jobs.value.filter(job => job.apiType === 'employment');
+  if (selectedCategory.value === "womenJobs") {
+    return jobs.value.filter((job) => job.apiType === "women");
+  } else if (selectedCategory.value === "studentJobs") {
+    return jobs.value.filter((job) => job.apiType === "student");
+  } else if (selectedCategory.value === "elderlyJobs") {
+    return jobs.value.filter((job) => job.apiType === "elderly");
+  } else if (selectedCategory.value === "employment") {
+    return jobs.value.filter((job) => job.apiType === "employment");
   }
-  
+
   return jobs.value; // 기본적으로 모든 작업 반환
 });
 
-const totalPages = computed(() => Math.ceil(filteredJobs.value.length / itemsPerPage));
+const totalPages = computed(() =>
+  Math.ceil(filteredJobs.value.length / itemsPerPage)
+);
 
 const paginatedJobs = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
@@ -238,20 +309,22 @@ const changePage = (page) => {
 };
 
 const goToDetail = (jobId) => {
-  router.push({ name: 'curationDetail', params: { id: jobId } });
+  router.push({ name: "curationDetail", params: { id: jobId } });
 };
 
 const toggleBookmark = (job) => {
-  const index = bookmarks.value.findIndex(item => item.jobId === job.jobId);
+  const index = bookmarks.value.findIndex((item) => item.jobId === job.jobId);
   if (index > -1) {
     bookmarks.value.splice(index, 1);
+    console.log("북마크 삭제됨:", bookmarks.value);
   } else {
     bookmarks.value.push(job);
+    console.log("북마크 추가됨:", bookmarks.value);
   }
 };
 
 const isBookmarked = (jobId) => {
-  return bookmarks.value.some(item => item.jobId === jobId);
+  return bookmarks.value.some((item) => item.jobId === jobId);
 };
 
 // 검색 메소드 추가
@@ -259,36 +332,38 @@ const searchJobs = () => {
   if (!searchTerm.value) {
     fetchJobs();
   } else {
-    jobs.value = jobs.value.filter(job =>
-      job.jobInfoTitle.includes(searchTerm.value) || job.jobCompanyName.includes(searchTerm.value)
-    );
+    const lowerCaseSearchTerm = searchTerm.value.toLowerCase(); // 입력된 검색어를 소문자로 변환
+
+    jobs.value = jobs.value.filter((job) => {
+      return (
+        job.jobInfoTitle.toLowerCase().includes(lowerCaseSearchTerm) || // 제목을 소문자로 변환하여 비교
+        job.jobCompanyName.toLowerCase().includes(lowerCaseSearchTerm) // 회사 이름을 소문자로 변환하여 비교
+      );
+    });
   }
 };
 
 const selectCategory = (category) => {
   selectedCategory.value = category;
 };
-
 </script>
 
-  
 <style scoped>
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
 
 body {
-  background-color: #E6F3FF;
+  background-color: #e6f3ff;
   color: #333;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
 }
 
 .curation-main-container {
   margin: 2rem auto;
-  background-color: #E6F3FF;
+  background-color: #e6f3ff;
   backdrop-filter: blur(10px);
   padding: 2rem;
   box-sizing: border-box;
   width: 100%;
-  display: flex;
   flex-direction: column;
   align-items: center;
   border: none;
@@ -303,10 +378,11 @@ body {
   width: 100%;
   text-align: left;
   padding-left: 10px;
-  border-left: 5px solid #0166FF;
+  border-left: 5px solid #0166ff;
 }
 
-.curation-index, .search-bar {
+.curation-index,
+.search-bar {
   width: 100%;
   background-color: #ffffff;
   border: none;
@@ -317,7 +393,8 @@ body {
   transition: all 0.3s ease;
 }
 
-.curation-index:hover, .search-bar:hover {
+.curation-index:hover,
+.search-bar:hover {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
@@ -336,7 +413,7 @@ body {
 }
 
 .form-control:focus {
-  border-color: #0166FF;
+  border-color: #0166ff;
   box-shadow: 0 0 0 2px rgba(1, 102, 255, 0.2);
 }
 
@@ -356,7 +433,7 @@ body {
 }
 
 .btn-primary {
-  background-color: #0166FF;
+  background-color: #0166ff;
   color: white;
 }
 
@@ -386,7 +463,7 @@ body {
 .curation-item i {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-  color: #0166FF;
+  color: #0166ff;
 }
 
 .curation-item p {
@@ -425,7 +502,7 @@ body {
 
 .search-input-box::placeholder {
   color: #999;
-} 
+}
 
 .input-wrapper {
   display: flex;
@@ -447,7 +524,6 @@ body {
   cursor: pointer;
 }
 
-
 .recruitment-cards {
   width: 100%;
 }
@@ -456,6 +532,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   margin: -15px;
+  min-width: 800px; /* 원하는 최소 너비 설정 (예: 800px) */
 }
 
 .col-md-3 {
@@ -470,8 +547,10 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   overflow: hidden;
-  height: 100%;
   background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  display: flex; /* 카드 내부의 요소를 flexbox로 설정 */
+  flex-direction: column; /* 수직 정렬 */
+  height: 100%; /* 기본적으로 카드 높이를 100%로 설정 */
 }
 
 .card:hover {
@@ -493,7 +572,7 @@ body {
 }
 
 .bookmark-icon i {
-  color: #B0C4DE;
+  color: #b0c4de;
   transition: all 0.3s ease;
   font-size: 1.2rem;
 }
@@ -503,7 +582,7 @@ body {
 }
 
 .bookmark-icon i.bookmarked {
-  color: #FFD700;
+  color: #ffd700;
 }
 
 .card-title {
@@ -527,9 +606,15 @@ body {
   text-align: center;
 }
 
-.card-text.company i { color: #3498db; }
-.card-text.location i { color: #e74c3c; }
-.card-text.career i { color: #2ecc71; }
+.card-text.company i {
+  color: #3498db;
+}
+.card-text.location i {
+  color: #e74c3c;
+}
+.card-text.career i {
+  color: #2ecc71;
+}
 
 .pagination {
   display: flex;
@@ -546,20 +631,20 @@ body {
 .page-link {
   display: block;
   padding: 8px 12px;
-  border: 1px solid #0166FF;
-  color: #0166FF;
+  border: 1px solid #0166ff;
+  color: #0166ff;
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .page-link:hover {
-  background-color: #0166FF;
+  background-color: #0166ff;
   color: white;
 }
 
 .page-item.active .page-link {
-  background-color: #0166FF;
+  background-color: #0166ff;
   color: white;
 }
 
@@ -571,26 +656,35 @@ body {
 }
 
 @media (max-width: 1200px) {
-  .col-md-3 { width: 33.33%; }
+  .col-md-3 {
+    width: 33.33%;
+  }
 }
 
 @media (max-width: 992px) {
-  .col-md-3 { width: 50%; }
+  .col-md-3 {
+    width: 50%;
+  }
 }
 
+/* 카드가 2개 이하일 때의 스타일 조정 */
 @media (max-width: 768px) {
-  .curation-main-container { width: 100%; padding: 1rem; }
-  .col-md-3 { width: 100%; }
-  .search-bar .card-input { flex-direction: column; }
-  .search-bar input {
-    width: 100%;
-    margin-right: 0;
-    margin-bottom: 10px;
-    border-radius: 8px;
+  .col-md-3 {
+    width: 100%; /* 작은 화면에서는 카드가 100% 너비를 차지하도록 설정 */
   }
-  .search-button {
-    width: 100%;
-    border-radius: 8px;
+
+  /* 카드가 2개 이하일 때 높이를 고정 */
+  .row:has(.col-md-3:only-child) .card,
+  .row:has(.col-md-3:nth-child(-n + 2)) .card {
+    height: 300px; /* 원하는 고정 높이로 설정 */
+  }
+
+  .row:has(.col-md-3:only-child) {
+    justify-content: center; /* 중앙 정렬 */
+  }
+
+  .row:has(.col-md-3:nth-child(-n + 2)) {
+    justify-content: center; /* 2개 이하일 때 중앙 정렬 */
   }
 }
 </style>

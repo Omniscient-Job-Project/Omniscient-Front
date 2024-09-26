@@ -1,29 +1,38 @@
 <template>
-
   <div class="recruitment-cards">
     <div class="row">
-      <div v-for="employment in employments" :key="employment.instNm" class="col-md-3">
+      <div
+        v-for="employment in employments"
+        :key="employment.instNm"
+        class="col-md-3"
+      >
         <div class="card">
           <div class="card-body">
-
-              <div class="bookmark-icon" @click="toggleBookmark(employment)">
-                <i :class="isBookmarked(employment.instNm) ? 'fas fa-bookmark bookmarked' : 'far fa-bookmark'"></i>
-              </div>
-              <a :href="employment.hmpgNm" target="_blank" class="home-icon">
-                <i class="fas fa-external-link-alt" style="color: #007bff;"></i>
-              </a>
+            <div class="bookmark-icon" @click="toggleBookmark(employment)">
+              <i
+                :class="
+                  isBookmarked(employment.instNm)
+                    ? 'fas fa-bookmark bookmarked'
+                    : 'far fa-bookmark'
+                "
+              ></i>
+            </div>
+            <a :href="employment.hmpgNm" target="_blank" class="home-icon">
+              <i class="fas fa-external-link-alt" style="color: #007bff"></i>
+            </a>
 
             <h5 class="card-title">{{ employment.instNm }}</h5>
             <p class="card-text">
-              <i class="fas fa-phone" style="color: #4caf50;"></i> 
+              <i class="fas fa-phone" style="color: #4caf50"></i>
               <strong>연락처:</strong> {{ employment.contctNm }}
             </p>
             <p class="card-text">
-              <i class="fas fa-map-marker-alt" style="color: #e74c3c;"></i>
-              <strong>주소:</strong> {{ employment.refineLotnoAddr }} (우편번호: {{ employment.refineZipNo }})
+              <i class="fas fa-map-marker-alt" style="color: #e74c3c"></i>
+              <strong>주소:</strong> {{ employment.refineLotnoAddr }} (우편번호:
+              {{ employment.refineZipNo }})
             </p>
             <p class="card-text">
-              <i class="fas fa-map" style="color: #673ab7;"></i>
+              <i class="fas fa-map" style="color: #673ab7"></i>
               <strong>지역:</strong> {{ employment.regionNm }}
             </p>
           </div>
@@ -31,16 +40,12 @@
       </div>
     </div>
   </div>
-
-    
 </template>
 
-
-
-<script setup> 
-import { ref, computed, onMounted, watch } from 'vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
+<script setup>
+import { ref, computed, onMounted, watch } from "vue";
+import axios from "axios";
+import { useRouter } from "vue-router";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const employments = ref([]);
@@ -48,7 +53,7 @@ const bookmarks = ref([]);
 
 // localStorage에서 북마크 불러오기
 const loadBookmarks = () => {
-  const savedBookmarks = localStorage.getItem('bookmarks');
+  const savedBookmarks = localStorage.getItem("bookmarks");
   if (savedBookmarks) {
     bookmarks.value = JSON.parse(savedBookmarks);
   }
@@ -56,32 +61,37 @@ const loadBookmarks = () => {
 
 // 북마크 저장하기
 const saveBookmarks = () => {
-  localStorage.setItem('bookmarks', JSON.stringify(bookmarks.value));
+  localStorage.setItem("bookmarks", JSON.stringify(bookmarks.value));
 };
 
 // 북마크 변경 감지 및 저장
 watch(bookmarks, saveBookmarks, { deep: true });
 
 const toggleBookmark = (employment) => {
-  const index = bookmarks.value.findIndex(employment => employment.instNm === employment.instNm);
+  const index = bookmarks.value.findIndex(
+    (bookmark) => bookmark.instNm === employment.instNm
+  ); // employment로 수정
   if (index > -1) {
     bookmarks.value.splice(index, 1); // 북마크에서 제거
   } else {
     bookmarks.value.push(employment); // 북마크에 추가
   }
 };
-
 const isBookmarked = (instNm) => {
-  return bookmarks.value.some(employment => employment.instNm === instNm); // 북마크에 있는지 확인
+  return bookmarks.value.some((employment) => employment.instNm === instNm); // 북마크에 있는지 확인
 };
 
 const fetchCertificatesByEmployment = async () => {
   try {
     const response = await axios.get(`${API_URL}/api/v1/employment`);
-    if (response.data && response.data.GGEMPLTSP && response.data.GGEMPLTSP.row) {
+    if (
+      response.data &&
+      response.data.GGEMPLTSP &&
+      response.data.GGEMPLTSP.row
+    ) {
       employments.value = response.data.GGEMPLTSP.row
-        .filter(row => row.DIV_NM === '고용센터')
-        .map(row => ({
+        .filter((row) => row.DIV_NM === "고용센터")
+        .map((row) => ({
           instNm: row.INST_NM,
           contctNm: row.CONTCT_NM,
           refineLotnoAddr: row.REFINE_LOTNO_ADDR,
@@ -95,11 +105,10 @@ const fetchCertificatesByEmployment = async () => {
         }));
     }
   } catch (error) {
-    console.error('채용 정보를 가져오는 데 실패했습니다.', error);
+    console.error("채용 정보를 가져오는 데 실패했습니다.", error);
     employments.value = [];
   }
 };
-
 
 onMounted(() => {
   fetchCertificatesByEmployment();
@@ -107,10 +116,10 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-    body {
-  background-color: #E6F3FF;
+body {
+  background-color: #e6f3ff;
   color: #333;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
 }
 
 .job-list {
@@ -124,7 +133,7 @@ onMounted(() => {
   width: 100%;
   text-align: left;
   padding-left: 10px;
-  border-left: 5px solid #0166FF;
+  border-left: 5px solid #0166ff;
 }
 
 .row {
@@ -196,20 +205,20 @@ onMounted(() => {
 .page-link {
   display: block;
   padding: 8px 12px;
-  border: 1px solid #0166FF;
-  color: #0166FF;
+  border: 1px solid #0166ff;
+  color: #0166ff;
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .page-link:hover {
-  background-color: #0166FF;
+  background-color: #0166ff;
   color: white;
 }
 
 .page-item.active .page-link {
-  background-color: #0166FF;
+  background-color: #0166ff;
   color: white;
 }
 
@@ -229,7 +238,7 @@ onMounted(() => {
 }
 
 .bookmark-icon i {
-  color: #B0C4DE;
+  color: #b0c4de;
   transition: all 0.3s ease;
   font-size: 1.2rem;
 }
@@ -239,20 +248,28 @@ onMounted(() => {
 }
 
 .bookmark-icon i.bookmarked {
-  color: #FFD700;
+  color: #ffd700;
 }
 
 @media (max-width: 1200px) {
-  .col-md-3 { width: 33.33%; }
+  .col-md-3 {
+    width: 33.33%;
+  }
 }
 
 @media (max-width: 992px) {
-  .col-md-3 { width: 50%; }
+  .col-md-3 {
+    width: 50%;
+  }
 }
 
 @media (max-width: 768px) {
-  .job-list { width: 100%; padding: 1rem; }
-  .col-md-3 { width: 100%; }
+  .job-list {
+    width: 100%;
+    padding: 1rem;
+  }
+  .col-md-3 {
+    width: 100%;
+  }
 }
-
 </style>
