@@ -139,6 +139,11 @@ const router = createRouter({
           path: 'withdrawal',
           name: 'withdrawalPage',
           component: Withdrawal
+        },
+        {
+          path: 'withdrawall',
+          name: 'withdrawalPage',
+          component: Withdrawal
         }
       ]
     },
