@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-
+import { useAuthStore } from '@/stores/auth.js';
+import { useUserAuthStore } from '@/stores/userAuth';
 // 기본 뷰 및 컴포넌트
 
 // 메인 페이지
@@ -94,6 +95,16 @@ const router = createRouter({
       path: '/mypage',
       name: 'mypage',
       component: Mypage,
+      beforeEnter: (to, from, next) => {
+        const authStore = useAuthStore();
+        const userAuthStore = useUserAuthStore();
+        if (authStore.isLoggedIn || userAuthStore.isLoggedIn) {
+          alert('로그인을 해주세요.'); 
+          next();
+        } else {
+          next('/login'); 
+        }
+      },
       children: [
         {
           path: '',
