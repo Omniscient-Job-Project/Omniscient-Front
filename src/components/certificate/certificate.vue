@@ -6,14 +6,14 @@
         <i class="fas fa-certificate" style="color: #4caf50"></i>
         <p>자격증</p>
       </router-link>
-      <router-link to="/certificate" class="curation-item">
+      <div class="curation-item" @click="goToPagecertificate('/gradeJobs')">
         <i class="fas fa-star" style="color: #ffc107"></i>
         <p>상위종목</p>
-      </router-link>
-      <router-link to="/testJobs" class="curation-item">
+      </div>
+      <div class="curation-item" @click="goToPagecertificate('/testJobs')">
         <i class="fas fa-calendar-alt" style="color: #2196f3"></i>
         <p>시험일정</p>
-      </router-link>
+      </div>
     </div>
 
     <!-- 검색 창 -->
@@ -115,6 +115,9 @@
       </div>
     </div>
 
+    <TestJobs v-if="goToPagecard === '/testJobs'" />
+    <GradeJobs v-if="goToPagecard === '/gradeJobs'" />
+
     <!-- 페이지네이션 -->
     <div class="pagination">
       <button
@@ -159,6 +162,8 @@
 import { ref, computed, onMounted, watch } from "vue";
 import axios from "axios";
 import { getChoseong } from "es-hangul";
+import TestJobs from "./testJobs.vue";
+import GradeJobs from "./gradeJobs.vue";
 
 // 자격증 및 필터 상태
 const API_URL = import.meta.env.VITE_API_URL;
@@ -166,6 +171,11 @@ const searchTerm = ref("");
 const gradeCertificates = ref([]);
 const selectedCategory = ref("");
 const selectedGrade = ref(""); // 선택된 등급
+const goToPagecard = ref(""); // 초기 값 설정
+
+const goToPagecertificate = (category) => {
+  goToPagecard.value = category;
+};
 
 // 북마크 상태
 const bookmarks = ref([]);
