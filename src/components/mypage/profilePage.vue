@@ -31,7 +31,7 @@
                     <label for="jobTitle">직책</label>
                     <input id="jobTitle" v-model="profile.jobTitle" type="text" class="edit-input">
                   </div>
-                </div>
+                </div> 
 
                 <!-- 연락처 정보 -->
                 <div class="contact-info">
@@ -144,79 +144,100 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8090/api/v1/mypage/profile';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const PROFILE_API_URL = `${API_BASE_URL}/api/v1/mypage/profile`;
+const FILE_UPLOAD_URL = `${API_BASE_URL}/api/v1/files/upload`;
 
-export default {
-  name: 'ProfilePage',
-  setup() {
-    const profile = reactive({
-      id: null,
-      name: '',
-      jobTitle: '',
-      email: '',
-      phone: '',
-      age: null,
-      address: '',
-      certificates: [],
-      status: true,
-      profileImages: []
-    });
+const profile = reactive({
+  id: null,
+  name: '',
+  jobTitle: '',
+  email: '',
+  phone: '',
+  age: null,
+  address: '',
+  certificates: [],
+  active: true,
+  imageFileName: null
+});
 
-    const isEditing = ref(false);
-    const imageInput = ref(null);
-    const previewImage = ref(null);
-    const showSaveModal = ref(false);
-    const showDeactivateModal = ref(false);
-    const profileImageUrl = computed(() => {
-  // 프로필에 이미지가 있는 경우 Base64 형식으로 표시
-  return profile.profileImages && profile.profileImages.length > 0
-    ? `data:image/jpeg;base64,${profile.profileImages[0]}`  // Base64 인코딩된 이미지 표시
-    : 'https://via.placeholder.com/150'; // 기본 이미지
+const isEditing = ref(false);
+const imageInput = ref(null);
+const previewImage = ref(null);
+const showSaveModal = ref(false);
+const showDeactivateModal = ref(false);
+const isLoading = ref(false);
+
+const profileImageUrl = computed(() => {
+  if (previewImage.value) {
+    return previewImage.value;
+  } else if (profile.imageFileName) {
+    return `${PROFILE_API_URL}/${profile.id}/image?${new Date().getTime()}`; // 캐시 방지
+  } else {
+    return 'https://via.placeholder.com/150';
+  }
 });
 
 const loadProfile = async () => {
+  isLoading.value = true;
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(PROFILE_API_URL);
     if (response.data && response.data.length > 0) {
-      // 프로필 데이터를 불러옴
       Object.assign(profile, response.data[0]);
-
-      // 이미지 데이터가 있을 경우 Base64로 프로필에 저장
-      if (response.data[0].profileImages) {
-        profile.profileImages = response.data[0].profileImages.map(img => img.image);  // 이미지 데이터를 Base64로 저장
-      }
     } else {
-      throw new Error('프로필을 찾을 수 없습니다.');
+      console.log('프로필이 없습니다. 새 프로필을 생성합니다.');
     }
   } catch (error) {
     console.error('프로필을 불러오는데 실패했습니다:', error);
     alert('프로필을 불러오는데 실패했습니다.');
+  } finally {
+    isLoading.value = false;
   }
 };
 
-
-    const toggleEditMode = () => {
-      isEditing.value = !isEditing.value;
-    };
-
-    const addCertificate = () => {
-      profile.certificates.push('');
-    };
-
-    const removeCertificate = (index) => {
-      profile.certificates.splice(index, 1);
-    };
-
-    const triggerImageUpload = () => {
-      if (isEditing.value) {
-        imageInput.value.click();
+const uploadImage = async (file) => {
+  console.log('이미지 업로드 시작:', file.name, file.size, 'bytes');
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const response = await axios.post(`${PROFILE_API_URL}/${profile.id}/image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log(`업로드 진행률: ${percentCompleted}%`);
       }
-    };
-    const handleImageUpload = (event) => {
+    });
+    console.log('이미지 업로드 응답:', response.data);
+    return response.data.imageFileName || response.data.fileName;
+  } catch (error) {
+    console.error('이미지 업로드 실패:', error);
+    throw error;
+  }
+};
+
+const toggleEditMode = () => {
+  isEditing.value = !isEditing.value;
+};
+
+const addCertificate = () => {
+  profile.certificates.push('');
+};
+
+const removeCertificate = (index) => {
+  profile.certificates.splice(index, 1);
+};
+
+const triggerImageUpload = () => {
+  if (isEditing.value) {
+    imageInput.value.click();
+  }
+};
+
+const handleImageUpload = (event) => {
   const file = event.target.files[0];
   if (file) {
     if (file.size > 5 * 1024 * 1024) {
@@ -226,138 +247,88 @@ const loadProfile = async () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       previewImage.value = e.target.result;
-      // Base64 인코딩된 이미지 데이터를 profile 객체에 저장
-      profile.profileImages = [e.target.result.split(',')[1]];  // Base64 데이터로 저장
     };
     reader.readAsDataURL(file);
   }
 };
 
+const showConfirmModal = () => {
+  showSaveModal.value = true;
+};
 
-    const showConfirmModal = () => {
-      showSaveModal.value = true;
-    };
+const closeSaveModal = () => {
+  showSaveModal.value = false;
+};
 
-    const closeSaveModal = () => {
-      showSaveModal.value = false;
-    };
+const confirmSave = () => {
+  saveProfile();
+};
 
-    const confirmSave = () => {
-      saveProfile();
-    };
 
-    const saveProfile = async () => {
+const saveProfile = async () => {
+  isLoading.value = true;
   try {
-    const formData = new FormData();
-    Object.keys(profile).forEach(key => {
-      if (key === 'id' && !profile.id) return;
-      if (key === 'certificates') {
-        formData.append(key, JSON.stringify(profile[key]));
-      } else if (key === 'profileImages' && profile[key]) {
-        // Base64 이미지 데이터를 Blob으로 변환하여 추가
-        const imageBlob = b64toBlob(profile[key][0], 'image/jpeg');
-        formData.append('profileImages', imageBlob, 'profile_image.jpg');
-      } else {
-        formData.append(key, profile[key]);
-      }
-    });
-
-    console.log('FormData 내용:', Object.fromEntries(formData));
-
-    let response;
-    if (profile.id) {
-      response = await axios.put(`${API_URL}/${profile.id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-    } else {
-      response = await axios.post(API_URL, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+    let updatedProfile = { ...profile };
+    
+    if (previewImage.value && previewImage.value !== profileImageUrl.value) {
+      console.log('새 이미지 감지됨, 업로드 시작...');
+      const file = await fetch(previewImage.value).then(r => r.blob());
+      console.log('파일 준비됨:', file.size, 'bytes');
+      const fileName = await uploadImage(new File([file], 'profile_image.jpg', { type: 'image/jpeg' }));
+      console.log('이미지 업로드 완료, 파일명:', fileName);
+      updatedProfile.imageFileName = fileName;
     }
 
-    // 서버에서 갱신된 프로필 데이터를 다시 로드하여 업데이트
-    await loadProfile();  // 프로필 재로드
-
+    console.log('프로필 저장 시작:', updatedProfile);
+    let response;
+    if (profile.id) {
+      response = await axios.put(`${PROFILE_API_URL}/${profile.id}`, updatedProfile);
+    } else {
+      response = await axios.post(PROFILE_API_URL, updatedProfile);
+    }
     console.log('서버 응답:', response.data);
+
     Object.assign(profile, response.data);
+    console.log('프로필 업데이트 완료:', profile);
+    
     isEditing.value = false;
     showSaveModal.value = false;
     previewImage.value = null;
     alert('프로필이 성공적으로 저장되었습니다.');
   } catch (error) {
     console.error('프로필 저장 중 오류 발생:', error);
-    console.error('오류 상세 정보:', error.response ? error.response.data : '응답 없음');
-    alert('프로필 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
+    alert(`프로필 저장에 실패했습니다: ${error.message}`);
+  } finally {
+    isLoading.value = false;
   }
 };
 
-    // Base64를 Blob으로 변환하는 유틸리티 함수
-    const b64toBlob = (b64Data, contentType = '', sliceSize = 512) => {
-      const byteCharacters = atob(b64Data);
-      const byteArrays = [];
+const showDeactivateConfirmation = () => {
+  showDeactivateModal.value = true;
+};
 
-      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        const slice = byteCharacters.slice(offset, offset + sliceSize);
-        const byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        byteArrays.push(byteArray);
-      }
+const closeDeactivateModal = () => {
+  showDeactivateModal.value = false;
+};
 
-      const blob = new Blob(byteArrays, { type: contentType });
-      return blob;
-    };
-
-    const showDeactivateConfirmation = () => {
-      showDeactivateModal.value = true;
-    };
-
-    const closeDeactivateModal = () => {
-      showDeactivateModal.value = false;
-    };
-
-    const confirmDeactivate = async () => {
-      try {
-        await axios.put(`${API_URL}/api/v1/mypage/profile/deactivate/${profile.id}`);
-        showDeactivateModal.value = false;
-        alert('프로필이 성공적으로 비활성화되었습니다.');
-        // 여기서 로그아웃 처리나 홈페이지로 리다이렉트 등을 수행할 수 있습니다.
-      } catch (error) {
-        console.error('프로필 비활성화에 실패했습니다:', error);
-        alert('프로필 비활성화에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
-      }
-    };
-
-    onMounted(() => {
-      loadProfile();
-    });
-
-    return {
-      profile,
-      isEditing,
-      imageInput,
-      previewImage,
-      showSaveModal,
-      showDeactivateModal,
-      profileImageUrl,
-      toggleEditMode,
-      addCertificate,
-      removeCertificate,
-      triggerImageUpload,
-      handleImageUpload,
-      showConfirmModal,
-      closeSaveModal,
-      confirmSave,
-      showDeactivateConfirmation,
-      closeDeactivateModal,
-      confirmDeactivate,
-      handleImageUpload,
-      saveProfile,
-    };
+const confirmDeactivate = async () => {
+  isLoading.value = true;
+  try {
+    await axios.put(`${PROFILE_API_URL}/deactivate/${profile.id}`);
+    showDeactivateModal.value = false;
+    alert('프로필이 성공적으로 비활성화되었습니다.');
+    // 여기서 로그아웃 처리나 홈페이지로 리다이렉트 등을 수행할 수 있습니다.
+  } catch (error) {
+    console.error('프로필 비활성화에 실패했습니다:', error);
+    alert('프로필 비활성화에 실패했습니다.');
+  } finally {
+    isLoading.value = false;
   }
 };
+
+onMounted(() => {
+  loadProfile();
+});
 </script>
 
 <style scoped>
