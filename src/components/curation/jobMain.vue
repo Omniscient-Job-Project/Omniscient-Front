@@ -95,40 +95,42 @@
     />
 
     <!-- 페이지네이션 -->
-    <nav aria-label="Page navigation">
-      <ul class="pagination">
-        <li class="page-item" :class="{ disabled: currentPage === 1 }">
-          <a
-            class="page-link"
-            href="#"
-            aria-label="Previous"
-            @click.prevent="changePage(currentPage - 1)"
-          >
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li
-          v-for="page in totalPages"
-          :key="page"
-          class="page-item"
-          :class="{ active: page === currentPage }"
+    <div class="pagination">
+      <button
+        @click="goToPage(1)"
+        :disabled="currentPage === 1"
+        class="page-btn"
+      >
+        <i class="fas fa-angle-double-left"></i>
+      </button>
+      <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">
+        <i class="fas fa-angle-left"></i>
+      </button>
+      <div class="page-numbers">
+        <button
+          v-for="pageNumber in displayedPageNumbers"
+          :key="pageNumber"
+          @click="goToPage(pageNumber)"
+          :class="['page-number', { active: currentPage === pageNumber }]"
         >
-          <a class="page-link" href="#" @click.prevent="changePage(page)">{{
-            page
-          }}</a>
-        </li>
-        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <a
-            class="page-link"
-            href="#"
-            aria-label="Next"
-            @click.prevent="changePage(currentPage + 1)"
-          >
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
+          {{ pageNumber }}
+        </button>
+      </div>
+      <button
+        @click="nextPage"
+        :disabled="currentPage === totalPages"
+        class="page-btn"
+      >
+        <i class="fas fa-angle-right"></i>
+      </button>
+      <button
+        @click="goToPage(totalPages)"
+        :disabled="currentPage === totalPages"
+        class="page-btn"
+      >
+        <i class="fas fa-angle-double-right"></i>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -346,6 +348,38 @@ const searchJobs = () => {
 const selectCategory = (category) => {
   selectedCategory.value = category;
 };
+
+const prevPage = () => {
+  if (currentPage.value > 1) currentPage.value--;
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++;
+};
+
+const goToPage = (page) => {
+  currentPage.value = page;
+};
+
+const displayedPageNumbers = computed(() => {
+  const range = 2; // 현재 페이지 기준으로 보여줄 페이지 수 범위
+  let start = Math.max(currentPage.value - range, 1);
+  let end = Math.min(currentPage.value + range, totalPages.value);
+
+  // 첫 번째 페이지들에 있을 때: 처음 5개 페이지를 표시
+  if (currentPage.value <= 3) {
+    start = 1;
+    end = Math.min(5, totalPages.value);
+  }
+
+  // 마지막 페이지들에 있을 때: 마지막 5개 페이지를 표시
+  if (currentPage.value >= totalPages.value - 2) {
+    start = Math.max(totalPages.value - 4, 1);
+    end = totalPages.value;
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+});
 </script>
 
 <style scoped>
@@ -619,40 +653,52 @@ body {
 .pagination {
   display: flex;
   justify-content: center;
-  list-style: none;
-  padding: 0;
-  margin-top: 2rem;
+  align-items: center;
+  margin-top: 40px;
 }
 
-.page-item {
+.page-btn {
+  padding: 10px 15px;
+  background-color: #0166ff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
   margin: 0 5px;
 }
 
-.page-link {
-  display: block;
-  padding: 8px 12px;
+.page-btn:hover:not(:disabled) {
+  background-color: #014fd3;
+  transform: translateY(-2px);
+}
+
+.page-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  margin: 0 10px;
+}
+
+.page-number {
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: transparent;
   border: 1px solid #0166ff;
   color: #0166ff;
-  text-decoration: none;
-  border-radius: 8px;
+  border-radius: 5px;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.page-link:hover {
+.page-number.active,
+.page-number:hover {
   background-color: #0166ff;
   color: white;
-}
-
-.page-item.active .page-link {
-  background-color: #0166ff;
-  color: white;
-}
-
-.page-item.disabled .page-link {
-  color: #6c757d;
-  pointer-events: none;
-  background-color: #fff;
-  border-color: #dee2e6;
 }
 
 @media (max-width: 1200px) {
@@ -685,6 +731,27 @@ body {
 
   .row:has(.col-md-3:nth-child(-n + 2)) {
     justify-content: center; /* 2개 이하일 때 중앙 정렬 */
+  }
+}
+
+@media (max-width: 576px) {
+  .pagination {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .page-btn {
+    width: 100%;
+  }
+
+  .page-numbers {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .page-number {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>
