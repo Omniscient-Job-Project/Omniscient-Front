@@ -55,86 +55,105 @@
         </div>
       </div>
 
-
       <!-- 자격증 카드 -->
       <div class="row">
-  <div
-    v-for="gradecertificate in paginatedCertificates"
-    :key="gradecertificate.jmNm"
-    class="col-md-3"
-  >
-    <div class="card">
-      <div class="card-body">
-        <!-- 북마크 아이콘 추가 -->
-        <div class="bookmark-icon" @click.stop="toggleBookmark(gradecertificate)">
-          <i :class="['fas', 'fa-bookmark', { 'bookmarked': isBookmarked(gradecertificate.jmNm) }]"></i>
+        <div
+          v-for="gradecertificate in paginatedCertificates"
+          :key="gradecertificate.jmNm"
+          class="col-md-3"
+        >
+          <div class="card">
+            <div class="card-body">
+              <!-- 북마크 아이콘 추가 -->
+              <div
+                class="bookmark-icon"
+                @click.stop="toggleBookmark(gradecertificate)"
+              >
+                <i
+                  :class="[
+                    'fas',
+                    'fa-bookmark',
+                    { bookmarked: isBookmarked(gradecertificate.jmNm) },
+                  ]"
+                ></i>
+              </div>
+              <h5 class="card-title">
+                <i class="fas fa-certificate" style="color: #4caf50"></i>
+                {{ gradecertificate.jmNm }}
+              </h5>
+              <p class="card-text">
+                <i class="fas fa-building" style="color: #2196f3"></i>
+                기관: {{ gradecertificate.instiNm }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-trophy" style="color: #ff9800"></i>
+                등급: {{ gradecertificate.grdNm }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-chart-line" style="color: #673ab7"></i>
+                자격증 취득률: {{ gradecertificate.preyyAcquQualIncRate }}%
+              </p>
+              <p class="card-text">
+                <i class="fas fa-chart-bar" style="color: #3f51b5"></i>
+                전년도 자격증 취득 수: {{ gradecertificate.preyyQualAcquCnt }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-chart-pie" style="color: #ff5722"></i>
+                총 자격증 취득 수: {{ gradecertificate.qualAcquCnt }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-calendar-alt" style="color: #009688"></i>
+                통계 연도: {{ gradecertificate.statisYy }}
+              </p>
+              <p class="card-text">
+                <i class="fas fa-calendar-check" style="color: #8bc34a"></i>
+                합계 연도: {{ gradecertificate.sumYy }}
+              </p>
+            </div>
+          </div>
         </div>
-        <h5 class="card-title">
-          <i class="fas fa-certificate" style="color: #4caf50"></i>
-          {{ gradecertificate.jmNm }}
-        </h5>
-        <p class="card-text">
-          <i class="fas fa-building" style="color: #2196f3"></i>
-          기관: {{ gradecertificate.instiNm }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-trophy" style="color: #ff9800"></i>
-          등급: {{ gradecertificate.grdNm }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-chart-line" style="color: #673ab7"></i>
-          자격증 취득률: {{ gradecertificate.preyyAcquQualIncRate }}%
-        </p>
-        <p class="card-text">
-          <i class="fas fa-chart-bar" style="color: #3f51b5"></i>
-          전년도 자격증 취득 수: {{ gradecertificate.preyyQualAcquCnt }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-chart-pie" style="color: #ff5722"></i>
-          총 자격증 취득 수: {{ gradecertificate.qualAcquCnt }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-calendar-alt" style="color: #009688"></i>
-          통계 연도: {{ gradecertificate.statisYy }}
-        </p>
-        <p class="card-text">
-          <i class="fas fa-calendar-check" style="color: #8bc34a"></i>
-          합계 연도: {{ gradecertificate.sumYy }}
-        </p>
       </div>
-    </div>
-  </div>
-
-  </div>
-
     </div>
 
     <!-- 페이지네이션 -->
     <div class="pagination">
-        <button @click="goToPage(1)" :disabled="currentPage === 1" class="page-btn">
-          <i class="fas fa-angle-double-left"></i>
+      <button
+        @click="goToPage(1)"
+        :disabled="currentPage === 1"
+        class="page-btn"
+      >
+        <i class="fas fa-angle-double-left"></i>
+      </button>
+      <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">
+        <i class="fas fa-angle-left"></i>
+      </button>
+      <div class="page-numbers">
+        <button
+          v-for="pageNumber in displayedPageNumbers"
+          :key="pageNumber"
+          @click="goToPage(pageNumber)"
+          :class="['page-number', { active: currentPage === pageNumber }]"
+        >
+          {{ pageNumber }}
         </button>
-        <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">
-          <i class="fas fa-angle-left"></i>
-        </button>
-        <div class="page-numbers">
-          <button v-for="pageNumber in displayedPageNumbers" :key="pageNumber"
-                  @click="goToPage(pageNumber)"
-                  :class="['page-number', { active: currentPage === pageNumber }]">
-            {{ pageNumber }}
-          </button>
-        </div>
-        <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn">
-          <i class="fas fa-angle-right"></i>
-        </button>
-        <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="page-btn">
-          <i class="fas fa-angle-double-right"></i>
-        </button>
+      </div>
+      <button
+        @click="nextPage"
+        :disabled="currentPage === totalPages"
+        class="page-btn"
+      >
+        <i class="fas fa-angle-right"></i>
+      </button>
+      <button
+        @click="goToPage(totalPages)"
+        :disabled="currentPage === totalPages"
+        class="page-btn"
+      >
+        <i class="fas fa-angle-double-right"></i>
+      </button>
     </div>
-
   </div>
 </template>
-
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
@@ -198,19 +217,19 @@ const paginatedCertificates = computed(() => {
 
 // 북마크 관련 함수
 const loadBookmarks = () => {
-  const savedBookmarks = localStorage.getItem('bookmarks');
+  const savedBookmarks = localStorage.getItem("bookmarks");
   if (savedBookmarks) {
     bookmarks.value = JSON.parse(savedBookmarks);
-    console.log('북마크 데이터 로드됨:', bookmarks.value);
+    console.log("북마크 데이터 로드됨:", bookmarks.value);
   } else {
     bookmarks.value = [];
-    console.log('저장된 북마크 없음');
+    console.log("저장된 북마크 없음");
   }
 };
 
 // 북마크 저장 함수
 const saveBookmarks = () => {
-  localStorage.setItem('bookmarks', JSON.stringify(bookmarks.value));
+  localStorage.setItem("bookmarks", JSON.stringify(bookmarks.value));
 };
 
 // 북마크 배열 감시 및 저장
@@ -219,60 +238,78 @@ watch(bookmarks, saveBookmarks, { deep: true });
 // 북마크 토글 함수
 const toggleBookmark = (gradecertificate) => {
   console.log(`북마크 토글: 자격증 이름 - ${gradecertificate.jmNm}`);
-  
+
   if (gradecertificate && gradecertificate.jmNm) {
-    const isAlreadyBookmarked = bookmarks.value.some(item => item.jmNm === gradecertificate.jmNm);
+    const isAlreadyBookmarked = bookmarks.value.some(
+      (item) => item.jmNm === gradecertificate.jmNm
+    );
     console.log(`현재 북마크 상태: ${isAlreadyBookmarked}`);
 
     if (isAlreadyBookmarked) {
-      bookmarks.value = bookmarks.value.filter(item => item.jmNm !== gradecertificate.jmNm); // 북마크 제거
+      bookmarks.value = bookmarks.value.filter(
+        (item) => item.jmNm !== gradecertificate.jmNm
+      ); // 북마크 제거
       console.log(`북마크 제거됨: 자격증 이름 - ${gradecertificate.jmNm}`);
     } else {
       bookmarks.value = [...bookmarks.value, gradecertificate]; // 북마크 추가
       console.log(`북마크 추가됨: 자격증 이름 - ${gradecertificate.jmNm}`);
     }
 
-    console.log('변경된 북마크 목록:', bookmarks.value);
+    console.log("변경된 북마크 목록:", bookmarks.value);
   } else {
-    console.error('유효하지 않은 자격증 객체:', gradecertificate);
+    console.error("유효하지 않은 자격증 객체:", gradecertificate);
   }
 };
 
 // 자격증이 북마크된 상태인지 확인하는 함수
 const isBookmarked = (certificateName) => {
   if (certificateName) {
-    const result = bookmarks.value.some(item => item.jmNm === certificateName);
+    const result = bookmarks.value.some(
+      (item) => item.jmNm === certificateName
+    );
     if (result) {
       console.log(`북마크 상태: ${result} (자격증 이름: ${certificateName})`);
     }
     return result;
   } else {
-    console.error('유효하지 않은 자격증 이름:', certificateName);
+    console.error("유효하지 않은 자격증 이름:", certificateName);
     return false;
   }
 };
 
-
-
 // 자격증 데이터 가져오기 함수
 const fetchGradeCertificates = async () => {
   // 필터링된 grdCd 배열 생성
-  const grdCds = selectedCategory.value ? [selectedCategory.value] : ["10", "20", "30", "31", "32", "33", "40"];
-  
+  const grdCds = selectedCategory.value
+    ? [selectedCategory.value]
+    : ["10", "20", "30", "31", "32", "33", "40"];
+
   // 개별 API 호출을 위한 비동기 함수
   const fetchCertificatesByGrade = async (grdCd) => {
     try {
-      const response = await axios.get(`${API_URL}/api/v1/gradejob?grdCd=${grdCd}`);
-      if (response.data && response.data.response && response.data.response.body) {
+      const response = await axios.get(
+        `${API_URL}/api/v1/gradejob?grdCd=${grdCd}`
+      );
+      if (
+        response.data &&
+        response.data.response &&
+        response.data.response.body
+      ) {
         const items = response.data.response.body.items.item;
         if (Array.isArray(items)) {
           return items;
         } else {
-          console.error(`아이템 배열이 예상되었으나, ${grdCd}에 대해 다음이 반환되었습니다:`, items);
+          console.error(
+            `아이템 배열이 예상되었으나, ${grdCd}에 대해 다음이 반환되었습니다:`,
+            items
+          );
           return [];
         }
       } else {
-        console.error(`응답 데이터 구조가 예상과 일치하지 않습니다: ${grdCd}`, response.data);
+        console.error(
+          `응답 데이터 구조가 예상과 일치하지 않습니다: ${grdCd}`,
+          response.data
+        );
         return [];
       }
     } catch (error) {
@@ -282,7 +319,9 @@ const fetchGradeCertificates = async () => {
   };
 
   // 모든 grdCd 값에 대해 비동기 호출을 수행
-  const allCertificates = await Promise.all(grdCds.map(fetchCertificatesByGrade));
+  const allCertificates = await Promise.all(
+    grdCds.map(fetchCertificatesByGrade)
+  );
 
   // 모든 결과를 하나의 배열로 결합
   gradeCertificates.value = allCertificates.flat();
@@ -329,22 +368,18 @@ onMounted(() => {
 });
 </script>
 
-
-
-
-
 <style scoped>
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
 
 body {
-  background-color: #E6F3FF;
+  background-color: #e6f3ff;
   color: #333;
   font-family: "Arial", sans-serif;
 }
 
 .curation-main-container {
   margin: 2rem auto;
-  background-color: #E6F3FF;
+  background-color: #e6f3ff;
   backdrop-filter: blur(10px);
   padding: 2rem;
   box-sizing: border-box;
@@ -401,7 +436,7 @@ body {
 
 .search-input-box::placeholder {
   color: #999;
-} 
+}
 
 .input-wrapper {
   display: flex;
@@ -422,7 +457,6 @@ body {
   height: 24px;
   cursor: pointer;
 }
-
 
 /* 필터링 섹션 스타일 */
 .filter-section {
@@ -633,7 +667,7 @@ body {
 
 .page-btn {
   padding: 10px 15px;
-  background-color: #0166FF;
+  background-color: #0166ff;
   color: white;
   border: none;
   border-radius: 5px;
@@ -662,8 +696,8 @@ body {
   padding: 5px 10px;
   margin: 0 5px;
   background-color: transparent;
-  border: 1px solid #0166FF;
-  color: #0166FF;
+  border: 1px solid #0166ff;
+  color: #0166ff;
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -671,7 +705,7 @@ body {
 
 .page-number.active,
 .page-number:hover {
-  background-color: #0166FF;
+  background-color: #0166ff;
   color: white;
 }
 
