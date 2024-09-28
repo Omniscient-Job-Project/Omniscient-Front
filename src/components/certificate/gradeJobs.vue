@@ -75,6 +75,7 @@
   import axios from "axios";
   import { getChoseong } from "es-hangul";
   import TestJobs from "./testJobs.vue";
+  import GradeJobs from "./gradeJobs.vue";
   
   // 자격증 및 필터 상태
   const API_URL = import.meta.env.VITE_API_URL;
@@ -82,8 +83,11 @@
   const gradeCertificates = ref([]);
   const selectedCategory = ref("");
   const selectedGrade = ref(""); // 선택된 등급
-  const goToPagecard = ref('');  // 초기 값 설정
+  const goToPagecard = ref("/gradeJobs"); // 초기 값 설정
   
+  const goToPagecertificate = (path) => {
+    goToPagecard.value = path;
+  };
   
   // 북마크 상태
   const bookmarks = ref([]);
@@ -285,7 +289,6 @@
     loadBookmarks();
   });
   </script>
-  
   <style scoped>
   @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
   
