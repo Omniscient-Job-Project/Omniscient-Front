@@ -6,7 +6,9 @@
         <h2><i class="fas fa-edit"></i> 게시글 작성</h2>
         <form @submit.prevent="showConfirmModal">
           <div class="form-group">
-            <label for="category"><i class="fas fa-folder"></i> 카테고리:</label>
+            <label for="category"
+              ><i class="fas fa-folder"></i> 카테고리:</label
+            >
             <select id="category" v-model="newPost.category" required>
               <option value="" disabled>카테고리 선택</option>
               <option value="RECRUITMENT">채용</option>
@@ -15,13 +17,26 @@
           </div>
           <div class="form-group">
             <label for="title"><i class="fas fa-heading"></i> 제목:</label>
-            <input type="text" id="title" v-model="newPost.title" required maxlength="30" />
+            <input
+              type="text"
+              id="title"
+              v-model="newPost.title"
+              required
+              maxlength="30"
+            />
           </div>
           <div class="form-group">
             <label for="content"><i class="fas fa-paragraph"></i> 내용:</label>
-            <textarea id="content" v-model="newPost.content" required maxlength="2000"></textarea>
+            <textarea
+              id="content"
+              v-model="newPost.content"
+              required
+              maxlength="2000"
+            ></textarea>
           </div>
-          <button type="submit"><i class="fas fa-paper-plane"></i> 게시글 등록</button>
+          <button type="submit">
+            <i class="fas fa-paper-plane"></i> 게시글 등록
+          </button>
         </form>
       </div>
     </div>
@@ -46,19 +61,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
-import Header from '../header/header.vue';
-import Footer from '../footer/footer.vue';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import axios from "axios";
+import Header from "../header/header.vue";
+import Footer from "../footer/footer.vue";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
 const showModal = ref(false);
 const newPost = ref({
-  title: '',
-  content: '',
-  category: '',
+  title: "",
+  content: "",
+  category: "",
 });
 
 const showConfirmModal = () => {
@@ -71,28 +86,34 @@ const closeModal = () => {
 
 const submitPost = async () => {
   try {
-    const response = await axios.post(`${API_URL}/api/v1/boards`, newPost.value);
-    console.log('게시글이 성공적으로 등록되었습니다:', response.data);
+    const response = await axios.post(
+      `${API_URL}/api/v1/boards`,
+      newPost.value
+    );
+    console.log("게시글이 성공적으로 등록되었습니다:", response.data);
     closeModal();
     // 게시글 추가 후 게시판 목록으로 이동
-    router.push({ name: 'boardList', params: { category: newPost.value.category } });
+    router.push({
+      name: "boardList",
+      params: { category: newPost.value.category },
+    });
   } catch (error) {
-    console.error('게시글 등록 중 오류가 발생했습니다:', error);
-    alert('게시글 등록에 실패했습니다. 다시 시도해 주세요.');
+    console.error("게시글 등록 중 오류가 발생했습니다:", error);
+    alert("게시글 등록에 실패했습니다. 다시 시도해 주세요.");
   }
 };
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css");
 
 .page-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background-color: #e3f2fd;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: "Noto Sans KR", sans-serif;
 }
 
 .content-wrapper {
@@ -110,7 +131,7 @@ const submitPost = async () => {
   padding: 40px;
   background-color: #ffffff;
   border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .post-form-container h2 {
@@ -172,7 +193,7 @@ const submitPost = async () => {
   padding: 15px 20px;
   border: none;
   border-radius: 30px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -184,7 +205,7 @@ const submitPost = async () => {
 .post-form-container button[type="submit"]:hover {
   background-color: #45a049;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* 모달 스타일 */
@@ -241,7 +262,7 @@ const submitPost = async () => {
 }
 
 .confirm-button {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
@@ -269,11 +290,18 @@ const submitPost = async () => {
 
 /* 애니메이션 효과 */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.post-form-container, .modal-content {
+.post-form-container,
+.modal-content {
   animation: fadeIn 0.5s ease-out;
 }
 

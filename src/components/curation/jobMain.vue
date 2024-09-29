@@ -604,40 +604,52 @@ body {
 .pagination {
   display: flex;
   justify-content: center;
-  list-style: none;
-  padding: 0;
-  margin-top: 2rem;
+  align-items: center;
+  margin-top: 40px;
 }
 
-.page-item {
+.page-btn {
+  padding: 10px 15px;
+  background-color: #0166ff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
   margin: 0 5px;
 }
 
-.page-link {
-  display: block;
-  padding: 8px 12px;
+.page-btn:hover:not(:disabled) {
+  background-color: #014fd3;
+  transform: translateY(-2px);
+}
+
+.page-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  margin: 0 10px;
+}
+
+.page-number {
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: transparent;
   border: 1px solid #0166ff;
   color: #0166ff;
-  text-decoration: none;
-  border-radius: 8px;
+  border-radius: 5px;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.page-link:hover {
+.page-number.active,
+.page-number:hover {
   background-color: #0166ff;
   color: white;
-}
-
-.page-item.active .page-link {
-  background-color: #0166ff;
-  color: white;
-}
-
-.page-item.disabled .page-link {
-  color: #6c757d;
-  pointer-events: none;
-  background-color: #fff;
-  border-color: #dee2e6;
 }
 
 @media (max-width: 1200px) {
@@ -670,6 +682,27 @@ body {
 
   .row:has(.col-md-3:nth-child(-n + 2)) {
     justify-content: center; /* 2개 이하일 때 중앙 정렬 */
+  }
+}
+
+@media (max-width: 576px) {
+  .pagination {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .page-btn {
+    width: 100%;
+  }
+
+  .page-numbers {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .page-number {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>
