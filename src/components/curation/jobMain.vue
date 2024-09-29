@@ -56,11 +56,7 @@
               <div class="card-body">
                 <div class="bookmark-icon" @click.stop="toggleBookmark(job)">
                   <i
-                    :class="[
-                      'fas',
-                      'fa-bookmark',
-                      { bookmarked: isBookmarked(job.jobId) },
-                    ]"
+                    :class="[ 'fas', 'fa-bookmark', { bookmarked: isBookmarked(job.jobId) } ]"
                   ></i>
                 </div>
                 <h5 class="card-title">{{ job.jobInfoTitle }}</h5>
@@ -78,7 +74,6 @@
           </div>
         </div>
       </div>
-
 
     <WomenJobs v-if="selectedCategory === 'womenJobs'" :jobs="paginatedJobs" />
     <UniversityJob
@@ -154,6 +149,7 @@ const itemsPerPage = 16;
 const bookmarks = ref([]);
 const selectedCategory = ref("");
 
+// 카테고리 라벨 설정
 const categoryLabel = computed(() => {
   switch (selectedCategory.value) {
     case "womenJobs":
@@ -185,10 +181,9 @@ const saveBookmarks = () => {
 // 북마크 변경 감지 및 저장
 watch(bookmarks, saveBookmarks, { deep: true });
 
-// 자격증 데이터 가져오기 함수
+// 채용 정보 API 호출하는 함수
 const fetchJobs = async () => {
   try {
-    // 중복 방지를 위한 Set 생성
     const jobIds = new Set();
 
     // 경기도잡아바 API 호출
@@ -196,10 +191,11 @@ const fetchJobs = async () => {
       `${API_URL}/api/v1/jobaba/jobinfo?param=someValue`,
       { withCredentials: true }
     );
+    console.log("경기도잡아바 API 응답:", response1.data); // 콘솔에 찍기
     const jobData1 = response1.data.GGJOBABARECRUSTM.row;
     const jobsFromJobaba = jobData1.map((job) => {
       const jobEntry = {
-        jobId: job.ENTRPRS_NM, // 프론트엔드에서 사용하는 속성 이름을 백엔드 JSON 구조에 맞게 수정
+        jobId: job.ENTRPRS_NM,
         jobInfoTitle: job.PBANC_CONT,
         jobCompanyName: job.ENTRPRS_NM,
         jobLocation: job.WORK_REGION_CONT,
@@ -209,7 +205,6 @@ const fetchJobs = async () => {
       return jobEntry;
     });
 
-    // 중복된 데이터 필터링 및 추가
     jobsFromJobaba.forEach((job) => {
       if (!jobIds.has(job.jobId)) {
         jobIds.add(job.jobId);
@@ -221,6 +216,7 @@ const fetchJobs = async () => {
     const response2 = await axios.get(`${API_URL}/api/v1/seoul/jobinfo`, {
       withCredentials: true,
     });
+    console.log("서울시 채용 API 응답:", response2.data); // 콘솔에 찍기
     const jobData2 = response2.data.GetJobInfo.row;
     const jobsFromSeoul = jobData2.map((job) => {
       const jobEntry = {
@@ -234,13 +230,14 @@ const fetchJobs = async () => {
       return jobEntry;
     });
 
-    // 중복된 데이터 필터링 및 추가
     jobsFromSeoul.forEach((job) => {
       if (!jobIds.has(job.jobId)) {
         jobIds.add(job.jobId);
         jobs.value.push(job);
       }
     });
+
+    console.log("최종 채용 데이터:", jobs.value); // 최종 데이터 확인
   } catch (error) {
     console.error("채용 정보를 가져오는 데 실패했습니다.", error);
   }
@@ -252,134 +249,88 @@ onMounted(() => {
   loadBookmarks();
 });
 
-// 필터링된 자격증 반환
-const filteredCertificates = computed(() => {
-  let filtered = gradeCertificates.value;
-
-  // 검색어 필터
-  if (searchTerm.value) {
-    const searchChoseong = getChoseong(searchTerm.value);
-    filtered = filtered.filter((certificate) => {
-      const certificateChoseong = getChoseong(
-        certificate.jmNm + certificate.instiNm
-      );
-      return certificateChoseong.includes(searchChoseong);
-    });
-  }
-
-  return filtered;
-});
-
-// 검색어 변경 시 필터링
-watch(searchTerm, (newTerm) => {
-  if (!newTerm) {
-    fetchJobs(); // 검색어가 비어 있으면 모든 채용 정보를 다시 가져옴
-  } else {
-    searchJobs(); // 검색어가 있을 경우 필터링
-  }
-});
-
-// 검색어에 맞게 필터링된 채용 정보 반환
-const filteredJobs = computed(() => {
-  // 각 카테고리별로 작업을 필터링
-  if (selectedCategory.value === "womenJobs") {
-    return jobs.value.filter((job) => job.apiType === "women");
-  } else if (selectedCategory.value === "studentJobs") {
-    return jobs.value.filter((job) => job.apiType === "student");
-  } else if (selectedCategory.value === "elderlyJobs") {
-    return jobs.value.filter((job) => job.apiType === "elderly");
-  } else if (selectedCategory.value === "employment") {
-    return jobs.value.filter((job) => job.apiType === "employment");
-  }
-
-  return jobs.value; // 기본적으로 모든 작업 반환
-});
-
-const totalPages = computed(() =>
-  Math.ceil(filteredJobs.value.length / itemsPerPage)
-);
-
-const paginatedJobs = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredJobs.value.slice(start, end);
-});
-
-const changePage = (page) => {
-  if (page < 1 || page > totalPages.value) return;
-  currentPage.value = page;
-};
-
-const goToDetail = (jobId) => {
-  router.push({ name: "curationDetail", params: { id: jobId } });
-};
-
-const toggleBookmark = (job) => {
-  const index = bookmarks.value.findIndex((item) => item.jobId === job.jobId);
-  if (index > -1) {
-    bookmarks.value.splice(index, 1);
-    console.log("북마크 삭제됨:", bookmarks.value);
-  } else {
-    bookmarks.value.push(job);
-    console.log("북마크 추가됨:", bookmarks.value);
-  }
-};
-
+// 북마크 여부 확인 함수
 const isBookmarked = (jobId) => {
-  return bookmarks.value.some((item) => item.jobId === jobId);
+  return bookmarks.value.some((bookmark) => bookmark.jobId === jobId);
 };
 
-// 검색 메소드 추가
-const searchJobs = () => {
-  if (!searchTerm.value) {
-    fetchJobs();
+// 북마크 토글 함수
+const toggleBookmark = (job) => {
+  const index = bookmarks.value.findIndex((bookmark) => bookmark.jobId === job.jobId);
+  if (index === -1) {
+    bookmarks.value.push(job);
   } else {
-    const lowerCaseSearchTerm = searchTerm.value.toLowerCase(); // 입력된 검색어를 소문자로 변환
-
-    jobs.value = jobs.value.filter((job) => {
-      return (
-        job.jobInfoTitle.toLowerCase().includes(lowerCaseSearchTerm) || // 제목을 소문자로 변환하여 비교
-        job.jobCompanyName.toLowerCase().includes(lowerCaseSearchTerm) // 회사 이름을 소문자로 변환하여 비교
-      );
-    });
+    bookmarks.value.splice(index, 1);
   }
 };
 
+// 검색 결과 처리 함수
+const handleSearch = () => {
+  // 검색어를 기반으로 필터링
+  const searchResults = jobs.value.filter((job) => {
+    const searchTermHangul = getChoseong(searchTerm.value);
+    const jobTitleHangul = getChoseong(job.jobInfoTitle);
+    const jobCompanyHangul = getChoseong(job.jobCompanyName);
+
+    return (
+      jobTitleHangul.includes(searchTermHangul) ||
+      jobCompanyHangul.includes(searchTermHangul)
+    );
+  });
+
+  return searchResults;
+};
+
+// 카테고리 선택 함수
 const selectCategory = (category) => {
   selectedCategory.value = category;
 };
 
-const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--;
+// 채용 상세 페이지로 이동하는 함수
+const goToDetail = (jobId) => {
+  router.push({ name: "jobDetail", params: { jobId } });
 };
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++;
-};
+// 페이지네이션 관련 계산
+const totalPages = computed(() => Math.ceil(jobs.value.length / itemsPerPage));
+const paginatedJobs = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return jobs.value.slice(start, end);
+});
+const displayedPageNumbers = computed(() => {
+  const pageNumbers = [];
+  const totalDisplayedPages = 5;
+  let startPage = currentPage.value - Math.floor(totalDisplayedPages / 2);
+  startPage = Math.max(1, startPage);
+  let endPage = startPage + totalDisplayedPages - 1;
+  endPage = Math.min(totalPages.value, endPage);
 
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
+
+  return pageNumbers;
+});
+
+// 페이지 이동 함수
 const goToPage = (page) => {
   currentPage.value = page;
 };
 
-const displayedPageNumbers = computed(() => {
-  const range = 2; // 현재 페이지 기준으로 보여줄 페이지 수 범위
-  let start = Math.max(currentPage.value - range, 1);
-  let end = Math.min(currentPage.value + range, totalPages.value);
-
-  // 첫 번째 페이지들에 있을 때: 처음 5개 페이지를 표시
-  if (currentPage.value <= 3) {
-    start = 1;
-    end = Math.min(5, totalPages.value);
+// 이전 페이지로 이동
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
   }
+};
 
-  // 마지막 페이지들에 있을 때: 마지막 5개 페이지를 표시
-  if (currentPage.value >= totalPages.value - 2) {
-    start = Math.max(totalPages.value - 4, 1);
-    end = totalPages.value;
+// 다음 페이지로 이동
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
   }
-
-  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-});
+};
 </script>
 
 <style scoped>
