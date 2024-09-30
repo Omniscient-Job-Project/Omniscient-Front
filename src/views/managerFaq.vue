@@ -1,6 +1,5 @@
 <script setup>
 
-import Sidebar from "@/components/manager/sidebar.vue";
 
 import Section from "@/components/manager/faqSection.vue";
 

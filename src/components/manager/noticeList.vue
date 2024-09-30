@@ -14,21 +14,21 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="notification in noticeList" :key="notification.noticeId">
-          <td>{{ notification.noticeId }}</td>
+        <tr v-for="notice in noticeList" :key="notice.noticeId">
+          <td>{{ notice.displayId }}</td>
           <td>
-            <a href="javascript:void(0);" @click="viewDetail(notification.noticeId)">
-              {{ notification.noticeTitle }}
+            <a href="javascript:void(0);" @click="viewDetail(notice.noticeId)">
+              {{ notice.noticeTitle }}
             </a>
           </td>
-          <td>{{ formatDate(notification.noticeCreateAt) }}</td>
+          <td>{{ formatDate(notice.noticeCreateAt) }}</td>
           <td>
-            <button @click="editNotice(notification.noticeId)" class="btn btn-custom btn-sm">
+            <button @click="editNotice(notice.noticeId)" class="btn btn-custom btn-sm">
               수정
             </button>
           </td>
           <td>
-            <button @click="deleteNotice(notification.noticeId)" class="btn btn-custom btn-sm">
+            <button @click="deleteNotice(notice.noticeId)" class="btn btn-custom btn-sm">
               삭제
             </button>
           </td>
@@ -48,6 +48,8 @@
 <script>
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default {
   data() {
     return {
@@ -61,35 +63,59 @@ export default {
   methods: {
     async fetchNotices() {
       try {
-        const response = await axios.get(`http://localhost:8090/api/v1/notice`);
-        // 상태가 true인 공지사항만 표시
-        this.noticeList = response.data.filter(notice => notice.noticeStatus !== false);
+        const response = await axios.get(`${API_URL}/api/v1/notice`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        this.noticeList = response.data
+          .filter(notice => notice.noticeStatus !== false)
+          .map((notice, index) => ({
+            ...notice,
+            displayId: index + 1
+          }))
+          .sort((a, b) => b.noticeId - a.noticeId);
       } catch (error) {
-        console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다!', error);
+        console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다!', error.response?.data || error.message);
       }
     },
 
     async deleteNotice(noticeId) {
-      try {
-        // 상태를 false로 변경하는 로직 호출
-        const response = await axios.put(`http://localhost:8090/api/v1/notice/delete/${noticeId}`);
-        console.log('삭제 응답:', response);
-        await this.fetchNotices(); // 목록 새로고침
-      } catch (error) {
-        console.error('공지사항을 삭제하는 중 오류가 발생했습니다!', error);
+  try {
+    await axios.put(`${API_URL}/api/v1/notice/delete/${noticeId}`, {
+      headers: {
+        'Content-Type': 'application/json'
       }
-    },
+    });
+    console.log('공지사항이 성공적으로 삭제되었습니다.');
+    this.fetchNotices(); // 공지사항 목록을 다시 불러옵니다.
+  } catch (error) {
+    console.error('공지사항을 삭제하는 중 오류가 발생했습니다:', error.response?.data || error.message);
+  }
+},
 
     editNotice(noticeId) {
-      this.$router.push({ path: '/manager/noticeModify', query: { id: noticeId } });
+      if (!noticeId) {
+        console.error('공지사항 ID가 유효하지 않습니다.');
+        return;
+      }
+      this.$router.push({
+        path: '/manager/noticeModify',
+        query: { id: noticeId }
+      });
     },
 
     async viewDetail(noticeId) {
       try {
-        const response = await axios.get(`http://localhost:8090/api/v1/notice/${noticeId}`);
+        const response = await axios.get(`${API_URL}/api/v1/notice/${noticeId}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
         this.selectedNotice = response.data;
+        console.log('공지사항 상세 정보를 불러왔습니다:', this.selectedNotice);
       } catch (error) {
-        console.error('공지 상세 정보를 가져오는 중 오류가 발생했습니다!', error);
+        console.error('공지사항 상세 정보를 불러오는 중 오류가 발생했습니다:', error.response?.data || error.message);
       }
     },
 
@@ -100,6 +126,7 @@ export default {
   }
 };
 </script>
+
 
 
 <style scoped>

@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 export const useVisitorStore = defineStore('visitor', {
   actions: {
@@ -10,7 +12,7 @@ export const useVisitorStore = defineStore('visitor', {
 
         // 오늘 처음 방문한 경우에만 방문자 수 증가
         if (lastVisitDate !== currentDate) {
-          await axios.post('http://localhost:8090/api/v1/visitor-today');
+          await axios.post(`${API_URL}/api/v1/todayVisitor`);
           localStorage.setItem('lastVisitDate', currentDate); // 로컬 스토리지에 오늘 날짜 저장
         }
       } catch (error) {

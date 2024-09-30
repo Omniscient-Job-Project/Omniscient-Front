@@ -1,6 +1,5 @@
 <template>
   <div class="section-align">
-    <Sidebar />
     <div class="section">
       <Section />
     </div>
@@ -8,7 +7,6 @@
 </template>
 
 <script setup>
-import Sidebar from "@/components/manager/sidebar.vue";
 import Section from "@/components/manager/noticeSection.vue"; // 수정된 파일 이름
 </script>
 

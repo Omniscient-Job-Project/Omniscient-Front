@@ -1,14 +1,19 @@
 <template>
   <div class="main-container">
+
+    
     <!-- 히어로 섹션 -->
     <section class="hero">
-      <h2 class="hero-title">당신의 꿈을 위한 첫걸음</h2>
-      <p class="hero-subtitle">수천 개의 채용 정보에서 당신에게 맞는 직업을 찾아보세요</p>
-      <div class="search-bar">
-        <input type="text" v-model="searchTerm" placeholder="직무, 회사, 키워드 검색" class="search-input">
-        <button @click="searchJobs" class="search-button">검색</button>
-      </div>
-    </section>
+    <h2 class="hero-title">당신의 내일이 더 빛날 수 있도록, 오늘부터 시작하세요</h2>
+    <p class="hero-subtitle">수천 개의 채용 정보 중 당신에게 딱 맞는 직업을 함께<br>찾아드리겠습니다.</p>
+    <div class="search-bar">
+      <input type="text" v-model="searchTerm" placeholder="직무, 회사, 키워드 검색" class="search-input" @input="searchJobs">
+      <button @click="searchJobs" class="search-button">
+        <i class="fas fa-search"></i> 검색
+      </button>
+    </div>
+  </section>
+
 
     <!-- 주요 카테고리 섹션 -->
     <section class="categories">
@@ -20,6 +25,7 @@
         </div>
       </div>
     </section>
+
 
     <!-- 채용 정보 리스팅 -->
     <section class="job-listing">
@@ -37,25 +43,45 @@
           </button>
         </div>
       </div>
+
+
       <!-- 페이지네이션 -->
       <div class="pagination">
-        <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">이전</button>
-        <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn">다음</button>
+        <button @click="goToPage(1)" :disabled="currentPage === 1" class="page-btn">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+        <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">
+          <i class="fas fa-angle-left"></i>
+        </button>
+        <div class="page-numbers">
+          <button v-for="pageNumber in displayedPageNumbers" :key="pageNumber"
+                  @click="goToPage(pageNumber)"
+                  :class="['page-number', { active: currentPage === pageNumber }]">
+            {{ pageNumber }}
+          </button>
+        </div>
+        <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn">
+          <i class="fas fa-angle-right"></i>
+        </button>
+        <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="page-btn">
+          <i class="fas fa-angle-double-right"></i>
+        </button>
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
 const jobs = ref([]);
+
 const currentPage = ref(1);
-const itemsPerPage = 16;
+const itemsPerPage = 21;
 const searchTerm = ref('');
 
 const categories = [
@@ -69,8 +95,8 @@ const categories = [
 
 const fetchJobs = async () => {
   try {
-    const response1 = await axios.get('http://localhost:8090/api/v1/jobaba/jobinfo', { withCredentials: true });
-    const response2 = await axios.get('http://localhost:8090/api/v1/seoul/jobinfo', { withCredentials: true });
+    const response1 = await axios.get(`${API_URL}/api/v1/jobaba/jobinfo?param=someValue`, { withCredentials: true });
+    const response2 = await axios.get(`${API_URL}/api/v1/seoul/jobinfo`, { withCredentials: true });
     
     const jobsFromJobaba = response1.data.GGJOBABARECRUSTM.row.map(job => ({
       jobId: job.ENTRPRS_NM,
@@ -98,13 +124,37 @@ const fetchJobs = async () => {
   }
 };
 
+const filteredJobs = computed(() => {
+  if (!searchTerm.value) return jobs.value;
+  return jobs.value.filter(job =>
+    job.jobInfoTitle.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+    job.jobCompanyName.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
+});
+
+const totalPages = computed(() => Math.ceil(filteredJobs.value.length / itemsPerPage));
+
 const paginatedJobs = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return jobs.value.slice(start, end);
+  return filteredJobs.value.slice(start, end);
 });
 
-const totalPages = computed(() => Math.ceil(jobs.value.length / itemsPerPage));
+const displayedPageNumbers = computed(() => {
+  const range = 2; // 이 값을 조정하여 표시되는 페이지 번호의 개수를 변경할 수 있습니다
+  let start = Math.max(currentPage.value - range, 1);
+  let end = Math.min(currentPage.value + range, totalPages.value);
+
+  // 시작 페이지나 끝 페이지에 가까울 때 더 많은 페이지 번호를 표시하도록 조정
+  if (start <= 3) {
+    end = Math.min(5, totalPages.value);
+  }
+  if (end >= totalPages.value - 2) {
+    start = Math.max(1, totalPages.value - 4);
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+});
 
 const goToDetail = (jobId) => {
   router.push({ name: 'curationDetail', params: { id: jobId } });
@@ -123,10 +173,17 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) currentPage.value++;
 };
 
-const searchJobs = () => {
-  // TODO: 검색 로직 구현
-  console.log('Searching for:', searchTerm.value);
+const goToPage = (page) => {
+  currentPage.value = page;
 };
+
+const searchJobs = () => {
+  currentPage.value = 1; // 검색 후 첫 페이지로 리셋
+};
+
+watch(searchTerm, () => {
+  searchJobs();
+});
 
 onMounted(() => {
   fetchJobs();
@@ -139,9 +196,10 @@ onMounted(() => {
 
 .main-container {
   font-family: 'Roboto', sans-serif;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 20px;
+  padding: 40px;
   background-color: #f8f9fa;
 }
 
@@ -177,50 +235,64 @@ onMounted(() => {
 
 .hero {
   text-align: center;
-  padding: 60px 0;
-  background: linear-gradient(135deg, #0166FF 0%, #33a1fd 100%);
-  color: white;
-  border-radius: 10px;
-  margin: 20px 0;
+  padding: 100px 60px;
+  background: linear-gradient(135deg, #f0f4f8 0%, #d9e6f2 100%);
+  color: #2c3e50;
+  border-radius: 15px;
+  margin: 60px 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .hero-title {
-  font-size: 36px;
-  margin-bottom: 10px;
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #34495e;
 }
 
 .hero-subtitle {
-  font-size: 18px;
-  margin-bottom: 30px;
+  font-size: 24px;
+  max-width: 800px;
+  margin-bottom: 40px;
+  color: #5d6d7e;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .search-bar {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 15px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .search-input {
-  width: 50%;
-  padding: 10px;
+  flex-grow: 1;
+  padding: 15px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 30px;
   font-size: 16px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .search-button {
-  padding: 10px 20px;
-  background-color: #ffc107;
+  padding: 15px 30px;
+  background-color: #3498db;
   border: none;
-  border-radius: 5px;
-  color: #212529;
-  font-weight: 500;
+  border-radius: 30px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .search-button:hover {
-  background-color: #ffca2c;
+  background-color: #2980b9;
+  transform: translateY(-2px);
 }
 
 .section-title {
@@ -237,8 +309,8 @@ onMounted(() => {
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
 }
 
 .category-item {
@@ -247,25 +319,39 @@ onMounted(() => {
   align-items: center;
   padding: 20px;
   background-color: white;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .category-item:hover {
   transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .category-item i {
-  font-size: 24px;
-  color: #0166FF;
+  font-size: 28px;
   margin-bottom: 10px;
+}
+
+.category-item:nth-child(1) i { color: #3498db; }
+.category-item:nth-child(2) i { color: #e74c3c; }
+.category-item:nth-child(3) i { color: #f39c12; }
+.category-item:nth-child(4) i { color: #2ecc71; }
+.category-item:nth-child(5) i { color: #9b59b6; }
+.category-item:nth-child(6) i { color: #1abc9c; }
+
+.category-item span {
+  font-weight: 500;
+  color: #333;
+  margin-top: 10px;
 }
 
 .job-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
 }
 
 .job-card {
@@ -275,10 +361,13 @@ onMounted(() => {
   overflow: hidden;
   transition: transform 0.3s ease;
   position: relative;
+  border: 1px solid #e9ecef;
+  padding: 30px;
 }
 
 .job-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .job-card-content {
@@ -287,22 +376,27 @@ onMounted(() => {
 }
 
 .job-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   margin-bottom: 10px;
   color: #212529;
 }
 
 .company-name, .job-location, .job-career {
-  font-size: 14px;
+  font-size: 16px;
   color: #6c757d;
   margin-bottom: 5px;
 }
 
-.company-name i, .job-location i, .job-career i {
-  margin-right: 5px;
-  color: #0166FF;
+/* 새로운 job-card 아이콘 스타일 */
+.job-card-content i {
+  font-size: 16px;
+  margin-right: 8px;
 }
+
+.company-name i { color: #3498db; }
+.job-location i { color: #e74c3c; }
+.job-career i { color: #2ecc71; }
 
 .bookmark-btn {
   position: absolute;
@@ -311,8 +405,15 @@ onMounted(() => {
   background: none;
   border: none;
   font-size: 20px;
-  color: #ffc107;
   cursor: pointer;
+}
+
+.bookmark-btn i {
+  color: #95a5a6;
+}
+
+.bookmark-btn.bookmarked {
+  color: #f1c40f; /* 북마크된 상태의 색상 */
 }
 
 .pagination {
@@ -323,17 +424,20 @@ onMounted(() => {
 }
 
 .page-btn {
-  padding: 8px 16px;
+  padding: 10px 15px;
   background-color: #0166FF;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  margin: 0 5px;
 }
 
 .page-btn:hover:not(:disabled) {
   background-color: #014fd3;
+  transform: translateY(-2px);
 }
 
 .page-btn:disabled {
@@ -341,37 +445,31 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
+.page-numbers {
+  display: flex;
+  margin: 0 10px;
+}
+
+.page-number {
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: transparent;
+  border: 1px solid #0166FF;
+  color: #0166FF;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.page-number.active,
+.page-number:hover {
+  background-color: #0166FF;
+  color: white;
+}
+
 .page-info {
   margin: 0 20px;
   font-weight: 500;
-}
-
-.stats {
-  background-color: white;
-  border-radius: 10px;
-  padding: 40px;
-  margin: 40px 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 40px;
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 36px;
-  font-weight: 700;
-  color: #0166FF;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.stat-label {
-  font-size: 16px;
-  color: #495057;
 }
 
 .footer {
@@ -385,7 +483,7 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .main-container {
-    padding: 10px;
+    padding: 30px;
   }
 
   .header {
@@ -393,17 +491,20 @@ onMounted(() => {
     align-items: flex-start;
   }
 
+  .hero {
+    padding: 80px 40px;
+  }
   .main-nav {
     margin-top: 20px;
     flex-wrap: wrap;
   }
 
   .hero-title {
-    font-size: 28px;
+    font-size: 36px;
   }
 
   .hero-subtitle {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .search-bar {
@@ -423,90 +524,8 @@ onMounted(() => {
   .job-grid {
     grid-template-columns: 1fr;
   }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
-/* 추가적인 스타일 개선 */
-.job-card {
-  border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
-}
-
-.job-card:hover {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.search-input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(1, 102, 255, 0.2);
-}
-
-.nav-item {
-  position: relative;
-}
-
-.nav-item::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  bottom: -5px;
-  left: 0;
-  background-color: #0166FF;
-  visibility: hidden;
-  transform: scaleX(0);
-  transition: all 0.3s ease-in-out;
-}
-
-.nav-item:hover::after {
-  visibility: visible;
-  transform: scaleX(1);
-}
-
-.category-item {
-  cursor: pointer;
-}
-
-.category-item:hover i {
-  transform: scale(1.2);
-  transition: transform 0.3s ease;
-}
-
-.stat-item {
-  position: relative;
-}
-
-.stat-item::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 2px;
-  background-color: #0166FF;
-}
-
-/* 애니메이션 효과 */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.hero, .job-card, .category-item, .stat-item {
-  animation: fadeIn 1s ease-out;
-}
-
-/* 접근성 개선 */
-.search-input:focus, .search-button:focus, .page-btn:focus {
-  outline: 2px solid #0166FF;
-  outline-offset: 2px;
-}
-
-/* 다크 모드 지원 (선택적) */
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #121212;
@@ -526,7 +545,7 @@ onMounted(() => {
     color: #e0e0e0;
   }
 
-  .job-card, .category-item, .stats {
+  .job-card, .category-item {
     background-color: #252525;
     border-color: #333;
   }
@@ -540,8 +559,21 @@ onMounted(() => {
     color: #e0e0e0;
   }
 
-  .stat-number {
-    color: #33a1fd;
+  .category-item span {
+    color: #ecf0f1;
+  }
+
+  /* 다크 모드에서의 job-card 아이콘 색상 */
+  .company-name i { color: #5dade2; }
+  .job-location i { color: #ec7063; }
+  .job-career i { color: #58d68d; }
+  
+  .bookmark-btn i {
+    color: #bdc3c7;
+  }
+  
+  .bookmark-btn i.bookmarked {
+    color: #f4d03f;
   }
 }
 </style>

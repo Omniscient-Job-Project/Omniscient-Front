@@ -4,11 +4,11 @@
     <form @submit.prevent="createFaq">
       <div>
         <label for="question">질문:</label>
-        <input v-model="newFaq.question" type="text" id="question" required />
+        <input v-model="newFaq.question" type="text" faqId="question" required />
       </div>
       <div>
         <label for="answer">답변:</label>
-        <textarea v-model="newFaq.answer" id="answer" required></textarea>
+        <textarea v-model="newFaq.answer" faqId="answer" required></textarea>
       </div>
       <!-- 버튼들을 감싸는 div 추가 -->
       <div class="button-group">
@@ -24,13 +24,14 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const newFaq = ref({ question: '', answer: '' });
 const router = useRouter();
 
 const createFaq = async () => {
   try {
     // API 요청 URL 확인
-    const response = await axios.post('http://localhost:8090/api/v1/faqs', newFaq.value);
+    const response = await axios.post(`${API_URL}/api/v1/faqs`, newFaq.value);
     console.log('FAQ created:', response.data);
     // 리스트 페이지로 리다이렉트
     router.push('/manager/faqList');

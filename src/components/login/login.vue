@@ -37,9 +37,9 @@
           </form>
         </div>
         <div class="options">
-          <RouterLink to="/signUp" class="link">회원가입</RouterLink> |
-          <p class="link" @click="findId">아이디 찾기</p> /
-          <p class="link" @click="findPassword">비밀번호 찾기</p>
+          <RouterLink to="/signUp" class="link">회원가입</RouterLink> 
+          <p class="link" @click="openFindAccountModal">아이디/비밀번호 찾기</p>
+          <FindAccountModal ref="findAccountModalRef" />
         </div>
       </div>
 
@@ -50,48 +50,189 @@
         </div>
       </div>
     </div>
+
+<!-- 개선된 모달 컴포넌트 -->
+<div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <h3><i :class="modalIcon"></i> {{ modalTitle }}</h3>
+        <p>{{ modalMessage }}</p>
+        <div class="modal-actions">
+          <button @click="closeModal" class="confirm-button">
+            <i class="fas fa-check"></i> 확인
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, defineEmits } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useUserAuthStore } from '@/stores/userAuth.js';
+import FindAccountModal from './findAccount.vue';
 
-const emit = defineEmits();
-const userId = ref(''); // 사용자 아이디
-const password = ref(''); // 패스워드
-const router = useRouter(); // 라우터 인스턴스 가져오기
+const API_URL = import.meta.env.VITE_API_URL;
+const userId = ref('');
+const password = ref('');
+const router = useRouter();
+const authStore = useUserAuthStore();
+const modalConfirmAction = ref(null);
+
+// 모달 관련 상태
+const showModal = ref(false);
+const modalTitle = ref('');
+const modalMessage = ref('');
+const modalIcon = ref('');
+
+// 모달 열기 함수
+const openModal = (title, message, icon = 'fas fa-info-circle', onConfirm = null) => {
+  modalTitle.value = title;
+  modalMessage.value = message;
+  modalIcon.value = icon;
+  showModal.value = true;
+  if (onConfirm) {
+    modalConfirmAction.value = onConfirm;
+  }
+};
+
+// 모달 닫기 함수
+const closeModal = () => {
+  showModal.value = false;
+  if (modalConfirmAction.value) {
+    modalConfirmAction.value();
+    modalConfirmAction.value = null;
+  }
+};
 
 // 로그인 요청 처리
 const handleSubmit = async () => {
   try {
-    const response = await axios.post('http://localhost:8090/api/v1/login/post', {
+    const response = await axios.post(`${API_URL}/api/v1/login/post`, {
       userId: userId.value,
       password: password.value,
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
 
-    // 로그인 성공 시 처리
     if (response.status === 200) {
-      alert(response.data); // 로그인 성공 메시지
-      localStorage.setItem('token', response.data.token); // 토큰 저장 (예: 서버에서 토큰 반환 시)
-      emit('login-success'); // 부모 컴포넌트에 로그인 성공 이벤트 발생
-      router.push('/'); // 홈 페이지로 이동
+      const { accessToken, refreshToken } = response.data;
+      localStorage.setItem('token', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      authStore.login(accessToken);
+      console.log('로그인 상태:', authStore.isLoggedIn);
+      openModal('로그인 성공', '로그인에 성공했습니다!', 'fas fa-check-circle');
+      setTimeout(() => {
+        router.push('/');
+      }, 1500);
     }
   } catch (error) {
-    // 로그인 실패 시 처리
+    console.error('로그인 오류:', error);
     if (error.response) {
-      alert(error.response.data); // 서버에서 보낸 에러 메시지 표시
+      console.error('Response data:', error.response.data);
+      console.error('Response status:', error.response.status);
+      console.error('Response headers:', error.response.headers);
+      
+      let errorMessage = '알 수 없는 오류가 발생했습니다.';
+      if (typeof error.response.data === 'string') {
+        errorMessage = error.response.data;
+      } else if (error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      }
+      
+      openModal('로그인 실패', `로그인 실패: ${errorMessage}`, 'fas fa-exclamation-circle');
+    } else if (error.request) {
+      console.error('Request:', error.request);
+      openModal('연결 오류', '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.', 'fas fa-wifi');
     } else {
-      alert('로그인 요청 중 오류가 발생했습니다.'); // 일반 오류 메시지
+      console.error('Error message:', error.message);
+      openModal('오류', '로그인 처리 중 오류가 발생했습니다.', 'fas fa-exclamation-triangle');
     }
   }
 };
 
+const refreshAccessToken = async () => {
+  try {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const response = await axios.post(`${API_URL}/api/v1/token/refresh`, { refreshToken });
+    const { accessToken } = response.data;
+    localStorage.setItem('token', accessToken);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    authStore.login(accessToken);  // Pinia 스토어 업데이트
+  } catch (error) {
+    console.error('토큰 갱신 실패:', error);
+    logout();
+  }
+};
+
+// 로그아웃 처리
+const logout = () => {
+  openModal('로그아웃 확인', '정말 로그아웃 하시겠습니까?', 'fas fa-sign-out-alt', () => {
+    // 실제 로그아웃 처리
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    delete axios.defaults.headers.common['Authorization'];
+    authStore.logout();
+    router.push('/login');
+  });
+};
+
+// Axios 요청 인터셉터 설정
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
+
+// Axios 응답 인터셉터 설정
+axios.interceptors.response.use(response => {
+  return response;
+}, async error => {
+  const originalRequest = error.config;
+
+  if (error.response.status === 401 && !originalRequest._retry) {
+    originalRequest._retry = true;
+    try {
+      await refreshAccessToken();
+      return axios(originalRequest);
+    } catch (refreshError) {
+      return Promise.reject(refreshError);
+    }
+  }
+
+  return Promise.reject(error);
+});
+
 // 컴포넌트가 마운트될 때 호출되는 함수
 onMounted(() => {
-  alert('Welcome to 전직시! 로그인 해주세요.'); // 마운트 시 환영 메시지 표시
+  const token = localStorage.getItem('token');
+  if (token) {
+    authStore.login(token);
+    console.log('토큰이 존재하여 로그인 상태로 설정됨');
+  } else {
+    console.log('토큰이 없음, 로그아웃 상태');
+    openModal('환영합니다', 'Welcome to 전직시! 로그인 해주세요.');
+  }
+  console.log('초기 로그인 상태:', authStore.isLoggedIn);
 });
+
+const findAccountModalRef = ref(null);
+
+const openFindAccountModal = () => {
+  if (findAccountModalRef.value) {
+    findAccountModalRef.value.openModal();
+  }
+};
 </script>
 
 <style>
@@ -193,5 +334,83 @@ text-decoration: none; /* 호버 시에도 밑줄 없음 */
 .image-content h2 {
 font-size: 36px;
 margin-bottom: 20px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 50px;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  color: #007bff;
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+.modal-content p {
+  font-size: 20px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.confirm-button {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #28a745;
+  color: white;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 40px;
+  }
+
+  .modal-content h3 {
+    font-size: 28px;
+  }
+
+  .modal-content p {
+    font-size: 18px;
+  }
+
+  .confirm-button {
+    padding: 12px 24px;
+    font-size: 18px;
+  }
 }
 </style>

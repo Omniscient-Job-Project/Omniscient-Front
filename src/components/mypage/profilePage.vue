@@ -4,105 +4,142 @@
     <form @submit.prevent="showConfirmModal" class="profile-form">
       <div class="profile-content">
         <div class="profile-left">
-          <div class="profile-section basic-info">
-            <h2 class="section-title">기본 정보</h2>
-            <div class="profile-main">
-              <div class="profile-image">
-                <img :src="profileImageUrl" alt="프로필 이미지" @click="triggerImageUpload" />
-                <input type="file" ref="imageInput" @change="handleImageUpload" style="display: none;" accept="image/*" id="profileImage">
-                <label for="profileImage" v-if="isEditing" class="image-upload-prompt">
-                  <i class="fas fa-camera"></i>
-                  <span>이미지 변경</span>
-                </label>
+          <div class="profile-main">
+            <div class="profile-image">
+              <img
+                :src="previewImage || profileImageUrl"
+                alt="프로필 이미지"
+                @click="triggerImageUpload"
+              />
+              <input
+                type="file"
+                ref="imageInput"
+                @change="handleImageUpload"
+                style="display: none"
+                accept="image/*"
+                id="profileImage"
+                multiple
+              />
+              <label
+                for="profileImage"
+                v-if="isEditing"
+                class="image-upload-prompt"
+              >
+                <i class="fas fa-camera"></i>
+                <span>이미지 변경 (최대 5MB)</span>
+              </label>
+            </div>
+
+            <div class="profile-details">
+              <div class="profile-header" v-if="!isEditing">
+                <h2>{{ profile.profileName }}</h2>
+                <p class="job-title">{{ profile.profilePosition }}</p>
               </div>
-              <div class="profile-details">
+              <div v-else>
+                <div class="form-group">
+                  <label for="name">이름</label>
+                  <input
+                    id="name"
+                    v-model="profile.profileName"
+                    type="text"
+                    class="edit-input"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="jobTitle">직책</label>
+                  <input
+                    id="jobTitle"
+                    v-model="profile.profilePosition"
+                    type="text"
+                    class="edit-input"
+                  />
+                </div>
+              </div>
+
+              <div class="contact-info">
                 <div v-if="!isEditing">
-                  <h2>{{ profile.name }}</h2>
-                  <p class="job-title">{{ profile.jobTitle }}</p>
+                  <p>
+                    <i class="fas fa-envelope" style="color: #2196f3"></i>
+                    <span>{{ profile.profileEmail }}</span>
+                  </p>
+                  <p>
+                    <i class="fas fa-phone" style="color: #4caf50"></i>
+                    <span>{{ profile.profilePhone }}</span>
+                  </p>
                 </div>
                 <div v-else>
                   <div class="form-group">
-                    <label for="name">이름</label>
-                    <input id="name" v-model="profile.name" type="text" class="edit-input" required>
+                    <label for="email">이메일</label>
+                    <input
+                      id="email"
+                      v-model="profile.profileEmail"
+                      type="email"
+                      class="edit-input"
+                      placeholder="이메일"
+                      required
+                    />
                   </div>
                   <div class="form-group">
-                    <label for="jobTitle">직책</label>
-                    <input id="jobTitle" v-model="profile.jobTitle" type="text" class="edit-input">
-                  </div>
-                </div>
-                <div class="contact-info">
-                  <div v-if="!isEditing">
-                    <p><i class="fas fa-envelope"></i> {{ profile.email }}</p>
-                    <p><i class="fas fa-phone"></i> {{ profile.phone }}</p>
-                  </div>
-                  <div v-else>
-                    <div class="form-group">
-                      <label for="email">이메일</label>
-                      <input id="email" v-model="profile.email" type="email" class="edit-input" placeholder="이메일" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="phone">전화번호</label>
-                      <input id="phone" v-model="profile.phone" type="tel" class="edit-input" placeholder="전화번호">
-                    </div>
+                    <label for="phone">전화번호</label>
+                    <input
+                      id="phone"
+                      v-model="profile.profilePhone"
+                      type="tel"
+                      class="edit-input"
+                      placeholder="전화번호"
+                    />
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="profile-right">
-          <div class="profile-section additional-info">
-            <h2 class="section-title">추가 정보</h2>
-            <div class="info-section">
-              <div v-if="!isEditing">
-                <p>나이: {{ profile.age }}세</p>
-                <p>주소: {{ profile.address }}</p>
-              </div>
-              <div v-else>
-                <div class="form-group">
-                  <label for="age">나이</label>
-                  <input id="age" v-model.number="profile.age" type="number" class="edit-input" placeholder="나이">
+
+              <div class="additional-info">
+                <div v-if="!isEditing">
+                  <p>
+                    <i class="fas fa-map-marker-alt" style="color: #e91e63"></i>
+                    <span>{{ profile.profileAddress }}</span>
+                  </p>
                 </div>
-                <div class="form-group">
-                  <label for="address">주소</label>
-                  <input id="address" v-model="profile.address" type="text" class="edit-input" placeholder="주소">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="profile-section certificates">
-            <h2 class="section-title">자격증</h2>
-            <div class="certificates-section">
-              <ul v-if="!isEditing">
-                <li v-for="cert in profile.certificates" :key="cert">{{ cert }}</li>
-              </ul>
-              <div v-else>
-                <div v-for="(cert, index) in profile.certificates" :key="index" class="certificate-edit">
+                <div v-else>
                   <div class="form-group">
-                    <label :for="'certificate-' + index">자격증 {{ index + 1 }}</label>
-                    <input :id="'certificate-' + index" v-model="profile.certificates[index]" type="text" class="edit-input">
+                    <label for="address">주소</label>
+                    <input
+                      id="address"
+                      v-model="profile.profileAddress"
+                      type="text"
+                      class="edit-input"
+                      placeholder="주소"
+                    />
                   </div>
-                  <button type="button" @click="removeCertificate(index)" class="remove-btn"><i class="fas fa-minus-circle"></i></button>
                 </div>
-                <button type="button" @click="addCertificate" class="add-btn"><i class="fas fa-plus-circle"></i> 자격증 추가</button>
               </div>
             </div>
           </div>
           <div class="button-container">
-            <button type="submit" v-if="isEditing" class="edit-button save-mode">
+            <button
+              type="submit"
+              v-if="isEditing"
+              class="edit-button save-mode"
+            >
               <i class="fas fa-save"></i> 저장
             </button>
-            <button type="button" @click="toggleEditMode" v-else class="edit-button">
+            <button
+              type="button"
+              @click="toggleEditMode"
+              v-else
+              class="edit-button"
+            >
               <i class="fas fa-edit"></i> 수정
-            </button>
-            <button type="button" @click="showDeactivateModal" class="deactivate-button">
-              <i class="fas fa-user-times"></i> 프로필 비활성화
             </button>
           </div>
         </div>
+
+        <div class="profile-right">
+          <!-- 추가 내용 -->
+        </div>
       </div>
     </form>
-    <!-- 저장 확인 모달 -->
+
     <div v-if="showSaveModal" class="modal-overlay" @click="closeSaveModal">
       <div class="modal-content" @click.stop>
         <h3><i class="fas fa-question-circle"></i> 확인</h3>
@@ -117,11 +154,17 @@
         </div>
       </div>
     </div>
-    <!-- 비활성화 확인 모달 -->
-    <div v-if="showDeactivateModal" class="modal-overlay" @click="closeDeactivateModal">
+
+    <div
+      v-if="showDeactivateModal"
+      class="modal-overlay"
+      @click="closeDeactivateModal"
+    >
       <div class="modal-content" @click.stop>
         <h3><i class="fas fa-exclamation-triangle"></i> 경고</h3>
-        <p>정말로 이 프로필을 비활성화하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+        <p>
+          정말로 이 프로필을 비활성화하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+        </p>
         <div class="modal-actions">
           <button @click="confirmDeactivate" class="confirm-button">
             <i class="fas fa-check"></i> 예, 비활성화합니다
@@ -135,158 +178,242 @@
   </div>
 </template>
 
-<script>
-import axios from 'axios';
+<script setup>
+import { ref, reactive, computed, onMounted } from "vue";
+import axios from "axios";
 
-export default {
-  name: 'ProfilePage',
-  data() {
-    return {
-      profile: {
-        id: null,
-        name: '',
-        jobTitle: '',
-        email: '',
-        phone: '',
-        age: null,
-        address: '',
-        certificates: [],
-        profileImage: null
-      },
-      isEditing: false,
-      imageFile: null,
-      showSaveModal: false,
-      showDeactivateModal: false
-    };
-  },
-  computed: {
-    profileImageUrl() {
-      return this.profile.profileImage
-        ? `data:image/jpeg;base64,${this.profile.profileImage}`
-        : 'https://via.placeholder.com/150';
-    }
-  },
-  created() {
-    this.loadProfile();
-  },
-  methods: {
-    async loadProfile() {
-      try {
-        const response = await axios.get('http://localhost:8090/api/v1/mypage');
-        if (response.data && response.data.length > 0) {
-          this.profile = response.data[0];  // 첫 번째 프로필을 사용
-        } else {
-          throw new Error('프로필을 찾을 수 없습니다.');
-        }
-      } catch (error) {
-        console.error('프로필을 불러오는데 실패했습니다:', error);
-        alert('프로필을 불러오는데 실패했습니다.');
-      }
-    },
-    toggleEditMode() {
-      this.isEditing = !this.isEditing;
-    },
-    addCertificate() {
-      this.profile.certificates.push('');
-    },
-    removeCertificate(index) {
-      this.profile.certificates.splice(index, 1);
-    },
-    triggerImageUpload() {
-      if (this.isEditing) {
-        this.$refs.imageInput.click();
-      }
-    },
-    handleImageUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.imageFile = file;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.profile.profileImage = e.target.result.split(',')[1]; // Store base64 string
-        };
-        reader.readAsDataURL(file);
-      }
-    },
-    showConfirmModal() {
-      this.showSaveModal = true;
-    },
-    closeSaveModal() {
-      this.showSaveModal = false;
-    },
-    confirmSave() {
-      this.saveProfile();
-    },
-    async saveProfile() {
-      try {
-        const formData = new FormData();
-        Object.keys(this.profile).forEach(key => {
-          if (key === 'id' && !this.profile.id) {
-            return;
-          }
-          if (key === 'certificates') {
-            formData.append(key, JSON.stringify(this.profile[key]));
-          } else {
-            formData.append(key, this.profile[key]);
-          }
-        });
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+const PROFILE_API_URL = `${API_BASE_URL}/api/v1/profile`;
+// const FILE_UPLOAD_URL = `${API_BASE_URL}/api/v1/files/upload`;
 
-        if (this.imageFile) {
-          formData.append('profileImage', this.imageFile);
-        }
+const profile = reactive({
+  id: null,
+  profileName: "",
+  profilePosition: "",
+  profileEmail: "",
+  profilePhone: "",
+  profileAge: null,
+  profileAddress: "",
+  profileactive: true,
+  profileimageFileName: null,
+});
 
-        let response;
-        if (this.profile.id) {
-          response = await axios.put(`http://localhost:8090/api/v1/mypage/${this.profile.id}`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-        } else {
-          response = await axios.post('http://localhost:8090/api/v1/mypage', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-        }
+const isEditing = ref(false);
+const imageInput = ref(null);
+const previewImage = ref(null);
+const showSaveModal = ref(false);
+const showDeactivateModal = ref(false);
+const isLoading = ref(false);
 
-        this.profile = response.data;
-        this.isEditing = false;
-        this.showSaveModal = false;
-      } catch (error) {
-        console.error('프로필 저장에 실패했습니다:', error);
-        alert('프로필 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
-      }
-    },
-    showDeactivateModal() {
-      this.showDeactivateModal = true;
-    },
-    closeDeactivateModal() {
-      this.showDeactivateModal = false;
-    },
-    async confirmDeactivate() {
-      try {
-        await axios.put(`http://localhost:8090/api/v1/mypage/deactivate/${this.profile.id}`);
-        this.showDeactivateModal = false;
-        alert('프로필이 성공적으로 비활성화되었습니다.');
-        // 여기서 로그아웃 처리나 홈페이지로 리다이렉트 등을 수행할 수 있습니다.
-      } catch (error) {
-        console.error('프로필 비활성화에 실패했습니다:', error);
-        alert('프로필 비활성화에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
-      }
-    }
+const profileImageUrl = computed(() => {
+  if (previewImage.value) {
+    return previewImage.value;
+  } else if (profile.profileimageFileName) {
+    return `${PROFILE_API_URL}/${profile.id}/image?${new Date().getTime()}`; // 캐시 방지
+  } else {
+    return "https://via.placeholder.com/150";
   }
-}
+});
+
+const loadProfile = async () => {
+  isLoading.value = true;
+  try {
+    const response = await axios.get(PROFILE_API_URL);
+    if (response.data && response.data.length > 0) {
+      Object.assign(profile, response.data[0]);
+    }
+  } catch (error) {
+    console.error("프로필을 불러오는데 실패했습니다:", error);
+    alert("프로필을 불러오는데 실패했습니다.");
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/v1/files/upload`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    return response.data.imageFileName || response.data.fileName;
+  } catch (error) {
+    console.error("이미지 업로드 실패:", error);
+    throw error;
+  }
+};
+const toggleEditMode = () => {
+  isEditing.value = !isEditing.value;
+};
+
+const addCertificate = () => {
+  profile.certificates.push("");
+};
+
+const removeCertificate = (index) => {
+  profile.certificates.splice(index, 1);
+};
+
+const triggerImageUpload = () => {
+  if (isEditing.value) {
+    imageInput.value.click();
+  }
+};
+
+const handleImageUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImage.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const showConfirmModal = () => {
+  showSaveModal.value = true;
+};
+
+const closeSaveModal = () => {
+  showSaveModal.value = false;
+};
+
+const confirmSave = async () => {
+  isLoading.value = true;
+  try {
+    let updatedProfile = { ...profile };
+
+    if (previewImage.value) {
+      const file = await fetch(previewImage.value).then((r) => r.blob());
+      const fileName = await uploadImage(
+        new File([file], "profile_image.jpg", { type: "image/jpeg" })
+      );
+
+      if (fileName) {
+        updatedProfile.profileimageFileName = fileName;
+      }
+    }
+
+    let response;
+    if (profile.id) {
+      response = await axios.put(
+        `${PROFILE_API_URL}/update/${profile.id}`,
+        updatedProfile
+      );
+    } else {
+      response = await axios.post(PROFILE_API_URL, updatedProfile);
+    }
+
+    Object.assign(profile, response.data);
+    alert("프로필이 성공적으로 저장되었습니다.");
+  } catch (error) {
+    console.error("프로필 저장 중 오류 발생:", error);
+    alert(`프로필 저장에 실패했습니다: ${error.message}`);
+  } finally {
+    isLoading.value = false;
+    isEditing.value = false;
+    showSaveModal.value = false;
+    previewImage.value = null;
+  }
+};
+
+const saveProfile = async () => {
+  isLoading.value = true;
+  console.log("프로필 저장 시작"); // 추가된 로그
+  try {
+    let updatedProfile = { ...profile };
+
+    if (previewImage.value && previewImage.value !== profileImageUrl.value) {
+      console.log("새 이미지 감지됨, 업로드 시작..."); // 추가된 로그
+      const file = await fetch(previewImage.value).then((r) => r.blob());
+      console.log("파일 준비됨:", file.size, "bytes"); // 추가된 로그
+
+      // 파일 업로드
+      const fileName = await uploadImage(
+        new File([file], "profile_image.jpg", { type: "image/jpeg" })
+      );
+      console.log("이미지 업로드 완료, 파일명:", fileName); // 변경 없음
+
+      // fileName이 유효한 경우에만 updatedProfile을 업데이트
+      if (fileName) {
+        updatedProfile.imageFileName = fileName;
+      } else {
+        console.warn("업로드된 이미지 파일 이름이 없습니다.");
+      }
+    }
+
+    // 업데이트할 프로필 상태 출력
+    console.log("업데이트할 프로필:", updatedProfile); // 추가된 로그
+
+    console.log("프로필 저장 시작:", updatedProfile); // 추가된 로그
+    let response;
+    if (profile.id) {
+      response = await axios.put(
+        `${PROFILE_API_URL}/${profile.id}`,
+        updatedProfile
+      );
+    } else {
+      response = await axios.post(PROFILE_API_URL, updatedProfile);
+    }
+    console.log("서버 응답:", response.data); // 추가된 로그
+
+    Object.assign(profile, response.data);
+    console.log("프로필 업데이트 완료:", profile); // 추가된 로그
+
+    isEditing.value = false;
+    showSaveModal.value = false;
+    previewImage.value = null;
+    alert("프로필이 성공적으로 저장되었습니다.");
+  } catch (error) {
+    console.error("프로필 저장 중 오류 발생:", error);
+    alert(`프로필 저장에 실패했습니다: ${error.message}`);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const showDeactivateConfirmation = () => {
+  showDeactivateModal.value = true;
+};
+
+const closeDeactivateModal = () => {
+  showDeactivateModal.value = false;
+};
+
+const confirmDeactivate = async () => {
+  isLoading.value = true;
+  try {
+    await axios.put(`${PROFILE_API_URL}/status/${profile.id}`);
+    showDeactivateModal.value = false;
+    alert("프로필이 성공적으로 비활성화되었습니다.");
+  } catch (error) {
+    console.error("프로필 비활성화에 실패했습니다:", error);
+    alert("프로필 비활성화에 실패했습니다.");
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadProfile();
+});
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css");
 
 .profile-page {
   padding: 20px;
   max-width: 1400px;
-  margin: 0 auto;
 }
 
 .profile-title {
@@ -296,25 +423,12 @@ export default {
 }
 
 .profile-content {
-  display: flex;
-  gap: 30px;
-}
-
-.profile-left {
-  flex: 1;
-  min-width: 300px;
-}
-
-.label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.profile-right {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
+  width: 100%; /* 전체 너비 사용 */
+  max-width: 800px; /* 최대 너비 설정 */
+  margin: 0 auto; /* 중앙 정렬 */
+  padding: 20px; /* 내부 여백 */
+  border-radius: 8px; /* 모서리 둥글게 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
 }
 
 .profile-section {
@@ -322,20 +436,12 @@ export default {
   border: 1px solid #e0e0e0;
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 30px;
 }
 
 .basic-info {
   height: 100%;
-}
-
-.additional-info {
-  flex: 2;
-}
-
-.certificates {
-  flex: 1;
 }
 
 .section-title {
@@ -381,8 +487,17 @@ export default {
 }
 
 .profile-details {
-  text-align: center;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 수직 정렬 */
+  align-items: flex-start; /* 좌측 정렬 */
+  padding: 10px;
+  border: 1px solid #ddd; /* 박스 테두리 */
+  border-radius: 8px;
+  width: 100%; /* 전체 너비 사용 */
+  max-width: 300px; /* 최대 너비 설정 */
+  min-height: 250px; /* 최소 높이 설정 */
+  background-color: #f9f9f9; /* 배경 색상 */
 }
 
 .profile-details h2 {
@@ -406,20 +521,6 @@ export default {
   color: #007bff;
 }
 
-.info-section p {
-  font-size: 18px;
-  margin: 15px 0;
-}
-
-.certificates-section ul {
-  padding-left: 20px;
-}
-
-.certificates-section li {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
 .edit-input {
   width: 100%;
   padding: 8px;
@@ -428,28 +529,10 @@ export default {
   font-size: 16px;
 }
 
-.certificate-edit {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.remove-btn, .add-btn {
-  background: none;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 5px;
-}
-
-.add-btn {
-  margin-top: 15px;
-}
-
 .button-container {
-  text-align: right;
-  margin-top: 20px;
+  margin-top: auto; /* 위쪽 공간을 모두 차지하고 버튼을 아래로 이동 */
+  margin-left: 20px; /* 왼쪽 여백 */
+  margin-bottom: 20px; /* 아래 여백 */
 }
 
 .edit-button {
@@ -555,8 +638,14 @@ export default {
 
 /* 애니메이션 효과 */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-content {
@@ -566,18 +655,6 @@ export default {
 @media (max-width: 1024px) {
   .profile-content {
     flex-direction: column;
-  }
-
-  .profile-left, .profile-right {
-    width: 100%;
-  }
-
-  .basic-info {
-    height: auto;
-  }
-
-  .additional-info, .certificates {
-    flex: 1;
   }
 
   .button-container {

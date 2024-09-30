@@ -11,13 +11,12 @@
           </tr>
         </thead>
         <tbody>
-          <!-- 6개까지만 보여줌 -->
-          <tr v-for="faq in faqs.slice(0, 6)" :key="faq.id">
+          <tr v-for="faq in faqs.slice(0, 6)" :key="faq.faqId">
             <td>{{ faq.question }}</td>
             <td>{{ faq.answer }}</td>
             <td>
-              <button @click="editFaq(faq.id)">수정</button>
-              <button @click="deleteFaq(faq.id)">삭제</button>
+              <button @click="editFaq(faq.faqId)">수정</button>
+              <button @click="deleteFaq(faq.faqId)">삭제</button>
             </td>
           </tr>
         </tbody>
@@ -31,26 +30,29 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const faqs = ref([]);
 const router = useRouter();
 
 const fetchFaqs = async () => {
   try {
-    const response = await axios.get('http://localhost:8090/api/v1/faqs');
+    const response = await axios.get(`${API_URL}/api/v1/faqs`);
     faqs.value = response.data;
   } catch (error) {
     console.error('Error fetching FAQs:', error);
   }
 };
 
-const editFaq = (id) => {
-  router.push({ name: 'ManagerFaqModify', params: { id } });
+const editFaq = (faqId) => {
+  router.push({ name: 'ManagerFaqModify', params: { faqId } });
 };
 
-const deleteFaq = async (id) => {
+const deleteFaq = async (faqId) => {
   try {
-    await axios.put(`http://localhost:8090/api/v1/faqs/delete/${id}`);
-    fetchFaqs(); // Refresh the list
+    const response = await axios.put(`${API_URL}/api/v1/faqs/delete/${faqId}`);
+    if (response.data) { // 삭제 성공 시
+      fetchFaqs(); // Refresh the list
+    }
   } catch (error) {
     console.error('Error deleting FAQ:', error);
   }
@@ -60,9 +62,6 @@ onMounted(fetchFaqs);
 </script>
 
 <style scoped>
-.faq-list {
-  padding: 20px;
-}
 
 h1 {
   margin-bottom: 20px;
@@ -79,13 +78,13 @@ table {
 }
 
 th, td {
-  border: 1px solid #ddd;
+  border: 1px solid #AFF6C3;
   padding: 10px;
   text-align: left;
 }
 
 th {
-  background-color: #f4f4f4;
+  background-color: #AFF6C3;
 }
 
 button {

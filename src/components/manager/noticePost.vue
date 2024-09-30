@@ -42,6 +42,7 @@
 
 <script>
 import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default {
   data() {
@@ -65,7 +66,7 @@ export default {
           };
 
           try {
-              const response = await axios.post('http://localhost:8090/api/v1/notice', formData, {
+              const response = await axios.post(`${API_URL}/api/v1/notice`, formData, {
                   headers: {
                       'Content-Type': 'application/json'
                   }

@@ -39,12 +39,12 @@
             <input type="email" id="email" v-model="email" placeholder="email@example.com">
           </div>
 
-          <div class="info-box">
-            <i class="fas fa-info-circle"></i>
-            <small class="info-text">취업에 관련된 정보를 받을 때 편리해요</small>
-          </div>
+          
 
           <button type="submit" class="btn-signup">회원가입</button>
+
+       
+
         </form>
       </div>
 
@@ -62,6 +62,7 @@
 import { ref } from 'vue'
 import axios from 'axios'  // Axios 임포트
 
+const API_URL = import.meta.env.VITE_API_URL;
 const userId = ref('')
 const password = ref('')
 const username = ref('')
@@ -72,7 +73,47 @@ const email = ref('')
 
 const handleSubmit = async () => {
   try {
-    const response = await axios.post('http://localhost:8090/api/v1/signup/post', {
+    const response = await axios.post(`${API_URL}/api/v1/signup/post`, {
+      userId: userId.value,
+      username: username.value,
+      password: password.value,
+      birthDate: birthDate.value,
+      email: email.value,
+      phoneNumber: phoneNumber.value,
+    },{
+      timeout: 5000 
+    });
+
+    console.log(response); // 응답 데이터 확인
+    if (response.status === 200) {
+      alert(response.data); // 서버에서 받은 메시지 출력
+      window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+    } else {
+      alert('회원가입 실패: ' + response.data);
+    }
+  } catch (error) {
+    console.error('Error details:', error);
+    if (error.response) {
+      // 서버 응답이 2xx 범위를 벗어난 상태 코드를 반환한 경우
+      console.error('Response data:', error.response.data);
+      console.error('Response status:', error.response.status);
+      console.error('Response headers:', error.response.headers);
+      alert(`서버 에러: ${error.response.status} - ${error.response.data}`);
+    } else if (error.request) {
+      // 요청이 이루어졌으나 응답을 받지 못한 경우
+      console.error('Request made but no response received');
+      alert('서버로부터 응답을 받지 못했습니다. 네트워크 연결을 확인해주세요.');
+    } else {
+      // 요청 설정 중에 문제가 발생한 경우
+      console.error('Error setting up the request:', error.message);
+      alert('요청 설정 중 오류가 발생했습니다: ' + error.message);
+    }
+  }
+};
+
+const handleAdminSignup = async () => {
+  try {
+    const response = await axios.post(`${API_URL}/api/v1/signup/admin/signup`, {
       userId: userId.value,
       username: username.value,
       password: password.value,
@@ -81,24 +122,26 @@ const handleSubmit = async () => {
       phoneNumber: phoneNumber.value,
     });
 
-    console.log(response); // 응답 데이터 확인
-
     if (response.status === 200) {
-      alert(response.data); // 서버에서 받은 메시지 출력
+      alert(response.data);
       window.location.href = '/login'; // 로그인 페이지로 리다이렉트
     } else {
-      alert('회원가입 실패: ' + response.data);
+      alert('관리자 회원가입 실패: ' + response.data);
     }
   } catch (error) {
-    console.error(error); // 에러 로그 출력
-    if (error.response) {
-      alert('서버 에러: ' + error.response.data);
-    } else {
-      alert('회원가입 요청 중 문제가 발생했습니다.');
-    }
+    handleError(error);
   }
 };
 
+const handleError = (error) => {
+  if (error.response) {
+    alert(`서버 에러: ${error.response.status} - ${error.response.data}`);
+  } else if (error.request) {
+    alert('서버로부터 응답을 받지 못했습니다. 네트워크 연결을 확인해주세요.');
+  } else {
+    alert('요청 설정 중 오류가 발생했습니다: ' + error.message);
+  }
+};
 </script>
 
 <style scoped>
@@ -114,7 +157,7 @@ const handleSubmit = async () => {
   display: flex;
   width: 90%; /* 너비를 90%로 변경 */
   max-width: 1400px; /* 최대 너비를 1400px로 변경 */
-  height: 80vh; /* 높이를 80vh로 설정 */
+  height: 90vh; /* 높이를 80vh로 설정 */
 }
 
 /* 회원가입 폼 스타일 */
@@ -185,8 +228,9 @@ small {
 }
 
 .btn-signup {
-  width: 94%;
-  padding: 0.75rem;
+  width: 93%;
+  padding: 0.65rem;
+  margin-top: 0.95rem;
   background-color: #0000ff;
   color: white;
   border: none;

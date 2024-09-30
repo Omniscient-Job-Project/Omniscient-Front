@@ -4,7 +4,6 @@ import Section from "@/components/manager/userSection.vue";
 </script>
 
 <template>
-    <Sidebar />
     <div class="section">
       <Section />
     </div>

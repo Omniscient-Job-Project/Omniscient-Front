@@ -4,14 +4,16 @@
     <div class="mypage-container">
       <!-- 사이드바 시작 -->
       <div class="sidebar">
-    <ul>
-      <li v-for="item in menuItems" :key="item.name">
-        <router-link :to="{ name: item.name }" active-class="active">
-          <i :class="item.icon"></i> {{ item.label }}
-        </router-link>
-      </li>
-    </ul>
-  </div>
+        <ul>
+          <li v-for="item in menuItems" :key="item.name" 
+              @mouseover="onMouseOver(item.name)" 
+              @mouseleave="onMouseLeave">
+            <router-link :to="{ name: item.name }" :class="{ 'hover-effect': hoveredItem === item.name }">
+              <i :class="item.icon"></i> {{ item.label }}
+            </router-link>
+          </li>
+        </ul>
+      </div>
       <!-- 사이드바 끝 -->
 
       <!-- 메인 콘텐츠 영역 시작 -->
@@ -37,7 +39,18 @@ const menuItems = [
   { name: 'applicationsPage', label: '지원 현황', icon: 'fas fa-briefcase' },
   { name: 'scrapPage', label: '스크랩', icon: 'fas fa-bookmark' },
   { name: 'certificatesPage', label: '자격증 관리', icon: 'fas fa-certificate' },
+  { name: 'withdrawalPage', label: '회원 탈퇴', icon: 'fas fa-user-slash' }
 ];
+
+const hoveredItem = ref(null);
+
+const onMouseOver = (itemName) => {
+  hoveredItem.value = itemName;
+};
+
+const onMouseLeave = () => {
+  hoveredItem.value = null;
+};
 </script>
 
 <style scoped>
@@ -91,11 +104,14 @@ const menuItems = [
   text-decoration: none;
   padding: 10px;
   border-radius: 8px;
-  transition: background-color 0.3s, color 0.3s, transform 0.3s;
-  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.sidebar a:hover, .sidebar a.active {
+.sidebar a.active {
+  color: #007bff;
+}
+
+.sidebar a.hover-effect {
   background-color: #f0f0f0;
   color: #007bff;
   transform: translateX(5px);

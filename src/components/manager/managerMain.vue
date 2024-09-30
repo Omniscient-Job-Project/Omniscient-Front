@@ -83,40 +83,119 @@ import { useVisitorStore } from '@/stores/visitor';
 import { fetchTodayVisitorCount } from '@/assets/js/fetchTodayVisitorCount';
 import { fetchVisitorData } from '@/assets/js/fetchVisitorData';
 import { updateChart } from '@/assets/js/updateChart';
-import { fetchUserCount } from '@/assets/js/fetchUserCount';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const todayVisitorCount = ref(0);
 const visitorCount = ref([]);
 const visitorCountMonth = ref([]);
 const selectedRange = ref('daily');
-const users = ref([]);  // 초기화
+const users = ref([]);
 const userCount = ref(0);
 let chartInstance = ref(null);
 
 const visitorStore = useVisitorStore();
 
-const fetchUsers = async () => {
-  try {
-    const response = await axios.get('/api/v1/user'); 
-    users.value = response.data;
-  } catch (error) {
-    console.error('Error fetching user list:', error);
-  }
+// 사용자 목록 가져오기 (관리자 전용)
+const fetchAllUsersFromApi = async () => {
+    const token = localStorage.getItem('token'); // 토큰을 로컬 스토리지에서 가져옴
+
+    if (!token) {
+        console.error('토큰이 없습니다.');
+        return [];
+    }
+
+    try {
+        const response = await axios.get(`${API_URL}/api/v1/user`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        return response.data; // 응답 구조에 따라 조정
+    } catch (error) {
+        console.error('전체 사용자 목록 가져오기 오류:', error.response?.data || error.message);
+        return [];
+    }
+};
+
+// 현재 사용자 정보 가져오기 (일반 사용자)
+const fetchCurrentUserFromApi = async () => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        console.error('토큰이 없습니다.');
+        return null;
+    }
+
+    try {
+        const response = await axios.get(`${API_URL}/api/v1/user/me`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('현재 사용자 정보 가져오기 오류:', error.response?.data || error.message);
+        return null;
+    }
+};
+
+// 회원 수 가져오기
+const fetchUserCountFromApi = async () => {
+    const token = localStorage.getItem('token'); // 토큰을 로컬 스토리지에서 가져옴
+
+    try {
+        const response = await axios.get(`${API_URL}/api/v1/user/user-count`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('회원 수 가져오기 오류:', error);
+        return 0;
+    }
 };
 
 onMounted(async () => {
-  await visitorStore.trackVisitor();
-  await fetchTodayVisitorCount(todayVisitorCount);
-  await fetchVisitorData(selectedRange, visitorCount, visitorCountMonth, () => updateChart(selectedRange, visitorCount, visitorCountMonth, chartInstance));
-  await fetchUserCount(userCount);
-  await fetchUsers();
+  await visitorStore.trackVisitor();  // 방문자 추적
+
+  try {
+    todayVisitorCount.value = await fetchTodayVisitorCount();
+    
+    await fetchVisitorData(selectedRange, visitorCount, visitorCountMonth, updateChart);
+  
+    // 관리자 권한이 있을 경우 모든 사용자를 가져옴
+    const isAdmin = true;  // 임시로 관리자 권한 확인 (나중에 실제 권한 확인 로직 필요)
+    if (isAdmin) {
+      users.value = await fetchAllUsersFromApi();
+    } else {
+      const currentUser = await fetchCurrentUserFromApi();
+      if (currentUser) users.value = [currentUser];
+    }
+
+    userCount.value = await fetchUserCountFromApi();
+  } catch (error) {
+    console.error('Error during initialization:', error.message || error);
+  }
 });
 
-watch(selectedRange, async () => {
-  await fetchVisitorData(selectedRange, visitorCount, visitorCountMonth, () => updateChart(selectedRange, visitorCount, visitorCountMonth, chartInstance));
+
+
+watch(selectedRange, async (newValue) => {
+  try {
+    console.log('watch triggered, new selectedRange value:', newValue);
+    await fetchVisitorData(selectedRange, visitorCount, visitorCountMonth, updateChart);
+  } catch (error) {
+    console.error('Error in watch:', error);
+  }
 });
+
+
 </script>
+
+
 
 <style scoped>
 .card-icon {
@@ -124,21 +203,23 @@ watch(selectedRange, async () => {
 }
 
 .bg-purple {
-  background-color: #6f42c1;
+  background-color: #AFF6C3;
 }
 
 .card-body {
   overflow: auto;
+  background-color: #AFF6C3;
 }
 
 .card-body canvas {
   height: 400px !important; /* 차트의 고정 높이 줄이기 */
+  background-color: #AFF6C3;
 }
 
 .fixed-title {
   position: sticky;
   top: 0;
-  background-color: white;
+  background-color: #AFF6C3;
   z-index: 1;
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -156,7 +237,7 @@ watch(selectedRange, async () => {
 }
 
 .container {
-  margin-top: 60px; /* 헤더의 높이만큼 여백 추가 */
+  background-color: #AFF6C3;
 }
 
 .row {
@@ -204,6 +285,4 @@ watch(selectedRange, async () => {
     margin-left: 0; /* 사이드바가 전체 너비를 차지할 때 여백 제거 */
   }
 }
-
-
 </style>

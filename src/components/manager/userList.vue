@@ -1,41 +1,46 @@
 <template>
-      <h1 class="title">회원 목록</h1>
-      <div class="filter-container">
-        <div class="btn-group">
-          <button @click="filterRole(null)" :class="{'active': selectedRole === null}" class="btn">전체</button>
-          <button @click="filterRole('USER')" :class="{'active': selectedRole === 'USER'}" class="btn">회원</button>
-          <button @click="filterRole('ADMIN')" :class="{'active': selectedRole === 'ADMIN'}" class="btn">관리자</button>
-        </div>
-      </div>
-    <div class="table-container" v-if="users.length > 0"> <!-- 조건부 렌더링 추가 -->
-      <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">순번</th>
-            <th scope="col">회원 종류</th>
-            <th scope="col">아이디</th>
-            <th scope="col">이메일</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(user) in filteredUsers" :key="user.userId">
-            <td>{{ user.userId }}</td> <!-- 순번 -->
-            <td>{{ user.role }}</td> <!-- 회원 종류 -->
-            <td>{{ user.username }}</td> <!-- 아이디 -->
-            <td>{{ user.email }}</td> <!-- 이메일 -->
-          </tr>
-        </tbody>
-      </table>
+  <h1 class="title">회원 목록</h1>
+  <div class="filter-container">
+    <div class="btn-group">
+      <button @click="filterRole(null)" :class="{'active': selectedRole === null}" class="btn">전체</button>
+      <button @click="filterRole('USER')" :class="{'active': selectedRole === 'USER'}" class="btn">회원</button>
+      <button @click="filterRole('ADMIN')" :class="{'active': selectedRole === 'ADMIN'}" class="btn">관리자</button>
     </div>
-    <div v-else>
-      <p>회원 목록을 불러오는 중입니다...</p> <!-- 데이터 로딩 중일 때 표시할 메시지 -->
-    </div>
+  </div>
+  <div class="table-container" v-if="users.length > 0">
+    <table class="table table-striped table-bordered">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">순번</th>
+          <th scope="col">회원 종류</th>
+          <th scope="col">아이디</th>
+          <th scope="col">이메일</th>
+          <th scope="col">작업</th> <!-- 작업 버튼 추가 -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(user, index) in filteredUsers" :key="user.userId">
+          <td>{{ index + 1 }}</td> <!-- 오름차순 순번 -->
+          <td>{{ user.role }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <button @click="deleteUser(user.userId)" class="btn btn-danger">삭제</button> <!-- 삭제 버튼 -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div v-else>
+    <p>회원 목록을 불러오는 중입니다...</p>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
 const users = ref([]);
 const selectedRole = ref(null);
 
@@ -52,10 +57,19 @@ const filterRole = (role) => {
 
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('/http://localhost:8090/api/v1/user');
+    const response = await axios.get(`${API_URL}/api/v1/user`);
     users.value = response.data;
   } catch (error) {
     console.error('회원 목록을 가져오는 중 오류가 발생했습니다!', error);
+  }
+};
+
+const deleteUser = async (userId) => {
+  try {
+    await axios.delete(`${API_URL}/api/v1/user/${userId}`); // 삭제 API 호출
+    users.value = users.value.filter(user => user.userId !== userId); // 로컬 배열에서 삭제
+  } catch (error) {
+    console.error('사용자 삭제 중 오류가 발생했습니다!', error);
   }
 };
 
@@ -63,6 +77,7 @@ onMounted(() => {
   fetchUsers();
 });
 </script>
+
 
 
 
