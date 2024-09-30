@@ -6,29 +6,19 @@
         <div class="profile-left">
           <div class="profile-main">
             <div class="profile-image">
-              <img
-                :src="previewImage || profileImageUrl"
-                alt="프로필 이미지"
-                @click="triggerImageUpload"
-              />
-              <input
-                type="file"
-                ref="imageInput"
-                @change="handleImageUpload"
-                style="display: none"
-                accept="image/*"
-                id="profileImage"
-                multiple
-              />
-              <label
-                for="profileImage"
-                v-if="isEditing"
-                class="image-upload-prompt"
-              >
-                <i class="fas fa-camera"></i>
-                <span>이미지 변경 (최대 5MB)</span>
-              </label>
-            </div>
+      <img :src="profileImageUrl" alt="프로필 이미지" @click="triggerImageUpload" />
+      <input
+        type="file"
+        ref="imageInput"
+        @change="handleImageUpload"
+        style="display: none"
+        accept="image/*"
+      />
+      <label v-if="isEditing" class="image-upload-prompt">
+        <i class="fas fa-camera"></i>
+        <span>이미지 변경 (최대 5MB)</span>
+      </label>
+    </div>
 
             <div class="profile-details">
               <div class="profile-header" v-if="!isEditing">
@@ -184,7 +174,9 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 const PROFILE_API_URL = `${API_BASE_URL}/api/v1/profile`;
-// const FILE_UPLOAD_URL = `${API_BASE_URL}/api/v1/files/upload`;
+const token = ref(null);
+const FILE_UPLOAD_URL = `${API_BASE_URL}/api/v1/profile/upload`;
+const IMAGE_UPLOAD_URL = `${API_BASE_URL}/api/v1/ftp/upload`;
 
 const profile = reactive({
   id: null,
@@ -209,11 +201,53 @@ const profileImageUrl = computed(() => {
   if (previewImage.value) {
     return previewImage.value;
   } else if (profile.profileimageFileName) {
-    return `${PROFILE_API_URL}/${profile.id}/image?${new Date().getTime()}`; // 캐시 방지
+    const imageUrl = `${FILE_UPLOAD_URL}/images/${profile.id}?${new Date().getTime()}`; // 경로 수정
+    console.log("Generated Image URL:", imageUrl); // 추가된 로그
+    return imageUrl; // 캐시 방지
   } else {
     return "https://via.placeholder.com/150";
   }
 });
+// onMounted 훅을 사용하여 컴포넌트가 마운트될 때 토큰을 가져옵니다.
+onMounted(() => {
+  token.value = localStorage.getItem('token'); // 혹은 'accessToken' 사용
+});
+
+// 이미지 업로드 핸들러
+const handleImageUpload = async (event) => {
+  const file = event.target.files[0]; // 선택한 파일
+  if (file) {
+    const reader = new FileReader();
+
+    // 이미지 미리보기
+    reader.onload = (e) => {
+      previewImage.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);  // formData에 파일 추가
+
+      // axios로 이미지 업로드 요청
+      const response = await axios.post(FILE_UPLOAD_URL, formData, {
+        headers: {
+          Authorization: `Bearer ${token.value}`,  // 토큰 사용
+        },
+      });
+
+      // 서버로부터 업로드된 파일 경로를 응답받음
+      const uploadedImagePath = response.data.uploadedFilePath.trim();
+
+      // 프로필 데이터 업데이트
+      profile.profileimageFileName = uploadedImagePath; // 업로드된 이미지 파일 경로 추가
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error.response ? error.response.data : error.message);
+    }
+  }
+};
+
+
 
 const loadProfile = async () => {
   isLoading.value = true;
@@ -231,24 +265,26 @@ const loadProfile = async () => {
 };
 
 const uploadImage = async (file) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/v1/files/upload`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
+    const formData = new FormData();
+    formData.append("file", file);
 
-    return response.data.imageFileName || response.data.fileName;
+    const response = await axios.post(FILE_UPLOAD_URL, formData);
+
+    // 응답 구조 확인
+    if (response.data && response.data.uploadedFilePath) {
+      const uploadedImagePath = response.data.uploadedFilePath.trim();
+      console.log("업로드된 이미지 경로:", uploadedImagePath);
+      // 이미지 경로를 상태에 저장하는 로직 추가
+    } else {
+      throw new Error("응답 데이터에 uploadedFilePath가 없습니다.");
+    }
   } catch (error) {
-    console.error("이미지 업로드 실패:", error);
-    throw error;
+    console.error("이미지 업로드 실패:", error.message);
+    // 추가적인 오류 처리 로직
   }
 };
+
 const toggleEditMode = () => {
   isEditing.value = !isEditing.value;
 };
@@ -261,22 +297,14 @@ const removeCertificate = (index) => {
   profile.certificates.splice(index, 1);
 };
 
+// 이미지 업로드 트리거 (이미지 클릭 시 파일 선택)
 const triggerImageUpload = () => {
   if (isEditing.value) {
     imageInput.value.click();
   }
 };
 
-const handleImageUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewImage.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-};
+
 
 const showConfirmModal = () => {
   showSaveModal.value = true;
@@ -391,7 +419,7 @@ const closeDeactivateModal = () => {
 const confirmDeactivate = async () => {
   isLoading.value = true;
   try {
-    await axios.put(`${PROFILE_API_URL}/status/${profile.id}`);
+    await axios.put(`${PROFILE_API_URL}/status/${id}`);
     showDeactivateModal.value = false;
     alert("프로필이 성공적으로 비활성화되었습니다.");
   } catch (error) {
