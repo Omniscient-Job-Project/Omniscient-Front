@@ -31,98 +31,62 @@
       </h2>
       <div class="search-box">
         <div class="input-wrapper">
-          <input
-            type="text"
-            class="search-input-box"
-            placeholder="분야를 입력해주세요."
-            v-model="searchTerm"
-          />
-          <img
-            src="@/assets/img/search-icon.svg"
-            class="search-icon"
-            @click="handleSearch"
-            alt="검색 아이콘"
-          />
+          <input type="text" class="search-input-box" placeholder="분야를 입력해주세요." v-model="searchTerm" />
+          <img src="@/assets/img/search-icon.svg" class="search-icon" @click="handleSearch" alt="검색 아이콘" />
         </div>
       </div>
     </div>
 
-    <!-- 채용정보 카드 -->
-
-      <div class="recruitment-cards">
-        <div class="row">
-          <div v-for="job in paginatedJobs" :key="job.jobId" class="col-md-3">
-            <div class="card" @click="goToDetail(job.jobId)">
-              <div class="card-body">
-                <div class="bookmark-icon" @click.stop="toggleBookmark(job)">
-                  <i
-                    :class="[ 'fas', 'fa-bookmark', { bookmarked: isBookmarked(job.jobId) } ]"
-                  ></i>
-                </div>
-                <h5 class="card-title">{{ job.jobInfoTitle }}</h5>
-                <p class="card-text company">
-                  <i class="fas fa-building"></i> {{ job.jobCompanyName }}
-                </p>
-                <p class="card-text location">
-                  <i class="fas fa-map-marker-alt"></i> {{ job.jobLocation }}
-                </p>
-                <p class="card-text career">
-                  <i class="fas fa-briefcase"></i> {{ job.jobCareerCondition }}
-                </p>
-              </div>
-            </div>
+<!-- 채용정보 카드 -->
+<div class="recruitment-cards" v-if="selectedCategory == 'home'">
+  <div class="row">
+    <div v-for="job in paginatedJobs" :key="job.jobId" class="col-md-3">
+      <div class="card" @click="goToDetail(job.jobId)">
+        <div class="card-body">
+          <div class="bookmark-icon" @click.stop="toggleBookmark(job)">
+            <i :class="['fas', 'fa-bookmark', { bookmarked: isBookmarked(job.jobId) }]"></i>
           </div>
+          <h5 class="card-title">{{ job.jobInfoTitle }}</h5>
+          <p class="card-text company">
+            <i class="fas fa-building"></i> {{ job.jobCompanyName }}
+          </p>
+          <p class="card-text location">
+            <i class="fas fa-map-marker-alt"></i> {{ job.jobLocation }}
+          </p>
+          <p class="card-text career">
+            <i class="fas fa-briefcase"></i> {{ job.jobCareerCondition }}
+          </p>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
 
     <WomenJobs v-if="selectedCategory === 'womenJobs'" :jobs="paginatedJobs" />
-    <UniversityJob
-      v-if="selectedCategory === 'studentJobs'"
-      :jobs="paginatedJobs"
-    />
-    <ElderlyJobs
-      v-if="selectedCategory === 'elderlyJobs'"
-      :jobs="paginatedJobs"
-    />
-    <Employment
-      v-if="selectedCategory === 'employment'"
-      :jobs="paginatedJobs"
-    />
+    <UniversityJob v-if="selectedCategory === 'studentJobs'" :jobs="paginatedJobs" />
+    <ElderlyJobs v-if="selectedCategory === 'elderlyJobs'" :jobs="paginatedJobs" />
+    <Employment v-if="selectedCategory === 'employment'" :jobs="paginatedJobs" />
+
 
     <!-- 페이지네이션 -->
     <div class="pagination">
-      <button
-        @click="goToPage(1)"
-        :disabled="currentPage === 1"
-        class="page-btn"
-      >
+      <button @click="goToPage(1)" :disabled="currentPage === 1" class="page-btn">
         <i class="fas fa-angle-double-left"></i>
       </button>
       <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">
         <i class="fas fa-angle-left"></i>
       </button>
       <div class="page-numbers">
-        <button
-          v-for="pageNumber in displayedPageNumbers"
-          :key="pageNumber"
-          @click="goToPage(pageNumber)"
-          :class="['page-number', { active: currentPage === pageNumber }]"
-        >
+        <button v-for="pageNumber in displayedPageNumbers" :key="pageNumber" @click="goToPage(pageNumber)"
+          :class="['page-number', { active: currentPage === pageNumber }]">
           {{ pageNumber }}
         </button>
       </div>
-      <button
-        @click="nextPage"
-        :disabled="currentPage === totalPages"
-        class="page-btn"
-      >
+      <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn">
         <i class="fas fa-angle-right"></i>
       </button>
-      <button
-        @click="goToPage(totalPages)"
-        :disabled="currentPage === totalPages"
-        class="page-btn"
-      >
+      <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="page-btn">
         <i class="fas fa-angle-double-right"></i>
       </button>
     </div>
@@ -147,7 +111,7 @@ const jobs = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 16;
 const bookmarks = ref([]);
-const selectedCategory = ref("");
+const selectedCategory = ref("home");
 
 // 카테고리 라벨 설정
 const categoryLabel = computed(() => {
@@ -288,7 +252,7 @@ const selectCategory = (category) => {
 
 // 채용 상세 페이지로 이동하는 함수
 const goToDetail = (jobId) => {
-  router.push({ name: "jobDetail", params: { jobId } });
+  router.push({ name: "curationDetail", params: { id: jobId } });
 };
 
 // 페이지네이션 관련 계산
@@ -467,7 +431,8 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 1rem; /* 제목과 카드 사이의 간격을 위해 추가 */
+  margin-bottom: 1rem;
+  /* 제목과 카드 사이의 간격을 위해 추가 */
 }
 
 .search-box {
@@ -517,7 +482,8 @@ body {
   display: flex;
   flex-wrap: wrap;
   margin: -15px;
-  min-width: 800px; /* 원하는 최소 너비 설정 (예: 800px) */
+  min-width: 800px;
+  /* 원하는 최소 너비 설정 (예: 800px) */
 }
 
 .col-md-3 {
@@ -533,9 +499,12 @@ body {
   transition: all 0.3s ease;
   overflow: hidden;
   background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  display: flex; /* 카드 내부의 요소를 flexbox로 설정 */
-  flex-direction: column; /* 수직 정렬 */
-  height: 100%; /* 기본적으로 카드 높이를 100%로 설정 */
+  display: flex;
+  /* 카드 내부의 요소를 flexbox로 설정 */
+  flex-direction: column;
+  /* 수직 정렬 */
+  height: 100%;
+  /* 기본적으로 카드 높이를 100%로 설정 */
 }
 
 .card:hover {
@@ -594,9 +563,11 @@ body {
 .card-text.company i {
   color: #3498db;
 }
+
 .card-text.location i {
   color: #e74c3c;
 }
+
 .card-text.career i {
   color: #2ecc71;
 }
@@ -667,21 +638,25 @@ body {
 /* 카드가 2개 이하일 때의 스타일 조정 */
 @media (max-width: 768px) {
   .col-md-3 {
-    width: 100%; /* 작은 화면에서는 카드가 100% 너비를 차지하도록 설정 */
+    width: 100%;
+    /* 작은 화면에서는 카드가 100% 너비를 차지하도록 설정 */
   }
 
   /* 카드가 2개 이하일 때 높이를 고정 */
   .row:has(.col-md-3:only-child) .card,
   .row:has(.col-md-3:nth-child(-n + 2)) .card {
-    height: 300px; /* 원하는 고정 높이로 설정 */
+    height: 300px;
+    /* 원하는 고정 높이로 설정 */
   }
 
   .row:has(.col-md-3:only-child) {
-    justify-content: center; /* 중앙 정렬 */
+    justify-content: center;
+    /* 중앙 정렬 */
   }
 
   .row:has(.col-md-3:nth-child(-n + 2)) {
-    justify-content: center; /* 2개 이하일 때 중앙 정렬 */
+    justify-content: center;
+    /* 2개 이하일 때 중앙 정렬 */
   }
 }
 
