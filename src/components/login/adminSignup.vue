@@ -70,6 +70,7 @@
   import { useRouter } from 'vue-router';
   
   const API_URL = import.meta.env.VITE_API_URL;
+  console.log('API_URL:', API_URL); // 디버깅을 위해 추가
   const userId = ref('');
   const password = ref('');
   const username = ref('');
@@ -82,28 +83,22 @@
     }
   
     try {
-      const response = await axios.post(`${API_URL}/api/v1/signup/admin/signup`, {
-        userId: userId.value,
-        username: username.value,
-        password: password.value,
-      });
-  
-      if (response.status === 200) {
-        alert('관리자 계정이 성공적으로 생성되었습니다.');
-        router.push('/adminLogin');
-      }
-    } catch (error) {
-  
-  if (error.response) {
-    if (error.response.status === 400) {
-      alert('회원가입 실패: ' + (error.response.data || '입력 데이터가 올바르지 않습니다.'));
-    } else {
-      alert('서버 오류: ' + (error.response.data || '알 수 없는 오류가 발생했습니다.'));
-    }
-  } else if (error.request) {
-    alert('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+  const response = await axios.post(`${API_URL}/api/v1/signup/admin/signup`, {
+    userId: userId.value,
+    username: username.value,
+    password: password.value,
+  });
+
+  if (response.status === 200) {
+    alert('관리자 계정이 성공적으로 생성되었습니다.');
+    router.push('/adminLogin');
+  }
+} catch (error) {
+  if (error.response && error.response.status === 409) {
+    alert('이미 존재하는 아이디입니다. 다른 아이디를 선택해 주세요.');
+    userId.value = ''; // 입력 필드 초기화
   } else {
-    alert('오류가 발생했습니다: ' + error.message);
+    alert('회원가입 중 오류가 발생했습니다: ' + (error.response?.data || error.message));
   }
 }
   };

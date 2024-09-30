@@ -8,24 +8,24 @@
           <div class="auth-box">
             <form @submit.prevent="handleAdminLogin">
               <div class="form-floating mb-3">
-                <label for="adminId">관리자 ID</label>
+                <label for="userId">관리자 ID</label>
                 <input
                   type="text"
                   class="form-control"
-                  id="adminId"
-                  v-model="adminId"
+                  id="userId"
+                  v-model="userId"
                   placeholder="관리자 ID를 입력해주세요"
                   required
                   minlength="3"
                 />
               </div>
               <div class="form-floating">
-                <label for="adminPassword">패스워드</label>
+                <label for="password">패스워드</label>
                 <input
                   type="password"
                   class="form-control"
-                  id="adminPassword"
-                  v-model="adminPassword"
+                  id="password"
+                  v-model="password"
                   placeholder="패스워드를 입력해주세요"
                   required
                 />
@@ -59,7 +59,7 @@
   
   const handleAdminLogin = async () => {
   try {
-    console.log('관리자 로그인 시도:', userId.value);
+    console.log('관리자 로그인 시도 - 요청 데이터:', { userId: userId.value, password: '123456789' });
     const response = await axios.post(`${API_URL}/api/v1/login/admin/login`, {
       userId: userId.value,
       password: password.value,
