@@ -26,6 +26,7 @@
           <td>{{ user.email }}</td>
           <td>
             <button @click="deleteUser(user.userId)" class="btn btn-danger">삭제</button> <!-- 삭제 버튼 -->
+            <button @click="updateRole(user)" class="btn btn-primary">권한 변경</button> <!-- 권한 변경 버튼 -->
           </td>
         </tr>
       </tbody>
@@ -39,11 +40,94 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
+import { useAuthStore } from '@/stores/auth';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const users = ref([]);
 const selectedRole = ref(null);
+let changesToSubmit = ref([]);
 
+// Pinia store 가져오기
+const authStore = useAuthStore(); // Pinia 스토어의 useAuthStore 인스턴스 가져오기
+
+// 사용자 목록 불러오기
+const fetchUsers = async () => {
+  const token = authStore.token; // Pinia 스토어의 token 사용
+  if (!token) {
+    console.error("인증 토큰이 없습니다. 로그인 해주세요.");
+    return;
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/api/v1/user`, {
+      headers: {
+        Authorization: `Bearer ${token}` // 인증 헤더에 토큰 추가
+      }
+    });
+    users.value = response.data;
+  } catch (error) {
+    console.error('회원 목록을 가져오는 중 오류가 발생했습니다!', error);
+  }
+};
+
+// 사용자 삭제 함수
+const deleteUser = async (userId) => {
+  const token = authStore.token; // Pinia 스토어의 token 사용
+  if (!token) {
+    alert("인증 토큰이 없습니다. 로그인 해주세요.");
+    return;
+  }
+
+  try {
+    await axios.put(`${API_URL}/api/v1/user/delete/${userId}`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    // 삭제된 사용자를 목록에서 제거
+    users.value = users.value.filter(user => user.userId !== userId);
+    alert('사용자가 삭제되었습니다.');
+  } catch (error) {
+    if (error.response && error.response.status === 403) {
+      alert("권한이 없습니다. 관리자 계정으로 로그인 해주세요.");
+    } else {
+      console.error('사용자 삭제 실패:', error.response ? error.response.data : error.message);
+      alert('사용자 삭제 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    }
+  }
+};
+
+// 역할 업데이트 함수
+const updateRole = async (user) => {
+  const token = authStore.token; // Pinia 스토어의 token 사용
+  if (!token) {
+    alert("인증 토큰이 없습니다. 로그인 해주세요.");
+    return;
+  }
+
+  try {
+    await axios.put(`${API_URL}/api/v1/user/${user.userId}/role`, { role: user.role }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    alert('사용자 권한이 성공적으로 업데이트되었습니다.');
+  } catch (error) {
+    if (error.response && error.response.status === 403) {
+      alert("권한이 없습니다. 관리자 계정으로 로그인 해주세요.");
+    } else {
+      console.error('사용자 권한 업데이트 실패:', error.response ? error.response.data : error.message);
+      alert('사용자 권한 업데이트 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    }
+  }
+};
+
+// 역할에 따른 사용자 필터링
+const filterRole = (role) => {
+  selectedRole.value = role;
+};
+
+// 필터링된 사용자 목록
 const filteredUsers = computed(() => {
   if (selectedRole.value === null) {
     return users.value;
@@ -51,37 +135,15 @@ const filteredUsers = computed(() => {
   return users.value.filter(user => user.role === selectedRole.value);
 });
 
-const filterRole = (role) => {
-  selectedRole.value = role;
-};
-
-const fetchUsers = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/api/v1/user`);
-    users.value = response.data;
-  } catch (error) {
-    console.error('회원 목록을 가져오는 중 오류가 발생했습니다!', error);
-  }
-};
-
-const deleteUser = async (userId) => {
-  try {
-    await axios.delete(`${API_URL}/api/v1/user/${userId}`); // 삭제 API 호출
-    users.value = users.value.filter(user => user.userId !== userId); // 로컬 배열에서 삭제
-  } catch (error) {
-    console.error('사용자 삭제 중 오류가 발생했습니다!', error);
-  }
-};
-
+// 컴포넌트 마운트 시 사용자 목록 불러오기
 onMounted(() => {
   fetchUsers();
 });
 </script>
 
 
-
-
 <style scoped>
+/* 동일한 스타일 */
 body {
     font-family: Arial, sans-serif;
     margin: 0;

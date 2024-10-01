@@ -1,3 +1,97 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
+import { useAuthStore } from '@/stores/auth';
+
+const API_URL = import.meta.env.VITE_API_URL;
+const users = ref([]);
+const selectedRole = ref(null);
+let changesToSubmit = ref([]);
+
+// Pinia store 가져오기
+const authStore = useAuthStore(); // Pinia 스토어에서 authStore 인스턴스 가져옴
+
+// 사용자 목록 불러오기
+const fetchUsers = async () => {
+  const token = authStore.token; // Pinia 스토어의 token 사용
+  if (!token) {
+    console.error("인증 토큰이 없습니다. 로그인 해주세요.");
+    return;
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/api/v1/user`, {
+      headers: {
+        Authorization: `Bearer ${token}` // 인증 헤더에 토큰 추가
+      }
+    });
+    users.value = response.data;
+  } catch (error) {
+    console.error('회원 목록을 가져오는 중 오류가 발생했습니다!', error);
+  }
+};
+
+// 역할 업데이트 함수
+const updateRole = (user) => {
+  if (!changesToSubmit.value.includes(user)) {
+    changesToSubmit.value.push(user);
+  }
+};
+
+// 변경 사항 서버에 제출
+const submitChanges = async () => {
+  const token = authStore.token;
+  if (!token) {
+    alert("인증 토큰이 없습니다. 로그인 해주세요.");
+    return;
+  }
+
+  try {
+    const promises = changesToSubmit.value.map(user =>
+      axios.put(`${API_URL}/api/v1/user/${user.userId}/role`, 
+      { role: user.role }, // role을 요청 본문에 추가
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+    );
+    await Promise.all(promises);
+    alert('모든 사용자 정보가 성공적으로 업데이트되었습니다.');
+    changesToSubmit.value = [];
+  } catch (error) {
+    if (error.response && error.response.status === 403) {
+      alert("권한이 없습니다. 관리자 계정으로 로그인 해주세요.");
+    } else {
+      console.error('사용자 업데이트 실패:', error.response ? error.response.data : error.message);
+      alert('사용자 업데이트 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    }
+  }
+};
+
+
+
+// 역할에 따른 사용자 필터링
+const filterRole = (role) => {
+  selectedRole.value = role;
+};
+
+// 필터링된 사용자 목록
+const filteredUsers = computed(() => {
+  if (selectedRole.value === null) {
+    return users.value;
+  }
+  return users.value.filter(user => user.role === selectedRole.value);
+});
+
+// 컴포넌트 마운트 시 사용자 목록 불러오기
+onMounted(() => {
+  fetchUsers();
+});
+</script>
+
+
+
 <template>
   <div class="header-container mb-4">
     <h1 class="title">회원 권한 설정</h1>
@@ -30,7 +124,7 @@
             </select>
           </td>
           <td>{{ user.username }}</td>
-          <td>{{ user.email }}</td>
+          <td>{{ user.email }}</td>v
         </tr>
       </tbody>
     </table>
@@ -41,83 +135,7 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL;
-const users = ref([]);
-const selectedRole = ref(null);
-let changesToSubmit = ref([]); // 변경된 사용자의 목록을 저장
-
-const fetchUsers = async () => {
-  const token = localStorage.getItem('token');
-  try {
-    const response = await axios.get(`${API_URL}/api/v1/user`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    users.value = response.data;
-  } catch (error) {
-    console.error('회원 목록을 가져오는 중 오류가 발생했습니다!', error);
-  }
-};
-
-const updateRole = (user) => {
-  if (!changesToSubmit.value.includes(user)) {
-    changesToSubmit.value.push(user);
-  }
-};
-
-const submitChanges = async () => {
-  const token = localStorage.getItem('token');
-  
-  if (!token) {
-    alert("인증 토큰이 없습니다. 로그인 해주세요.");
-    return;
-  }
-
-  try {
-    const promises = changesToSubmit.value.map(user =>
-      axios.put(`${API_URL}/api/v1/user/${user.userId}`, user, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-    );
-    await Promise.all(promises);
-    alert('모든 사용자 정보가 성공적으로 업데이트되었습니다.');
-    changesToSubmit.value = [];
-  } catch (error) {
-    if (error.response && error.response.status === 403) {
-      alert("권한이 없습니다. 관리자 계정으로 로그인 해주세요.");
-    } else {
-      console.error('사용자 업데이트 실패:', error.response ? error.response.data : error.message);
-      alert('사용자 업데이트 중 오류가 발생했습니다. 다시 시도해 주세요.');
-    }
-  }
-};
-
-const filterRole = (role) => {
-  selectedRole.value = role;
-};
-
-const filteredUsers = computed(() => {
-  if (selectedRole.value === null) {
-    return users.value;
-  }
-  return users.value.filter(user => user.role === selectedRole.value);
-});
-
-onMounted(() => {
-  fetchUsers();
-});
-</script>
-
-
 <style scoped>
-/* 스타일은 동일 */
 .container {
   width: 80%;
   margin: 20px auto;
@@ -125,7 +143,7 @@ onMounted(() => {
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  border: 1px solid #ddd; 
+  border: 1px solid #ddd;
 }
 
 .header-container {

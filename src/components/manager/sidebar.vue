@@ -44,10 +44,10 @@
           <button class="menu-group-header">F&Q</button>
           <div class="submenu">
             <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/faqList">
-              F&Q목록
+              FAQ목록
             </router-link>
             <router-link class="list-group-item list-group-item-action sidebar-text" to="/manager/faqPost">
-              F&Q등록
+              FAQ등록
             </router-link>
           </div>
         </div>
