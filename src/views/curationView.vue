@@ -8,6 +8,7 @@ import Section from '@/components/curation/curationSection.vue'
 <template>
   <Header />
     <Section />
+    <!-- test -->
   <Footer />
 </template>
 
